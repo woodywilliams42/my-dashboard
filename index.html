@@ -5,23 +5,53 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Dashboard</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-bg: #f0f0f0;
+      --button-bg: #444;
+      --button-text: #ffffff;
+      --accent: #2a9d8f;
+      --border-color: #ccc;
+    }
+
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --card-bg: #1e1e1e;
+      --button-bg: #333;
+      --button-text: #ffffff;
+      --accent: #90caf9;
+      --border-color: #555;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: sans-serif;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
     nav button {
       margin: 5px;
       padding: 10px;
       border: none;
-      background: #444;
-      color: white;
+      background: var(--button-bg);
+      color: var(--button-text);
       cursor: pointer;
       border-radius: 5px;
     }
+
     nav button.active {
-      background: #2a9d8f;
+      background: var(--accent);
     }
+
     .tab {
       display: none;
       margin-top: 20px;
     }
+
     .tab.active {
       display: block;
     }
@@ -34,7 +64,7 @@
     }
 
     .clock-card {
-      background: #f0f0f0;
+      background: var(--card-bg);
       border-radius: 10px;
       padding: 15px;
       box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
@@ -44,32 +74,48 @@
     .clock-card h4 {
       margin: 0 0 5px;
       font-size: 1.1em;
-      color: #2a9d8f;
+      color: var(--accent);
     }
 
     .clock-card .time {
       font-size: 1.3em;
       font-weight: bold;
-      color: #333;
+      color: var(--text-color);
     }
 
     .notes-panel {
       margin-top: 20px;
       padding: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
+      background: var(--card-bg);
     }
 
     textarea {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .dark-toggle {
+      float: right;
+      margin: 10px;
     }
   </style>
 </head>
 <body>
 
 <h1>My Dashboard</h1>
+
+<div class="dark-toggle">
+  <label>
+    <input type="checkbox" id="darkModeToggle" />
+    Dark Mode
+  </label>
+</div>
 
 <nav>
   <button onclick="showTab('work')" class="active">Work</button>
@@ -153,11 +199,9 @@
     }
   }
 
-  // Load notes for all tabs
   const tabs = ["work", "personal", "secondjob", "charity"];
   tabs.forEach(loadNotes);
 
-  // Clock Logic
   const clocks = [
     { city: "Shanghai", timeZone: "Asia/Shanghai" },
     { city: "Chennai", timeZone: "Asia/Kolkata" },
@@ -187,7 +231,6 @@
   updateClocks();
   setInterval(updateClocks, 1000);
 
-  // Tab switching
   window.showTab = function(tabName) {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabName).classList.add('active');
@@ -196,6 +239,23 @@
     const activeButton = [...document.querySelectorAll('nav button')].find(btn => btn.textContent.toLowerCase().includes(tabName.toLowerCase()));
     if (activeButton) activeButton.classList.add('active');
   };
+
+  // Dark Mode Toggle Logic
+  const darkToggle = document.getElementById('darkModeToggle');
+  const prefersDark = localStorage.getItem('darkMode') === 'true';
+
+  function applyDarkMode(isDark) {
+    document.body.classList.toggle('dark', isDark);
+    darkToggle.checked = isDark;
+  }
+
+  applyDarkMode(prefersDark);
+
+  darkToggle.addEventListener('change', () => {
+    const isDark = darkToggle.checked;
+    localStorage.setItem('darkMode', isDark);
+    applyDarkMode(isDark);
+  });
 </script>
 
 </body>
