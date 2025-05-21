@@ -18,7 +18,319 @@
     body.dark {
       --bg-color: #121212;
       --text-color: #f0f0f0;
+      --card-bg: #<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Dashboard</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-bg: #f0f0f0;
+      --button-bg: #444;
+      --button-text: #ffffff;
+      --accent: #2a9d8f;
+      --border-color: #ccc;
+    }
+
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
       --card-bg: #1e1e1e;
+      --button-bg: #333;
+      --button-text: #ffffff;
+      --accent: #90caf9;
+      --border-color: #555;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: sans-serif;
+      padding: 20px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    nav button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      background: var(--button-bg);
+      color: var(--button-text);
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    nav button.active {
+      background: var(--accent);
+    }
+
+    .tab {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .tab.active {
+      display: block;
+    }
+
+    .clock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .clock-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .clock-card h4 {
+      margin: 0 0 5px;
+      font-size: 1.1em;
+      color: var(--accent);
+    }
+
+    .clock-card .time {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+
+    .notes-panel {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-bg);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .dark-toggle {
+      float: right;
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border-color);
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent);
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(26px);
+    }
+  </style>
+</head>
+<body>
+
+<h1>My Dashboard</h1>
+
+<div class="dark-toggle">
+  <label class="switch">
+    <input type="checkbox" id="darkModeToggle" />
+    <span class="slider"></span>
+  </label>
+  <span id="theme-label">🌞</span>
+</div>
+
+<nav>
+  <button onclick="showTab('work')" class="active">Work</button>
+  <button onclick="showTab('personal')">Personal</button>
+  <button onclick="showTab('secondjob')">ADI</button>
+  <button onclick="showTab('charity')">Charity</button>
+</nav>
+
+<div id="work" class="tab active">
+  <h2>Work</h2>
+
+  <h3>World Clocks</h3>
+  <div id="world-clocks" class="clock-grid"></div>
+
+  <div class="notes-panel">
+    <h3>Work Notes</h3>
+    <textarea id="notes-work" rows="6" placeholder="Work notes..."></textarea><br/>
+    <button onclick="saveNotes('work')">Save</button>
+    <span id="saveStatus-work"></span>
+  </div>
+</div>
+
+<div id="personal" class="tab">
+  <h2>Personal</h2>
+  <div class="notes-panel">
+    <h3>Personal Notes</h3>
+    <textarea id="notes-personal" rows="6" placeholder="Personal notes..."></textarea><br/>
+    <button onclick="saveNotes('personal')">Save</button>
+    <span id="saveStatus-personal"></span>
+  </div>
+</div>
+
+<div id="secondjob" class="tab">
+  <h2>ADI</h2>
+  <div class="notes-panel">
+    <h3>ADI Notes</h3>
+    <textarea id="notes-secondjob" rows="6" placeholder="ADI notes..."></textarea><br/>
+    <button onclick="saveNotes('secondjob')">Save</button>
+    <span id="saveStatus-secondjob"></span>
+  </div>
+</div>
+
+<div id="charity" class="tab">
+  <h2>Charity</h2>
+  <div class="notes-panel">
+    <h3>Charity Notes</h3>
+    <textarea id="notes-charity" rows="6" placeholder="Charity notes..."></textarea><br/>
+    <button onclick="saveNotes('charity')">Save</button>
+    <span id="saveStatus-charity"></span>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
+    authDomain: "woodydashboard.firebaseapp.com",
+    projectId: "woodydashboard",
+    storageBucket: "woodydashboard.firebasestorage.app",
+    messagingSenderId: "180582118415",
+    appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function saveNotes(tab) {
+    const content = document.getElementById(`notes-${tab}`).value;
+    await setDoc(doc(db, "dashboardNotes", tab), { content });
+    document.getElementById(`saveStatus-${tab}`).textContent = "✔ Saved!";
+    setTimeout(() => document.getElementById(`saveStatus-${tab}`).textContent = "", 2000);
+  }
+
+  async function loadNotes(tab) {
+    const snap = await getDoc(doc(db, "dashboardNotes", tab));
+    if (snap.exists()) {
+      document.getElementById(`notes-${tab}`).value = snap.data().content;
+    }
+  }
+
+  const tabs = ["work", "personal", "secondjob", "charity"];
+  tabs.forEach(loadNotes);
+
+  const clocks = [
+    { city: "Shanghai", timeZone: "Asia/Shanghai" },
+    { city: "Chennai", timeZone: "Asia/Kolkata" },
+    { city: "London", timeZone: "Europe/London" },
+    { city: "New York", timeZone: "America/New_York" },
+    { city: "Dallas", timeZone: "America/Chicago" },
+    { city: "Honolulu", timeZone: "Pacific/Honolulu" }
+  ];
+
+  function updateClocks() {
+    const container = document.getElementById("world-clocks");
+    container.innerHTML = clocks.map(({ city, timeZone }) => {
+      const now = new Date().toLocaleTimeString("en-US", {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      return `
+        <div class="clock-card">
+          <h4>${city}</h4>
+          <div class="time">${now}</div>
+        </div>`;
+    }).join("");
+  }
+
+  updateClocks();
+  setInterval(updateClocks, 1000);
+
+  window.showTab = function(tabName) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+
+    document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+    const activeButton = [...document.querySelectorAll('nav button')].find(btn => btn.textContent.toLowerCase().includes(tabName.toLowerCase()));
+    if (activeButton) activeButton.classList.add('active');
+  };
+
+  // Dark Mode Toggle Logic
+  const darkToggle = document.getElementById('darkModeToggle');
+  const prefersDark = localStorage.getItem('darkMode') === 'true';
+
+  function applyDarkMode(isDark) {
+    document.body.classList.toggle('dark', isDark);
+    darkToggle.checked = isDark;
+    document.getElementById('theme-label').textContent = isDark ? '🌙' : '🌞';
+  }
+
+  applyDarkMode(prefersDark);
+
+  darkToggle.addEventListener('change', () => {
+    const isDark = darkToggle.checked;
+    localStorage.setItem('darkMode', isDark);
+    applyDarkMode(isDark);
+  });
+</script>
+
+</body>
+</html>
+1e1e1e;
       --button-bg: #333;
       --button-text: #ffffff;
       --accent: #90caf9;
