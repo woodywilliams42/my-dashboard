@@ -40,7 +40,37 @@
     <h2>Work</h2>
     <p>Stuff related to my main job...
 <h3>World Clocks</h3>
-<div id="world-clocks"></div>
+<div id="world-clocks" class="clock-grid"></div>
+
+<style>
+  .clock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+  }
+
+  .clock-card {
+    background: #f0f0f0;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+    text-align: center;
+    font-family: sans-serif;
+  }
+
+  .clock-card h4 {
+    margin: 0 0 5px;
+    font-size: 1.1em;
+    color: #2a9d8f;
+  }
+
+  .clock-card .time {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #333;
+  }
+</style>
 
 <script>
   const clocks = [
@@ -61,37 +91,18 @@
         minute: '2-digit',
         second: '2-digit'
       });
-      return `<div><strong>${city}</strong>: ${now}</div>`;
+      return `
+        <div class="clock-card">
+          <h4>${city}</h4>
+          <div class="time">${now}</div>
+        </div>`;
     }).join("");
   }
 
   updateClocks();
-  setInterval(updateClocks, 1000); // updates every second
+  setInterval(updateClocks, 1000);
 </script>
 
-</p>
-  </div>
-  <div id="personal" class="tab">
-    <h2>Personal</h2>
-    <p>Personal notes, reminders, etc.</p>
-  </div>
-  <div id="secondjob" class="tab">
-    <h2>Second Job</h2>
-    <p>ADI matters</p>
-  </div>
-  <div id="charity" class="tab">
-    <h2>Charity</h2>
-    <p>Volunteering notes and schedules.</p>
-  </div>
-
-  <script>
-    function showTab(tabId) {
-      document.querySelectorAll('.tab').forEach(div => div.classList.remove('active'));
-      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(tabId).classList.add('active');
-      event.target.classList.add('active');
-    }
-  </script>
 
 </body>
 </html>
