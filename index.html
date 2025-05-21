@@ -2,134 +2,205 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Dashboard</title>
   <style>
-    body { font-family: sans-serif; }
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+
+    nav {
+      margin-bottom: 20px;
+    }
+
     nav button {
       margin: 5px;
-      padding: 10px;
+      padding: 10px 15px;
       border: none;
       background: #444;
       color: white;
       cursor: pointer;
+      border-radius: 5px;
     }
+
     nav button.active {
       background: #2a9d8f;
     }
+
     .tab {
       display: none;
-      margin-top: 20px;
     }
+
     .tab.active {
       display: block;
+    }
+
+    .clock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .clock-card {
+      background: #f0f0f0;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .clock-card h4 {
+      margin: 0 0 5px;
+      font-size: 1.1em;
+      color: #2a9d8f;
+    }
+
+    .clock-card .time {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: #333;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 8px;
+      font-family: sans-serif;
+    }
+
+    .notes-panel {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
 
   <h1>My Dashboard</h1>
+
   <nav>
     <button onclick="showTab('work')" class="active">Work</button>
     <button onclick="showTab('personal')">Personal</button>
     <button onclick="showTab('secondjob')">ADI</button>
-    <button onclick="showTab('Table/41')">Charity</button>
+    <button onclick="showTab('charity')">Charity</button>
   </nav>
 
+  <!-- Work Tab -->
   <div id="work" class="tab active">
     <h2>Work</h2>
-    <p>Stuff related to my main job...
-<h3>World Clocks</h3>
-<div id="world-clocks" class="clock-grid"></div>
+    <p>Stuff related to my main job...</p>
 
-<style>
-  .clock-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 15px;
-    margin-top: 10px;
-  }
+    <h3>World Clocks</h3>
+    <div id="world-clocks" class="clock-grid"></div>
 
-  .clock-card {
-    background: #f0f0f0;
-    border-radius: 10px;
-    padding: 15px;
-    box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-    text-align: center;
-    font-family: sans-serif;
-  }
+    <div class="notes-panel">
+      <h3>My Notes</h3>
+      <textarea id="notesArea" rows="8" placeholder="Type your notes here..."></textarea>
+      <br/>
+      <button onclick="saveNotes()">Save Notes</button>
+      <span id="saveStatus" style="margin-left: 10px; color: green;"></span>
+    </div>
+  </div>
 
-  .clock-card h4 {
-    margin: 0 0 5px;
-    font-size: 1.1em;
-    color: #2a9d8f;
-  }
+  <!-- Personal Tab -->
+  <div id="personal" class="tab">
+    <h2>Personal</h2>
+    <p>Your personal notes or widgets will go here.</p>
+  </div>
 
-  .clock-card .time {
-    font-size: 1.3em;
-    font-weight: bold;
-    color: #333;
-  }
-</style>
+  <!-- Second Job Tab -->
+  <div id="secondjob" class="tab">
+    <h2>ADI</h2>
+    <p>Second job content here.</p>
+  </div>
 
-<script>
-  const clocks = [
-    { city: "Shanghai", timeZone: "Asia/Shanghai" },
-    { city: "Chennai", timeZone: "Asia/Kolkata" },
-    { city: "London", timeZone: "Europe/London" },
-    { city: "New York", timeZone: "America/New_York" },
-    { city: "Dallas", timeZone: "America/Chicago" },
-    { city: "Honolulu", timeZone: "Pacific/Honolulu" }
-  ];
+  <!-- Charity Tab -->
+  <div id="charity" class="tab">
+    <h2>Charity</h2>
+    <p>Information about charity work.</p>
+  </div>
 
-  function updateClocks() {
-    const container = document.getElementById("world-clocks");
-    container.innerHTML = clocks.map(({ city, timeZone }) => {
-      const now = new Date().toLocaleTimeString("en-US", {
-        timeZone,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      return `
-        <div class="clock-card">
-          <h4>${city}</h4>
-          <div class="time">${now}</div>
-        </div>`;
-    }).join("");
-  }
+  <script>
+    // --- Clocks ---
+    const clocks = [
+      { city: "Shanghai", timeZone: "Asia/Shanghai" },
+      { city: "Chennai", timeZone: "Asia/Kolkata" },
+      { city: "London", timeZone: "Europe/London" },
+      { city: "New York", timeZone: "America/New_York" },
+      { city: "Dallas", timeZone: "America/Chicago" },
+      { city: "Honolulu", timeZone: "Pacific/Honolulu" }
+    ];
 
-  updateClocks();
-  setInterval(updateClocks, 1000);
-</script>
-
-  </p>
-    <p>
-      <div style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
-  <h3>My Notes</h3>
-  <textarea id="notesArea" placeholder="Type your notes here..." rows="8" style="width: 100%; padding: 8px;"></textarea>
-  <button onclick="saveNotes()" style="margin-top: 10px;">Save Notes</button>
-  <span id="saveStatus" style="margin-left: 10px; color: green;"></span>
-      </div>
-    <script>
-  const notesKey = 'myDashboardNotes';
-
-  function saveNotes() {
-    const notes = document.getElementById('notesArea').value;
-    localStorage.setItem(notesKey, notes);
-    document.getElementById('saveStatus').textContent = "✔ Saved!";
-    setTimeout(() => document.getElementById('saveStatus').textContent = "", 2000);
-  }
-
-  function loadNotes() {
-    const saved = localStorage.getItem(notesKey);
-    if (saved !== null) {
-      document.getElementById('notesArea').value = saved;
+    function updateClocks() {
+      const container = document.getElementById("world-clocks");
+      container.innerHTML = clocks.map(({ city, timeZone }) => {
+        const now = new Date().toLocaleTimeString("en-US", {
+          timeZone,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        return `
+          <div class="clock-card">
+            <h4>${city}</h4>
+            <div class="time">${now}</div>
+          </div>`;
+      }).join("");
     }
-  }
 
-  window.onload = loadNotes;
-</script>
-    </p>
+    setInterval(updateClocks, 1000);
+    window.addEventListener("DOMContentLoaded", updateClocks);
+
+    // --- Notes ---
+    const notesKey = 'myDashboardNotes';
+
+    function saveNotes() {
+      const notes = document.getElementById('notesArea').value;
+      localStorage.setItem(notesKey, notes);
+      document.getElementById('saveStatus').textContent = "✔ Saved!";
+      setTimeout(() => document.getElementById('saveStatus').textContent = "", 2000);
+    }
+
+    function loadNotes() {
+      const saved = localStorage.getItem(notesKey);
+      if (saved !== null) {
+        document.getElementById('notesArea').value = saved;
+      }
+    }
+
+    // --- Tabs ---
+    function showTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+
+      // Remove active class from all buttons
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+
+      // Show selected tab
+      const selectedTab = document.getElementById(tabId);
+      if (selectedTab) {
+        selectedTab.classList.add('active');
+      }
+
+      // Highlight selected button
+      document.querySelectorAll('nav button').forEach(btn => {
+        if (btn.getAttribute('onclick')?.includes(tabId)) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Save tab selection
+      localStorage.setItem('lastTab', tabId);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadNotes();
+      const lastTab = localStorage.getItem('lastTab') || 'work';
+      showTab(lastTab);
+    });
+  </script>
 </body>
 </html>
