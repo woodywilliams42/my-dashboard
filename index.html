@@ -38,7 +38,38 @@
 
   <div id="work" class="tab active">
     <h2>Work</h2>
-    <p>Stuff related to my main job...</p>
+    <p>Stuff related to my main job...
+<h3>World Clocks</h3>
+<div id="world-clocks"></div>
+
+<script>
+  const clocks = [
+    { city: "Shanghai", timeZone: "Asia/Shanghai" },
+    { city: "Chennai", timeZone: "Asia/Kolkata" },
+    { city: "London", timeZone: "Europe/London" },
+    { city: "New York", timeZone: "America/New_York" },
+    { city: "Dallas", timeZone: "America/Chicago" },
+    { city: "Honolulu", timeZone: "Pacific/Honolulu" }
+  ];
+
+  function updateClocks() {
+    const container = document.getElementById("world-clocks");
+    container.innerHTML = clocks.map(({ city, timeZone }) => {
+      const now = new Date().toLocaleTimeString("en-US", {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      return `<div><strong>${city}</strong>: ${now}</div>`;
+    }).join("");
+  }
+
+  updateClocks();
+  setInterval(updateClocks, 1000); // updates every second
+</script>
+
+</p>
   </div>
   <div id="personal" class="tab">
     <h2>Personal</h2>
