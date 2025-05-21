@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Dashboard</title>
+  <style>
+    body { font-family: sans-serif; }
+    nav button {
+      margin: 5px;
+      padding: 10px;
+      border: none;
+      background: #444;
+      color: white;
+      cursor: pointer;
+    }
+    nav button.active {
+      background: #2a9d8f;
+    }
+    .tab {
+      display: none;
+      margin-top: 20px;
+    }
+    .tab.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>My Dashboard</h1>
+  <nav>
+    <button onclick="showTab('work')" class="active">Work</button>
+    <button onclick="showTab('personal')">Personal</button>
+    <button onclick="showTab('secondjob')">Second Job</button>
+    <button onclick="showTab('charity')">Charity</button>
+  </nav>
+
+  <div id="work" class="tab active">
+    <h2>Work</h2>
+    <p>Stuff related to my main job...</p>
+  </div>
+  <div id="personal" class="tab">
+    <h2>Personal</h2>
+    <p>Personal notes, reminders, etc.</p>
+  </div>
+  <div id="secondjob" class="tab">
+    <h2>Second Job</h2>
+    <p>Freelance, side hustle info...</p>
+  </div>
+  <div id="charity" class="tab">
+    <h2>Charity</h2>
+    <p>Volunteering notes and schedules.</p>
+  </div>
+
+  <script>
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(div => div.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.target.classList.add('active');
+    }
+  </script>
+
+</body>
+</html>
