@@ -104,5 +104,32 @@
 </script>
 
   </p>
+    <p>
+      <div style="margin-top: 20px; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+  <h3>My Notes</h3>
+  <textarea id="notesArea" placeholder="Type your notes here..." rows="8" style="width: 100%; padding: 8px;"></textarea>
+  <button onclick="saveNotes()" style="margin-top: 10px;">Save Notes</button>
+  <span id="saveStatus" style="margin-left: 10px; color: green;"></span>
+      </div>
+    <script>
+  const notesKey = 'myDashboardNotes';
+
+  function saveNotes() {
+    const notes = document.getElementById('notesArea').value;
+    localStorage.setItem(notesKey, notes);
+    document.getElementById('saveStatus').textContent = "✔ Saved!";
+    setTimeout(() => document.getElementById('saveStatus').textContent = "", 2000);
+  }
+
+  function loadNotes() {
+    const saved = localStorage.getItem(notesKey);
+    if (saved !== null) {
+      document.getElementById('notesArea').value = saved;
+    }
+  }
+
+  window.onload = loadNotes;
+</script>
+    </p>
 </body>
 </html>
