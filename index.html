@@ -108,6 +108,14 @@
       border: 1px solid var(--border-color);
     }
 
+    span[id^="saveStatus-"] {
+      margin-left: 10px;
+      font-weight: bold;
+      color: limegreen;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
     .dark-toggle {
       float: right;
       margin: 10px;
@@ -242,22 +250,34 @@
 
   async function saveNotes(tab) {
     const content = document.getElementById(`notes-${tab}`).value;
+    const statusEl = document.getElementById(`saveStatus-${tab}`);
     try {
       await setDoc(doc(db, "dashboardNotes", tab), { content });
-      document.getElementById(`saveStatus-${tab}`).textContent = "✔ Saved!";
+      console.log(`[SAVED] ${tab}:`, content);
+      statusEl.textContent = "✔ Saved!";
+      statusEl.style.opacity = 1;
     } catch (err) {
       console.error("Error saving notes:", err);
-      document.getElementById(`saveStatus-${tab}`).textContent = "❌ Save failed!";
+      statusEl.textContent = "❌ Save failed!";
+      statusEl.style.opacity = 1;
     }
     setTimeout(() => {
-      document.getElementById(`saveStatus-${tab}`).textContent = "";
+      statusEl.style.opacity = 0;
     }, 2000);
   }
 
   async function loadNotes(tab) {
-    const snap = await getDoc(doc(db, "dashboardNotes", tab));
-    if (snap.exists()) {
-      document.getElementById(`notes-${tab}`).value = snap.data().content;
+    try {
+      const snap = await getDoc(doc(db, "dashboardNotes", tab));
+      if (snap.exists()) {
+        const data = snap.data();
+        console.log(`[LOADED] ${tab}:`, data.content);
+        document.getElementById(`notes-${tab}`).value = data.content;
+      } else {
+        console.log(`[LOADED] ${tab}: No data found`);
+      }
+    } catch (err) {
+      console.error(`Error loading notes for ${tab}:`, err);
     }
   }
 
