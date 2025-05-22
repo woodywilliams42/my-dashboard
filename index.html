@@ -30,7 +30,7 @@
       color: var(--text-color);
       font-family: sans-serif;
       padding: 20px;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.4s ease, color 0.4s ease;
     }
 
     nav {
@@ -242,9 +242,16 @@
 
   async function saveNotes(tab) {
     const content = document.getElementById(`notes-${tab}`).value;
-    await setDoc(doc(db, "dashboardNotes", tab), { content });
-    document.getElementById(`saveStatus-${tab}`).textContent = "✔ Saved!";
-    setTimeout(() => document.getElementById(`saveStatus-${tab}`).textContent = "", 2000);
+    try {
+      await setDoc(doc(db, "dashboardNotes", tab), { content });
+      document.getElementById(`saveStatus-${tab}`).textContent = "✔ Saved!";
+    } catch (err) {
+      console.error("Error saving notes:", err);
+      document.getElementById(`saveStatus-${tab}`).textContent = "❌ Save failed!";
+    }
+    setTimeout(() => {
+      document.getElementById(`saveStatus-${tab}`).textContent = "";
+    }, 2000);
   }
 
   async function loadNotes(tab) {
@@ -284,7 +291,6 @@
   setInterval(updateClocks, 1000);
   updateClocks();
 
-  // Tab switching
   document.querySelectorAll("nav button").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.tab;
@@ -296,10 +302,8 @@
     });
   });
 
-  // Dark mode
   const darkToggle = document.getElementById("darkModeToggle");
   const themeLabel = document.getElementById("theme-label");
-  const prefersDark = localStorage.getItem("darkMode") === "true";
 
   function applyDarkMode(isDark) {
     document.body.classList.toggle("dark", isDark);
@@ -307,11 +311,11 @@
     themeLabel.textContent = isDark ? "🌙" : "🌞";
   }
 
-  applyDarkMode(prefersDark);
+  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyDarkMode(systemPrefersDark);
 
   darkToggle.addEventListener("change", () => {
     const isDark = darkToggle.checked;
-    localStorage.setItem("darkMode", isDark);
     applyDarkMode(isDark);
   });
 </script>
