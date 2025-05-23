@@ -331,13 +331,26 @@
     themeLabel.textContent = isDark ? "🌙" : "🌞";
   }
 
-  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  applyDarkMode(systemPrefersDark);
+function applyDarkMode(isDark) {
+  document.body.classList.toggle("dark", isDark);
+  darkToggle.checked = isDark;
+  themeLabel.textContent = isDark ? "🌙" : "🌞";
+}
 
-  darkToggle.addEventListener("change", () => {
-    const isDark = darkToggle.checked;
-    applyDarkMode(isDark);
-  });
+// Load from localStorage or use system preference
+const savedPreference = localStorage.getItem("theme");
+const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+const isDarkMode = savedPreference === "dark" || (savedPreference === null && systemPrefersDark);
+applyDarkMode(isDarkMode);
+
+// Toggle and save to localStorage
+darkToggle.addEventListener("change", () => {
+  const isDark = darkToggle.checked;
+  applyDarkMode(isDark);
+  localStorage.setItem("theme", isDark ? "dark" : "light");
+});
+
 </script>
 
 </body>
