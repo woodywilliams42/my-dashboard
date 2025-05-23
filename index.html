@@ -106,6 +106,103 @@
     .modal input {
       width: 100%;
       margin-bottom: 10px;
+      padding: 6px;
+      box-sizing: border-box;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    .dark-toggle {
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25em;
+    }
+
+    .notes-panel {
+      background-color: var(--card-bg);
+      padding: 15px;
+      margin-top: 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .notes-panel textarea {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 5px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 1em;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 5px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .clock-container {
+      display: flex;
+      gap: 15px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .clock-box {
+      padding: 10px 15px;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      min-width: 100px;
+      text-align: center;
+      user-select: none;
     }
   </style>
 </head>
@@ -160,6 +257,14 @@
   let currentEditTab = "";
   let currentEditIndex = 0;
 
+  const cities = [
+    { name: "London", offset: 0 },
+    { name: "New York", offset: -4 },
+    { name: "Tokyo", offset: 9 },
+    { name: "Sydney", offset: 10 }
+  ];
+
+  // Build tabs and their content
   tabs.forEach(tab => {
     const tabDiv = document.createElement("div");
     tabDiv.id = tab;
@@ -169,11 +274,26 @@
     h2.textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
     tabDiv.appendChild(h2);
 
+    // Link buttons container
     const linkButtonsDiv = document.createElement("div");
     linkButtonsDiv.className = "link-buttons";
     linkButtonsDiv.id = `links-${tab}`;
     tabDiv.appendChild(linkButtonsDiv);
 
+    // Add clocks only on the Work tab, between links and notes
+    if (tab === 'work') {
+      const clockContainer = document.createElement("div");
+      clockContainer.className = "clock-container";
+      cities.forEach(city => {
+        const clockBox = document.createElement("div");
+        clockBox.className = "clock-box";
+        clockBox.innerHTML = `<strong>${city.name}</strong><div id="clock-${city.name}"></div>`;
+        clockContainer.appendChild(clockBox);
+      });
+      tabDiv.appendChild(clockContainer);
+    }
+
+    // Notes panel
     const notesPanel = document.createElement("div");
     notesPanel.className = "notes-panel";
     notesPanel.innerHTML = `<h3>${tab.charAt(0).toUpperCase() + tab.slice(1)} Notes</h3>
@@ -185,6 +305,20 @@
     tabsContainer.appendChild(tabDiv);
   });
 
+  // Clock update function
+  function updateClocks() {
+    const now = new Date();
+    cities.forEach(city => {
+      const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+      const cityTime = new Date(utc + (3600000 * city.offset));
+      const clock = document.getElementById(`clock-${city.name}`);
+      if (clock) clock.textContent = cityTime.toLocaleTimeString();
+    });
+  }
+  setInterval(updateClocks, 1000);
+  updateClocks();
+
+  // Tab navigation
   document.querySelectorAll("nav button").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.tab;
@@ -195,22 +329,41 @@
     });
   });
 
+  // Dark mode toggle
+  const darkModeToggle = document.getElementById("darkModeToggle");
+  const themeLabel = document.getElementById("theme-label");
+
+  darkModeToggle.addEventListener("change", () => {
+    document.body.classList.toggle("dark", darkModeToggle.checked);
+    themeLabel.textContent = darkModeToggle.checked ? "🌙" : "🌞";
+  });
+
+  // Link modal and editing
   const linkModal = document.getElementById("linkModal");
   const modalTitle = document.getElementById("modalTitle");
   const modalURL = document.getElementById("modalURL");
   document.getElementById("saveLink").addEventListener("click", async () => {
-    const title = modalTitle.value;
-    const url = modalURL.value;
-    const docRef = doc(db, "dashboardLinks", currentEditTab);
-    const docSnap = await getDoc(docRef);
-    let links = Array(8).fill(null);
-    if (docSnap.exists()) {
-      links = docSnap.data().links;
+    const title = modalTitle.value.trim();
+    const url = modalURL.value.trim();
+    if (!title || !url) {
+      alert("Please provide both a title and a URL.");
+      return;
     }
-    links[currentEditIndex] = { title, url };
-    await setDoc(docRef, { links });
-    loadLinks(currentEditTab);
-    closeModal();
+    try {
+      const docRef = doc(db, "dashboardLinks", currentEditTab);
+      const docSnap = await getDoc(docRef);
+      let links = Array(8).fill(null);
+      if (docSnap.exists()) {
+        links = docSnap.data().links;
+      }
+      links[currentEditIndex] = { title, url };
+      await setDoc(docRef, { links });
+      await loadLinks(currentEditTab);
+      closeModal();
+    } catch (err) {
+      console.error("Error saving link:", err);
+      alert("Failed to save link.");
+    }
   });
 
   function openModal(tab, index) {
@@ -226,25 +379,32 @@
   }
   window.closeModal = closeModal;
 
+  // Load links from Firebase and create buttons
   async function loadLinks(tab) {
-    const docSnap = await getDoc(doc(db, "dashboardLinks", tab));
-    const links = docSnap.exists() ? docSnap.data().links : Array(8).fill(null);
-    const container = document.getElementById(`links-${tab}`);
-    container.innerHTML = "";
-    links.forEach((link, i) => {
-      const btn = document.createElement("button");
-      btn.className = "link-button";
-      btn.innerHTML = link ? "🔗" : "+";
-      btn.title = link?.title || "Add link";
-      btn.onclick = () => link ? window.open(link.url, '_blank') : openModal(tab, i);
-      container.appendChild(btn);
-    });
+    try {
+      const docSnap = await getDoc(doc(db, "dashboardLinks", tab));
+      const links = docSnap.exists() ? docSnap.data().links : Array(8).fill(null);
+      const container = document.getElementById(`links-${tab}`);
+      container.innerHTML = "";
+      links.forEach((link, i) => {
+        const btn = document.createElement("button");
+        btn.className = "link-button";
+        btn.innerHTML = link ? "🔗" : "+";
+        btn.title = link?.title || "Add link";
+        btn.onclick = () => link ? window.open(link.url, '_blank') : openModal(tab, i);
+        container.appendChild(btn);
+      });
+    } catch (err) {
+      console.error(`Error loading links for ${tab}:`, err);
+    }
   }
 
+  // Load all links initially
   tabs.forEach(tab => {
     loadLinks(tab);
   });
 
+  // Save notes function
   async function saveNotes(tab) {
     const content = document.getElementById(`notes-${tab}`).value;
     const statusEl = document.getElementById(`saveStatus-${tab}`);
@@ -263,6 +423,7 @@
   }
   window.saveNotes = saveNotes;
 
+  // Load notes from Firebase on startup
   tabs.forEach(async tab => {
     try {
       const snap = await getDoc(doc(db, "dashboardNotes", tab));
