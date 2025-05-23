@@ -64,116 +64,54 @@
       margin-top: 20px;
     }
 
-    .clock-grid {
+    .link-buttons {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+      gap: 10px;
       margin-top: 10px;
     }
 
-    .clock-card {
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .clock-card h4 {
-      margin: 0 0 5px;
-      font-size: 1.1em;
-      color: var(--accent);
-    }
-
-    .clock-card .time {
-      font-size: 1.3em;
-      font-weight: bold;
-      color: var(--text-color);
-    }
-
-    .notes-panel {
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid var(--border-color);
+    .link-button {
+      width: 60px;
+      height: 60px;
+      border: none;
       border-radius: 8px;
-      background: var(--card-bg);
-    }
-
-    textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      background: var(--bg-color);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-    }
-
-    span[id^="saveStatus-"] {
-      margin-left: 10px;
-      font-weight: bold;
-      color: limegreen;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .dark-toggle {
-      float: right;
-      margin: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 24px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      font-size: 1.5em;
       cursor: pointer;
-      top: 0;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: var(--border-color);
-      transition: 0.4s;
-      border-radius: 34px;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
     }
 
-    .slider::before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
+    .modal-content {
+      background-color: var(--card-bg);
+      margin: 10% auto;
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      width: 300px;
+      border-radius: 10px;
     }
 
-    input:checked + .slider {
-      background-color: var(--accent);
-    }
-
-    input:checked + .slider::before {
-      transform: translateX(26px);
+    .modal input {
+      width: 100%;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
 
 <h1>My Dashboard</h1>
-
 <div class="dark-toggle">
   <label class="switch">
     <input type="checkbox" id="darkModeToggle" />
@@ -189,46 +127,15 @@
   <button data-tab="charity">Charity</button>
 </nav>
 
-<div id="work" class="tab active">
-  <h2>Work</h2>
-  <h3>World Clocks</h3>
-  <div id="world-clocks" class="clock-grid"></div>
+<div id="tabs-container"></div>
 
-  <div class="notes-panel">
-    <h3>Work Notes</h3>
-    <textarea id="notes-work" rows="6" placeholder="Work notes..."></textarea><br/>
-    <button onclick="saveNotes('work')">Save</button>
-    <span id="saveStatus-work"></span>
-  </div>
-</div>
-
-<div id="personal" class="tab">
-  <h2>Personal</h2>
-  <div class="notes-panel">
-    <h3>Personal Notes</h3>
-    <textarea id="notes-personal" rows="6" placeholder="Personal notes..."></textarea><br/>
-    <button onclick="saveNotes('personal')">Save</button>
-    <span id="saveStatus-personal"></span>
-  </div>
-</div>
-
-<div id="secondjob" class="tab">
-  <h2>ADI</h2>
-  <div class="notes-panel">
-    <h3>ADI Notes</h3>
-    <textarea id="notes-secondjob" rows="6" placeholder="ADI notes..."></textarea><br/>
-    <button onclick="saveNotes('secondjob')">Save</button>
-    <span id="saveStatus-secondjob"></span>
-  </div>
-</div>
-
-<div id="charity" class="tab">
-  <h2>Charity</h2>
-  <div class="notes-panel">
-    <h3>Charity Notes</h3>
-    <textarea id="notes-charity" rows="6" placeholder="Charity notes..."></textarea><br/>
-    <button onclick="saveNotes('charity')">Save</button>
-    <span id="saveStatus-charity"></span>
+<div id="linkModal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Link</h3>
+    <input type="text" id="modalTitle" placeholder="Title" />
+    <input type="url" id="modalURL" placeholder="https://example.com" />
+    <button id="saveLink">Save</button>
+    <button onclick="closeModal()">Cancel</button>
   </div>
 </div>
 
@@ -247,66 +154,36 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
-  async function saveNotes(tab) {
-    const content = document.getElementById(`notes-${tab}`).value;
-    const statusEl = document.getElementById(`saveStatus-${tab}`);
-    try {
-      await setDoc(doc(db, "dashboardNotes", tab), { content });
-      console.log(`[SAVED] ${tab}:`, content);
-      statusEl.textContent = "✔ Saved!";
-      statusEl.style.opacity = 1;
-    } catch (err) {
-      console.error("Error saving notes:", err);
-      statusEl.textContent = "❌ Save failed!";
-      statusEl.style.opacity = 1;
-    }
-    setTimeout(() => {
-      statusEl.style.opacity = 0;
-    }, 2000);
-  }
-
-  async function loadNotes(tab) {
-    try {
-      const snap = await getDoc(doc(db, "dashboardNotes", tab));
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById(`notes-${tab}`).value = data.content;
-      }
-    } catch (err) {
-      console.error(`Error loading notes for ${tab}:`, err);
-    }
-  }
-
   const tabs = ["work", "personal", "secondjob", "charity"];
-  tabs.forEach(loadNotes);
+  const tabsContainer = document.getElementById("tabs-container");
 
-  function updateClocks() {
-    const clocks = [
-      { city: "Shanghai", timeZone: "Asia/Shanghai" },
-      { city: "Chennai", timeZone: "Asia/Kolkata" },
-      { city: "London", timeZone: "Europe/London" },
-      { city: "New York", timeZone: "America/New_York" },
-      { city: "Dallas", timeZone: "America/Chicago" },
-      { city: "Honolulu", timeZone: "Pacific/Honolulu" }
-    ];
-    const container = document.getElementById("world-clocks");
-    container.innerHTML = clocks.map(({ city, timeZone }) => {
-      const now = new Date().toLocaleTimeString("en-US", {
-        timeZone,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      return `<div class="clock-card">
-                <h4>${city}</h4>
-                <div class="time">${now}</div>
-              </div>`;
-    }).join("");
-  }
+  let currentEditTab = "";
+  let currentEditIndex = 0;
 
-  setInterval(updateClocks, 1000);
-  updateClocks();
+  tabs.forEach(tab => {
+    const tabDiv = document.createElement("div");
+    tabDiv.id = tab;
+    tabDiv.className = `tab${tab === 'work' ? ' active' : ''}`;
+
+    const h2 = document.createElement("h2");
+    h2.textContent = tab.charAt(0).toUpperCase() + tab.slice(1);
+    tabDiv.appendChild(h2);
+
+    const linkButtonsDiv = document.createElement("div");
+    linkButtonsDiv.className = "link-buttons";
+    linkButtonsDiv.id = `links-${tab}`;
+    tabDiv.appendChild(linkButtonsDiv);
+
+    const notesPanel = document.createElement("div");
+    notesPanel.className = "notes-panel";
+    notesPanel.innerHTML = `<h3>${tab.charAt(0).toUpperCase() + tab.slice(1)} Notes</h3>
+      <textarea id="notes-${tab}" rows="6" placeholder="${tab} notes..."></textarea><br/>
+      <button onclick="saveNotes('${tab}')">Save</button>
+      <span id="saveStatus-${tab}"></span>`;
+    tabDiv.appendChild(notesPanel);
+
+    tabsContainer.appendChild(tabDiv);
+  });
 
   document.querySelectorAll("nav button").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -318,29 +195,84 @@
     });
   });
 
-  // DARK MODE
-  const darkToggle = document.getElementById("darkModeToggle");
-  const themeLabel = document.getElementById("theme-label");
-
-  function applyDarkMode(isDark) {
-    document.body.classList.toggle("dark", isDark);
-    darkToggle.checked = isDark;
-    themeLabel.textContent = isDark ? "🌙" : "🌞";
-  }
-
-  const savedTheme = localStorage.getItem("theme");
-  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const isDarkMode = savedTheme ? savedTheme === "dark" : systemPrefersDark;
-  applyDarkMode(isDarkMode);
-
-  darkToggle.addEventListener("change", () => {
-    const isDark = darkToggle.checked;
-    applyDarkMode(isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
+  const linkModal = document.getElementById("linkModal");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalURL = document.getElementById("modalURL");
+  document.getElementById("saveLink").addEventListener("click", async () => {
+    const title = modalTitle.value;
+    const url = modalURL.value;
+    const docRef = doc(db, "dashboardLinks", currentEditTab);
+    const docSnap = await getDoc(docRef);
+    let links = Array(8).fill(null);
+    if (docSnap.exists()) {
+      links = docSnap.data().links;
+    }
+    links[currentEditIndex] = { title, url };
+    await setDoc(docRef, { links });
+    loadLinks(currentEditTab);
+    closeModal();
   });
 
-  // Expose saveNotes to inline HTML button calls
+  function openModal(tab, index) {
+    currentEditTab = tab;
+    currentEditIndex = index;
+    modalTitle.value = "";
+    modalURL.value = "";
+    linkModal.style.display = "block";
+  }
+
+  function closeModal() {
+    linkModal.style.display = "none";
+  }
+  window.closeModal = closeModal;
+
+  async function loadLinks(tab) {
+    const docSnap = await getDoc(doc(db, "dashboardLinks", tab));
+    const links = docSnap.exists() ? docSnap.data().links : Array(8).fill(null);
+    const container = document.getElementById(`links-${tab}`);
+    container.innerHTML = "";
+    links.forEach((link, i) => {
+      const btn = document.createElement("button");
+      btn.className = "link-button";
+      btn.innerHTML = link ? "🔗" : "+";
+      btn.title = link?.title || "Add link";
+      btn.onclick = () => link ? window.open(link.url, '_blank') : openModal(tab, i);
+      container.appendChild(btn);
+    });
+  }
+
+  tabs.forEach(tab => {
+    loadLinks(tab);
+  });
+
+  async function saveNotes(tab) {
+    const content = document.getElementById(`notes-${tab}`).value;
+    const statusEl = document.getElementById(`saveStatus-${tab}`);
+    try {
+      await setDoc(doc(db, "dashboardNotes", tab), { content });
+      statusEl.textContent = "✔ Saved!";
+      statusEl.style.opacity = 1;
+    } catch (err) {
+      console.error("Error saving notes:", err);
+      statusEl.textContent = "❌ Save failed!";
+      statusEl.style.opacity = 1;
+    }
+    setTimeout(() => {
+      statusEl.style.opacity = 0;
+    }, 2000);
+  }
   window.saveNotes = saveNotes;
+
+  tabs.forEach(async tab => {
+    try {
+      const snap = await getDoc(doc(db, "dashboardNotes", tab));
+      if (snap.exists()) {
+        document.getElementById(`notes-${tab}`).value = snap.data().content;
+      }
+    } catch (err) {
+      console.error(`Error loading notes for ${tab}:`, err);
+    }
+  });
 </script>
 
 </body>
