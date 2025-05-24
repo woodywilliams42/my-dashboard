@@ -270,6 +270,7 @@
 
 
   </style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
   <h1>My Dashboard</h1>
@@ -518,6 +519,19 @@ function renderBookmarks(tab, urls) {
     a.appendChild(img);
     a.appendChild(removeBtn);
     container.appendChild(a);
+  });
+  // Add this at the end of renderBookmarks:
+  Sortable.create(container, {
+    animation: 150,
+    onEnd: async function () {
+      const newOrder = Array.from(container.querySelectorAll("a")).map(a => a.href);
+      try {
+        await setDoc(doc(db, "dashboardBookmarks", tab), { urls: newOrder });
+        console.log(`[REORDERED] ${tab}:`, newOrder);
+      } catch (err) {
+        console.error("Error saving new bookmark order:", err);
+      }
+    }
   });
 }
 
