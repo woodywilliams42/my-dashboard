@@ -178,6 +178,61 @@
     input:checked + .slider::before {
       transform: translateX(26px);
     }
+.bookmark-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bookmark-bar a {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  text-align: center;
+  position: relative;
+}
+
+.bookmark-bar a img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bookmark-bar a .remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+.bookmark-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bookmark-form input {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
   </style>
 </head>
 <body>
@@ -203,6 +258,13 @@
   <!-- === TAB: WORK === -->
   <div id="work" class="tab active">
     <h2>Work</h2>
+<h3>Bookmarks</h3>
+<div id="bookmark-bar-work" class="bookmark-bar"></div>
+<div class="bookmark-form">
+  <input type="url" id="newBookmarkUrl-work" placeholder="https://example.com" />
+  <button onclick="addBookmark('work')">Add</button>
+</div>
+
     <h3>World Clocks</h3>
     <div id="world-clocks" class="clock-grid"></div>
 
@@ -248,7 +310,7 @@
   </div>
 
   <!-- === SCRIPT === -->
-  <script type="module">
+   <script type="module">
     // === FIREBASE INITIALIZATION ===
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -295,6 +357,84 @@
         console.error(`Error loading notes for ${tab}:`, err);
       }
     }
+
+    async function loadBookmarks(tab) {
+      try {
+        const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+        if (snap.exists()) {
+          const data = snap.data().urls || [];
+          renderBookmarks(tab, data);
+        }
+      } catch (err) {
+        console.error(`Error loading bookmarks for ${tab}:`, err);
+      }
+    }
+
+    async function addBookmark(tab) {
+      const input = document.getElementById(`newBookmarkUrl-${tab}`);
+      const url = input.value.trim();
+      if (!url) return;
+
+      let urls = [];
+      try {
+        const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+        urls = snap.exists() && Array.isArray(snap.data().urls) ? snap.data().urls : [];
+      } catch (err) {
+        console.error("Error fetching bookmarks before add:", err);
+      }
+
+      if (!urls.includes(url)) urls.push(url);
+
+      try {
+        await setDoc(doc(db, "dashboardBookmarks", tab), { urls });
+        renderBookmarks(tab, urls);
+        input.value = "";
+      } catch (err) {
+        console.error("Error saving bookmark:", err);
+      }
+    }
+
+    async function removeBookmark(tab, url) {
+      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+      if (!snap.exists()) return;
+
+      const urls = snap.data().urls || [];
+      const updated = urls.filter(u => u !== url);
+      await setDoc(doc(db, "dashboardBookmarks", tab), { urls: updated });
+      renderBookmarks(tab, updated);
+    }
+
+    function renderBookmarks(tab, urls) {
+      const container = document.getElementById(`bookmark-bar-${tab}`);
+      container.innerHTML = "";
+      urls.forEach(url => {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener";
+
+        const img = document.createElement("img");
+        const faviconURL = new URL("/favicon.ico", url).href;
+        img.src = faviconURL;
+        img.alt = "icon";
+        img.onerror = () => img.src = "https://www.google.com/s2/favicons?domain=" + url;
+
+        const removeBtn = document.createElement("span");
+        removeBtn.className = "remove";
+        removeBtn.textContent = "×";
+        removeBtn.onclick = (e) => {
+          e.preventDefault();
+          removeBookmark(tab, url);
+        };
+
+        a.appendChild(img);
+        a.appendChild(removeBtn);
+        container.appendChild(a);
+      });
+    }
+
+    // Load on page init
+    loadBookmarks("work");
 
     const tabs = ["work", "personal", "secondjob", "charity"];
     tabs.forEach(loadNotes);
@@ -361,7 +501,12 @@
 
     // === EXPORT SAVE FUNCTION ===
     window.saveNotes = saveNotes;
+
+    // ✅ Correctly export bookmark functions at the end
+    window.addBookmark = addBookmark;
+    window.removeBookmark = removeBookmark;
   </script>
+
 
 </body>
 </html>
