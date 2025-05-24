@@ -373,7 +373,12 @@
     async function addBookmark(tab) {
       const input = document.getElementById(`newBookmarkUrl-${tab}`);
       const url = input.value.trim();
-      if (!url) return;
+try {
+  new URL(url); // throws if malformed
+} catch (e) {
+  alert("Please enter a valid URL (e.g. https://example.com)");
+  return;
+}
 
       let urls = [];
       try {
@@ -414,7 +419,8 @@
         a.rel = "noopener";
 
         const img = document.createElement("img");
-        const faviconURL = new URL("/favicon.ico", url).href;
+console.log("Rendering bookmark:", url);        
+const faviconURL = new URL("/favicon.ico", url).href;
         img.src = faviconURL;
         img.alt = "icon";
         img.onerror = () => img.src = "https://www.google.com/s2/favicons?domain=" + url;
