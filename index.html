@@ -377,34 +377,36 @@
       }
     }
 
-    async function addBookmark(tab) {
-      const input = document.getElementById(`newBookmarkUrl-${tab}`);
-      const url = input.value.trim();
-      try {
-        new URL(url);
-      } catch {
-        alert("Please enter a valid URL (e.g. https://example.com)");
-        return;
-      }
+  async function addBookmark(tab) {
+  const input = document.getElementById(`newBookmarkUrl-${tab}`);
+  const url = input.value.trim();
+  try {
+    new URL(url); // Validate URL
+  } catch {
+    alert("Please enter a valid URL (e.g. https://example.com)");
+    return;
+  }
 
-      let urls = [];
-      try {
-        const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-        urls = snap.exists() && Array.isArray(snap.data().urls) ? snap.data().urls : [];
-      } catch (err) {
-        console.error("Error fetching bookmarks before add:", err);
-      }
+  let urls = [];
+  try {
+    const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+    urls = snap.exists() && Array.isArray(snap.data().urls) ? snap.data().urls : [];
+  } catch (err) {
+    console.error("Error fetching bookmarks before add:", err);
+  }
 
-      if (!urls.includes(url)) urls.push(url);
+  if (!urls.includes(url)) urls.push(url);
 
-      try {
-        await setDoc(doc(db, "dashboardBookmarks", tab), { urls });
-        renderBookmarks(tab, urls);
-        input.value = "";
-      } catch (err) {
-        console.error("Error saving bookmark:", err);
-      }
-    }
+  try {
+    await setDoc(doc(db, "dashboardBookmarks", tab), { urls });
+    renderBookmarks(tab, urls);
+    input.value = "";
+    closeBookmarkModal(tab); // 👈 CLOSE MODAL AFTER SAVE
+  } catch (err) {
+    console.error("Error saving bookmark:", err);
+  }
+}
+
 
     async function removeBookmark(tab, url) {
       const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
