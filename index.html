@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Dashboard</title>
   <style>
-    /* === THEME VARIABLES === */
+     /* === THEME VARIABLES === */
     :root {
       --bg-color: #ffffff;
       --text-color: #000000;
@@ -416,30 +416,34 @@
       renderBookmarks(tab, updated);
     }
 
-   function renderBookmarks(tab, urls) {
-  const container = document.getElementById(`bookmark-bar-${tab}`);
-  container.innerHTML = "";
-  urls.forEach(url => {
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.title = url; // <-- TOOLTIP ADDED HERE
+    function renderBookmarks(tab, urls) {
+      const container = document.getElementById(`bookmark-bar-${tab}`);
+      container.innerHTML = "";
+      urls.forEach(url => {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener";
 
-    const img = document.createElement("img");
-    const faviconURL = new URL("/favicon.ico", url).href;
-    img.src = faviconURL;
-    img.alt = "icon";
-    img.onerror = () => img.src = "https://www.google.com/s2/favicons?domain=" + url;
+        const img = document.createElement("img");
+        const faviconURL = new URL("/favicon.ico", url).href;
+        img.src = faviconURL;
+        img.alt = "icon";
+        img.onerror = () => img.src = "https://www.google.com/s2/favicons?domain=" + url;
 
-    const removeBtn = document.createElement("span");
-    removeBtn.className = "remove";
-    removeBtn.textContent = "×";
-    removeBtn.onclick = (e) => {
-      e.preventDefault();
-      removeBookmark(tab, url);
-    };
+        const removeBtn = document.createElement("span");
+        removeBtn.className = "remove";
+        removeBtn.textContent = "×";
+        removeBtn.onclick = (e) => {
+          e.preventDefault();
+          removeBookmark(tab, url);
+        };
 
+        a.appendChild(img);
+        a.appendChild(removeBtn);
+        container.appendChild(a);
+      });
+    }
 
     loadBookmarks("work");
 
