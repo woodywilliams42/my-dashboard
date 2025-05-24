@@ -316,7 +316,80 @@
     </div>
   </div>
 
-  <!-- Other tabs omitted for brevity: Personal, ADI, Charity -->
+ <!-- === TAB: PERSONAL === -->
+<div id="personal" class="tab">
+  <h2>Personal</h2>
+  <h3>Bookmarks</h3>
+  <div id="bookmark-bar-personal" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-personal" style="margin-top: 10px;">➕ Add Bookmark</button>
+
+  <!-- Modal -->
+  <div id="bookmarkModal-personal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('personal')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-personal" placeholder="https://example.com" />
+      <button onclick="addBookmark('personal')">Save</button>
+    </div>
+  </div>
+
+  <div class="notes-panel">
+    <h3>Personal Notes</h3>
+    <textarea id="notes-personal" rows="6" placeholder="Personal notes..."></textarea><br/>
+    <button onclick="saveNotes('personal')">Save</button>
+    <span id="saveStatus-personal"></span>
+  </div>
+</div>
+
+<!-- === TAB: ADI === -->
+<div id="secondjob" class="tab">
+  <h2>ADI</h2>
+  <h3>Bookmarks</h3>
+  <div id="bookmark-bar-secondjob" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-secondjob" style="margin-top: 10px;">➕ Add Bookmark</button>
+
+  <!-- Modal -->
+  <div id="bookmarkModal-secondjob" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('secondjob')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-secondjob" placeholder="https://example.com" />
+      <button onclick="addBookmark('secondjob')">Save</button>
+    </div>
+  </div>
+
+  <div class="notes-panel">
+    <h3>ADI Notes</h3>
+    <textarea id="notes-secondjob" rows="6" placeholder="ADI notes..."></textarea><br/>
+    <button onclick="saveNotes('secondjob')">Save</button>
+    <span id="saveStatus-secondjob"></span>
+  </div>
+</div>
+
+<!-- === TAB: CHARITY === -->
+<div id="charity" class="tab">
+  <h2>Charity</h2>
+  <h3>Bookmarks</h3>
+  <div id="bookmark-bar-charity" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-charity" style="margin-top: 10px;">➕ Add Bookmark</button>
+
+  <!-- Modal -->
+  <div id="bookmarkModal-charity" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('charity')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-charity" placeholder="https://example.com" />
+      <button onclick="addBookmark('charity')">Save</button>
+    </div>
+  </div>
+
+  <div class="notes-panel">
+    <h3>Charity Notes</h3>
+    <textarea id="notes-charity" rows="6" placeholder="Charity notes..."></textarea><br/>
+    <button onclick="saveNotes('charity')">Save</button>
+    <span id="saveStatus-charity"></span>
+  </div>
+</div>
 
   <!-- === SCRIPT === -->
   <script type="module">
@@ -521,6 +594,13 @@ function renderBookmarks(tab, urls) {
     };
 
     document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
+// Load all bookmark bars
+["personal", "secondjob", "charity"].forEach(loadBookmarks);
+
+// Add modal open handlers
+["personal", "secondjob", "charity"].forEach(tab => {
+  document.getElementById(`showBookmarkModal-${tab}`).addEventListener("click", () => window.showBookmarkModal(tab));
+});
   </script>
 </body>
 </html>
