@@ -229,10 +229,18 @@
   background: var(--bg-color);
   color: var(--text-color);
 }
+.bookmark-button {
+  display: inline-block;
+  position: relative;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
 .bookmark-button:hover {
-  background-color: #f0f0f0;
-  transform: scale(1.02);
-  transition: background-color 0.2s, transform 0.2s;
+  background-color: rgba(0, 0, 0, 0.05); /* subtle highlight */
+  transform: scale(1.05);
+  cursor: pointer;
 }
 .modal {
   position: fixed;
@@ -502,6 +510,7 @@ function renderBookmarks(tab, urls) {
   container.innerHTML = "";
   urls.forEach(url => {
     const a = document.createElement("a");
+    a.classList.add("bookmark-button");
     a.href = url;
     a.target = "_blank";
     a.rel = "noopener";
