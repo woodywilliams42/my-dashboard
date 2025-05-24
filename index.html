@@ -433,6 +433,7 @@
   <ul>
     <li data-action="open">Open in New Tab</li>
     <li data-action="copy">Copy URL</li>
+    <li data-action="edit">Edit Bookmark</li>
     <li data-action="remove">Remove Bookmark</li>
   </ul>
 </div>
@@ -580,11 +581,19 @@ function renderBookmarks(tab, urls) {
   });
 }
 let currentContextUrl = null;
+let currentContextTab = null;
 
 document.addEventListener("contextmenu", (e) => {
-  if (e.target.closest(".bookmark-button")) {
+  const link = e.target.closest(".bookmark-button");
+  if (link) {
     e.preventDefault();
-    currentContextUrl = e.target.closest(".bookmark-button").href;
+    currentContextUrl = link.href;
+
+    // Infer the tab name from the closest container ID (like 'bookmark-bar-tab1')
+    const bar = link.closest("[id^='bookmark-bar-']");
+    if (bar) {
+      currentContextTab = bar.id.replace("bookmark-bar-", "");
+    }
 
     const menu = document.getElementById("bookmark-context-menu");
     menu.style.top = `${e.pageY}px`;
@@ -599,23 +608,39 @@ document.addEventListener("click", () => {
   document.getElementById("bookmark-context-menu").style.display = "none";
 });
 
-document.getElementById("bookmark-context-menu").addEventListener("click", (e) => {
-  if (!e.target.dataset.action) return;
-
+document.getElementById("bookmark-context-menu").addEventListener("click", async (e) => {
   const action = e.target.dataset.action;
+  if (!action) return;
 
   if (action === "open") {
     window.open(currentContextUrl, "_blank");
+
   } else if (action === "copy") {
-    navigator.clipboard.writeText(currentContextUrl);
+    await navigator.clipboard.writeText(currentContextUrl);
+
+  } else if (action === "edit") {
+    const newUrl = prompt("Edit bookmark URL:", currentContextUrl);
+    if (newUrl && newUrl !== currentContextUrl) {
+      const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
+      if (snap.exists()) {
+        const urls = snap.data().urls || [];
+        const index = urls.indexOf(currentContextUrl);
+        if (index !== -1) {
+          urls[index] = newUrl;
+          await setDoc(doc(db, "dashboardBookmarks", currentContextTab), { urls });
+          renderBookmarks(currentContextTab, urls);
+        }
+      }
+    }
+
   } else if (action === "remove") {
-    const tab = document.querySelector(".tab-button.active").dataset.tab;
-    removeBookmark(tab, currentContextUrl);
+    if (currentContextTab && currentContextUrl) {
+      await removeBookmark(currentContextTab, currentContextUrl);
+    }
   }
 
   document.getElementById("bookmark-context-menu").style.display = "none";
 });
-
     loadBookmarks("work");
 
     const tabs = ["work", "personal", "secondjob", "charity"];
