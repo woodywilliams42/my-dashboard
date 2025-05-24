@@ -280,6 +280,31 @@
   color: var(--text-color);
   cursor: pointer;
 }
+.context-menu {
+  position: absolute;
+  z-index: 1000;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none;
+  font-size: 14px;
+}
+
+.context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.context-menu li {
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.context-menu li:hover {
+  background-color: #f0f0f0;
+}
 
 
   </style>
@@ -404,7 +429,13 @@
     <span id="saveStatus-charity"></span>
   </div>
 </div>
-
+<div id="bookmark-context-menu" class="context-menu">
+  <ul>
+    <li data-action="open">Open in New Tab</li>
+    <li data-action="copy">Copy URL</li>
+    <li data-action="remove">Remove Bookmark</li>
+  </ul>
+</div>
   <!-- === SCRIPT === -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -548,6 +579,42 @@ function renderBookmarks(tab, urls) {
     }
   });
 }
+let currentContextUrl = null;
+
+document.addEventListener("contextmenu", (e) => {
+  if (e.target.closest(".bookmark-button")) {
+    e.preventDefault();
+    currentContextUrl = e.target.closest(".bookmark-button").href;
+
+    const menu = document.getElementById("bookmark-context-menu");
+    menu.style.top = `${e.pageY}px`;
+    menu.style.left = `${e.pageX}px`;
+    menu.style.display = "block";
+  } else {
+    document.getElementById("bookmark-context-menu").style.display = "none";
+  }
+});
+
+document.addEventListener("click", () => {
+  document.getElementById("bookmark-context-menu").style.display = "none";
+});
+
+document.getElementById("bookmark-context-menu").addEventListener("click", (e) => {
+  if (!e.target.dataset.action) return;
+
+  const action = e.target.dataset.action;
+
+  if (action === "open") {
+    window.open(currentContextUrl, "_blank");
+  } else if (action === "copy") {
+    navigator.clipboard.writeText(currentContextUrl);
+  } else if (action === "remove") {
+    const tab = document.querySelector(".tab-button.active").dataset.tab;
+    removeBookmark(tab, currentContextUrl);
+  }
+
+  document.getElementById("bookmark-context-menu").style.display = "none";
+});
 
     loadBookmarks("work");
 
