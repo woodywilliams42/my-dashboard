@@ -345,7 +345,6 @@ body.dark-mode .context-menu li:hover {
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
-  <input type="file" id="favicon-upload" accept="image/*" style="display: none;">
   <h1>My Dashboard</h1>
   <div class="dark-toggle">
     <label class="switch">
@@ -726,46 +725,32 @@ document.getElementById("bookmark-context-menu").addEventListener("click", async
 
  
 } else if (action === "change-favicon") {
-  document.getElementById("favicon-upload").click();
+  const newFaviconUrl = prompt("Enter URL of new favicon:", "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/icon1.png");
 
-  }
-});
-document.getElementById("favicon-upload").addEventListener("change", async (e) => {
-  const file = e.target.files[0];
-  if (!file || !currentContextUrl) return;
+  if (newFaviconUrl && currentContextImg && currentContextUrl && currentContextTab) {
+    // Set new image source
+    currentContextImg.src = newFaviconUrl;
 
-  try {
-    const safeName = encodeURIComponent(currentContextUrl);
-    const storageRef = ref(storage, `favicons/${safeName}`);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
-
-    // Set new favicon image source
-    if (currentContextImg) {
-      currentContextImg.src = downloadURL;
+    // Save it to Firestore
+    const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
+    if (snap.exists()) {
+      const urls = snap.data().urls || [];
+      const favicons = snap.data().favicons || {};
+      if (urls.includes(currentContextUrl)) {
+        favicons[currentContextUrl] = newFaviconUrl;
+        await setDoc(doc(db, "dashboardBookmarks", currentContextTab), {
+          urls,
+          favicons
+        });
+      }
     }
+  }
 
-    // Save this favicon URL alongside the bookmark data
-   const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
-if (snap.exists()) {
-  const data = snap.data();
-  const urls = data.urls || [];
-  const favicons = data.favicons || {};
-  ...
-} else {
-  console.warn("No document found for tab:", currentContextTab);
+  // Hide the context menu after
+  document.getElementById("bookmark-context-menu").style.display = "none";
 }
 
 
-  } catch (err) {
-    console.error("Favicon upload failed:", err);
-    alert("Failed to upload favicon.");
-  } finally {
-    e.target.value = ""; // reset input so same file can be reselected
-  }
-
-  document.getElementById("bookmark-context-menu").style.display = "none";
-});
     loadBookmarks("work");
 
     const tabs = ["work", "personal", "secondjob", "charity"];
