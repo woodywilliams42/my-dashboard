@@ -458,10 +458,13 @@
     <li data-action="open">Open in New Tab</li>
     <li data-action="copy">Copy URL</li>
     <li data-action="edit">Edit Bookmark</li>
-    <li data-action="favicon">Change Favicon</li>
     <li data-action="remove">Remove Bookmark</li>
+    <li data-action="change-favicon">Change Favicon</li>
   </ul>
 </div>
+
+<input type="file" id="favicon-upload" style="display:none" accept="image/*" />
+
   <!-- === SCRIPT === -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -586,6 +589,7 @@ function renderBookmarks(tab, data) {
 
   urls.forEach(url => {
     const a = document.createElement("a");
+    a.className = "bookmark-button";
     a.href = url;
     a.target = "_blank";
     a.rel = "noopener";
