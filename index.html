@@ -546,51 +546,70 @@ const favicons = snap.data().favicons || {};
       renderBookmarks(tab, updated);
     }
 
-function renderBookmarks(tab, urls) {
+function renderBookmarks(tab, data) {
   const container = document.getElementById(`bookmark-bar-${tab}`);
   container.innerHTML = "";
-urls.forEach(url => {
-  const a = document.createElement("a");
-  a.href = url;
-  a.target = "_blank";
-  a.rel = "noopener";
-  a.title = url;
 
-  const img = document.createElement("img");
-  const faviconURL = favicons[url] || new URL("/favicon.ico", url).href;
-img.src = faviconURL;
-  img.alt = "icon";
-  img.onerror = () => img.src = "https://www.google.com/s2/favicons?domain=" + url;
+  const urls = data.urls || [];
+  const favicons = data.favicons || {};
 
-  const removeBtn = document.createElement("span");
-  removeBtn.className = "remove";
-  removeBtn.textContent = "×";
-  removeBtn.onclick = (e) => {
-    e.preventDefault();
-    removeBookmark(tab, url);
-  };
+  urls.forEach(url => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.title = url;
 
-  // ⬇️ Attach context menu event and track img
-  a.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    currentContextUrl = url;
-    currentContextTab = tab;
-    currentContextImg = img; // ⬅️ This allows us to update the image later
-    showContextMenu(e.pageX, e.pageY);
+    const img = document.createElement("img");
+
+    // Use custom uploaded favicon if available
+    if (favicons[url]) {
+      img.src = favicons[url];
+    } else {
+      const fallback = new URL("/favicon.ico", url).href;
+      img.src = fallback;
+      img.onerror = () => {
+        img.src = "https://www.google.com/s2/favicons?domain=" + url;
+      };
+    }
+
+    img.alt = "icon";
+
+    const removeBtn = document.createElement("span");
+    removeBtn.className = "remove";
+    removeBtn.textContent = "×";
+    removeBtn.onclick = (e) => {
+      e.preventDefault();
+      removeBookmark(tab, url);
+    };
+
+    a.appendChild(img);
+    a.appendChild(removeBtn);
+    container.appendChild(a);
+
+    // Enable context menu tracking
+    a.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      currentContextUrl = url;
+      currentContextTab = tab;
+      currentContextImg = img;
+
+      const menu = document.getElementById("bookmark-context-menu");
+      menu.style.top = `${e.pageY}px`;
+      menu.style.left = `${e.pageX}px`;
+      menu.style.display = "block";
+    });
   });
 
-  a.appendChild(img);
-  a.appendChild(removeBtn);
-  container.appendChild(a);
-});
-
-  // Add this at the end of renderBookmarks:
   Sortable.create(container, {
     animation: 150,
     onEnd: async function () {
       const newOrder = Array.from(container.querySelectorAll("a")).map(a => a.href);
       try {
-        await setDoc(doc(db, "dashboardBookmarks", tab), { urls: newOrder });
+        await setDoc(doc(db, "dashboardBookmarks", tab), {
+          urls: newOrder,
+          favicons: favicons // preserve existing custom favicons
+        });
         console.log(`[REORDERED] ${tab}:`, newOrder);
       } catch (err) {
         console.error("Error saving new bookmark order:", err);
