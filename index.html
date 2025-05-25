@@ -311,6 +311,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
+  <input type="file" id="favicon-upload" accept="image/*" style="display: none;">
   <h1>My Dashboard</h1>
   <div class="dark-toggle">
     <label class="switch">
@@ -434,6 +435,7 @@
     <li data-action="open">Open in New Tab</li>
     <li data-action="copy">Copy URL</li>
     <li data-action="edit">Edit Bookmark</li>
+    <li data-action="favicon">Change Favicon</li>
     <li data-action="remove">Remove Bookmark</li>
   </ul>
 </div>
@@ -481,6 +483,7 @@
     async function loadNotes(tab) {
       try {
         const snap = await getDoc(doc(db, "dashboardNotes", tab));
+const favicons = snap.data().favicons || {};
         if (snap.exists()) {
           const data = snap.data();
           document.getElementById(`notes-${tab}`).value = data.content;
@@ -546,32 +549,41 @@
 function renderBookmarks(tab, urls) {
   const container = document.getElementById(`bookmark-bar-${tab}`);
   container.innerHTML = "";
-  urls.forEach(url => {
-    const a = document.createElement("a");
-    a.classList.add("bookmark-button");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.title = url; // <-- TOOLTIP ADDED HERE
+urls.forEach(url => {
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener";
+  a.title = url;
 
-    const img = document.createElement("img");
-    const faviconURL = new URL("/favicon.ico", url).href;
-    img.src = faviconURL;
-    img.alt = "icon";
-    img.onerror = () => img.src = "https://www.google.com/s2/favicons?domain=" + url;
+  const img = document.createElement("img");
+  const faviconURL = favicons[url] || new URL("/favicon.ico", url).href;
+img.src = faviconURL;
+  img.alt = "icon";
+  img.onerror = () => img.src = "https://www.google.com/s2/favicons?domain=" + url;
 
-    const removeBtn = document.createElement("span");
-    removeBtn.className = "remove";
-    removeBtn.textContent = "×";
-    removeBtn.onclick = (e) => {
-      e.preventDefault();
-      removeBookmark(tab, url);
-    };
+  const removeBtn = document.createElement("span");
+  removeBtn.className = "remove";
+  removeBtn.textContent = "×";
+  removeBtn.onclick = (e) => {
+    e.preventDefault();
+    removeBookmark(tab, url);
+  };
 
-    a.appendChild(img);
-    a.appendChild(removeBtn);
-    container.appendChild(a);
+  // ⬇️ Attach context menu event and track img
+  a.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    currentContextUrl = url;
+    currentContextTab = tab;
+    currentContextImg = img; // ⬅️ This allows us to update the image later
+    showContextMenu(e.pageX, e.pageY);
   });
+
+  a.appendChild(img);
+  a.appendChild(removeBtn);
+  container.appendChild(a);
+});
+
   // Add this at the end of renderBookmarks:
   Sortable.create(container, {
     animation: 150,
@@ -643,7 +655,52 @@ document.getElementById("bookmark-context-menu").addEventListener("click", async
     if (currentContextTab && currentContextUrl) {
       await removeBookmark(currentContextTab, currentContextUrl);
     }
+
+  } else if (action === "favicon") {
+    if (currentContextTab && currentContextUrl && currentContextImg) {
+      showFaviconUpload(currentContextTab, currentContextUrl, currentContextImg);
+    }
+} else if (action === "change-favicon") {
+  document.getElementById("favicon-upload").click();
+
   }
+});
+document.getElementById("favicon-upload").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file || !currentContextUrl) return;
+
+  try {
+    const safeName = encodeURIComponent(currentContextUrl);
+    const storageRef = ref(storage, `favicons/${safeName}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    // Set new favicon image source
+    if (currentContextImg) {
+      currentContextImg.src = downloadURL;
+    }
+
+    // Save this favicon URL alongside the bookmark data
+    const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
+    if (snap.exists()) {
+      const urls = snap.data().urls || [];
+      const favicons = snap.data().favicons || {};
+      if (urls.includes(currentContextUrl)) {
+        favicons[currentContextUrl] = downloadURL;
+        await setDoc(doc(db, "dashboardBookmarks", currentContextTab), {
+          urls,
+          favicons
+        });
+      }
+    }
+
+  } catch (err) {
+    console.error("Favicon upload failed:", err);
+    alert("Failed to upload favicon.");
+  } finally {
+    e.target.value = ""; // reset input so same file can be reselected
+  }
+});
 
   document.getElementById("bookmark-context-menu").style.display = "none";
 });
