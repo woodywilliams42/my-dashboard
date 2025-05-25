@@ -722,10 +722,7 @@ document.getElementById("bookmark-context-menu").addEventListener("click", async
       await removeBookmark(currentContextTab, currentContextUrl);
     }
 
-  } else if (action === "favicon") {
-    if (currentContextTab && currentContextUrl && currentContextImg) {
-      showFaviconUpload(currentContextTab, currentContextUrl, currentContextImg);
-    }
+ 
 } else if (action === "change-favicon") {
   document.getElementById("favicon-upload").click();
 
