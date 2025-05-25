@@ -494,16 +494,17 @@ const favicons = snap.data().favicons || {};
     }
 
     async function loadBookmarks(tab) {
-      try {
-        const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-        if (snap.exists()) {
-          const data = snap.data().urls || [];
-          renderBookmarks(tab, data);
-        }
-      } catch (err) {
-        console.error(`Error loading bookmarks for ${tab}:`, err);
-      }
+  try {
+    const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+    if (snap.exists()) {
+      const data = snap.data(); // ✅ get both urls and favicons
+      renderBookmarks(tab, data);
     }
+  } catch (err) {
+    console.error(`Error loading bookmarks for ${tab}:`, err);
+  }
+}
+
 
   async function addBookmark(tab) {
   const input = document.getElementById(`newBookmarkUrl-${tab}`);
