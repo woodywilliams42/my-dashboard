@@ -718,13 +718,12 @@ document.getElementById("bookmark-context-menu").addEventListener("click", async
       }
     }
 
-  } else if (action === "remove") {
-    if (currentContextTab && currentContextUrl) {
-      await removeBookmark(currentContextTab, currentContextUrl);
-    }
+} else if (action === "remove") {
+  if (currentContextTab && currentContextUrl) {
+    await removeBookmark(currentContextTab, currentContextUrl);
   }
- 
 } else if (action === "change-favicon") {
+
   const newFaviconUrl = prompt("Enter URL of new favicon:", "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/icon1.png");
 
   if (newFaviconUrl && currentContextImg && currentContextUrl && currentContextTab) {
