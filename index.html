@@ -666,6 +666,8 @@ function renderBookmarks(tab, data) {
 }
 let currentContextUrl = null;
 let currentContextTab = null;
+let currentContextImg = null;
+
 
 document.addEventListener("contextmenu", (e) => {
   const link = e.target.closest(".bookmark-button");
@@ -744,18 +746,16 @@ document.getElementById("favicon-upload").addEventListener("change", async (e) =
     }
 
     // Save this favicon URL alongside the bookmark data
-    const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
-    if (snap.exists()) {
-      const urls = snap.data().urls || [];
-      const favicons = snap.data().favicons || {};
-      if (urls.includes(currentContextUrl)) {
-        favicons[currentContextUrl] = downloadURL;
-        await setDoc(doc(db, "dashboardBookmarks", currentContextTab), {
-          urls,
-          favicons
-        });
-      }
-    }
+   const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
+if (snap.exists()) {
+  const data = snap.data();
+  const urls = data.urls || [];
+  const favicons = data.favicons || {};
+  ...
+} else {
+  console.warn("No document found for tab:", currentContextTab);
+}
+
 
   } catch (err) {
     console.error("Favicon upload failed:", err);
