@@ -506,7 +506,7 @@ const favicons = snap.data().favicons || {};
 }
 
 
-  async function addBookmark(tab) {
+async function addBookmark(tab) {
   const input = document.getElementById(`newBookmarkUrl-${tab}`);
   const url = input.value.trim();
   try {
@@ -517,25 +517,32 @@ const favicons = snap.data().favicons || {};
   }
 
   let urls = [];
+  let favicons = {};
   try {
     const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-    urls = snap.exists() && Array.isArray(snap.data().urls) ? snap.data().urls : [];
+    if (snap.exists()) {
+      const data = snap.data();
+      urls = Array.isArray(data.urls) ? data.urls : [];
+      favicons = data.favicons || {};
+    }
   } catch (err) {
     console.error("Error fetching bookmarks before add:", err);
   }
 
-  if (!urls.includes(url)) urls.push(url);
-
-  try {
-    await setDoc(doc(db, "dashboardBookmarks", tab), { urls });
-    renderBookmarks(tab, urls);
-    input.value = "";
-    closeBookmarkModal(tab); // 👈 CLOSE MODAL AFTER SAVE
-  } catch (err) {
-    console.error("Error saving bookmark:", err);
+  if (!urls.includes(url)) {
+    urls.push(url);
+    try {
+      await setDoc(doc(db, "dashboardBookmarks", tab), { urls, favicons });
+      input.value = "";
+      renderBookmarks(tab, { urls, favicons }); // 👈 Pass full object here
+      closeBookmarkModal(tab);
+    } catch (err) {
+      console.error("Error saving bookmark:", err);
+    }
+  } else {
+    alert("Bookmark already exists.");
   }
 }
-
 
     async function removeBookmark(tab, url) {
       const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
