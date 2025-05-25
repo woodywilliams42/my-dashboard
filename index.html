@@ -237,10 +237,33 @@
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.bookmark-button:hover {
-  background-color: rgba(0, 0, 0, 0.05); /* subtle highlight */
-  transform: scale(1.05);
-  cursor: pointer;
+.bookmark-link {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .bookmark-link:hover {
+    background-color: rgba(0, 0, 0, 0.07);
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Optional: improve image rendering */
+  .bookmark-link img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+  }
+
+  .bookmark-link .remove {
+    margin-left: 4px;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+  }
 }
 .modal {
   position: fixed;
@@ -567,6 +590,7 @@ function renderBookmarks(tab, data) {
     a.target = "_blank";
     a.rel = "noopener";
     a.title = url;
+    a.classList.add("bookmark-link");    
 
     const img = document.createElement("img");
 
