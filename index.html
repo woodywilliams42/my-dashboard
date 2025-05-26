@@ -1,3 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Dashboard</title>
+  <style>
+     /* === THEME VARIABLES === */
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #000000;
+      --card-bg: #f0f0f0;
+      --button-bg: #444;
+      --button-text: #ffffff;
+      --accent: #2a9d8f;
+      --border-color: #ccc;
+    }
+
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --card-bg: #1e1e1e;
+      --button-bg: #333;
+      --button-text: #ffffff;
+      --accent: #90caf9;
+      --border-color: #555;
+    }
+
+    /* === BASE STYLES === */
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: sans-serif;
+      padding: 20px;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* === NAVIGATION === */
+    nav {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    nav button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    nav button.active {
+      background-color: var(--accent);
+      color: var(--bg-color);
+    }
+
+    /* === TABS === */
+    .tab {
+      display: none;
+    }
+
+    .tab.active {
+      display: block;
+      margin-top: 20px;
+    }
+
+    /* === CLOCKS === */
+    .clock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .clock-card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .clock-card h4 {
+      margin: 0 0 5px;
+      font-size: 1.1em;
+      color: var(--accent);
+    }
+
+    .clock-card .time {
+      font-size: 1.3em;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+
+    /* === NOTES PANEL === */
+    .notes-panel {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--card-bg);
+    }
+
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      background: var(--bg-color);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+
+    span[id^="saveStatus-"] {
+      margin-left: 10px;
+      font-weight: bold;
+      color: limegreen;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    /* === DARK MODE TOGGLE === */
+    .dark-toggle {
+      float: right;
+      margin: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border-color);
+      transition: 0.4s;
+      border-radius: 34px;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--accent);
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(26px);
+    }
+.bookmark-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bookmark-bar a {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  text-align: center;
+  position: relative;
+}
+
+.bookmark-bar a img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bookmark-bar a .remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+  cursor: pointer;
+}
+
+.bookmark-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.bookmark-form input {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+.bookmark-button {
+  display: inline-block;
+  position: relative;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.bookmark-link {
+    display: inline-block;
+    margin: 0 5px;
+    padding: 4px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .bookmark-link:hover {
+    background-color: rgba(0, 0, 0, 0.07);
+    transform: scale(1.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Optional: improve image rendering */
+  .bookmark-link img {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+  }
+
+  .bookmark-link .remove {
+    margin-left: 4px;
+    cursor: pointer;
+    color: red;
+    font-weight: bold;
+  }
+}
+.modal {
+  position: fixed;
+  z-index: 999;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.modal-content input {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 10px; right: 12px;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-color);
+  cursor: pointer;
+}
+/* Base context menu styles */
+.context-menu {
+  background-color: white;
+  color: black;
+  border: 1px solid #ccc;
+  z-index: 1000;
+  position: absolute;
+  display: none;
+  min-width: 160px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.context-menu li {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.context-menu li:hover {
+  background-color: #f0f0f0;
+}
+
+/* Dark mode adjustments */
+body.dark-mode .context-menu {
+  background-color: #222;
+  color: white;
+  border-color: #444;
+}
+
+body.dark-mode .context-menu li:hover {
+  background-color: #333;
+}
+
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+  <h1>My Dashboard</h1>
+  <div class="dark-toggle">
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggle" />
+      <span class="slider"></span>
+    </label>
+    <span id="theme-label">🌞</span>
+  </div>
+
+  <nav>
+    <button data-tab="work" class="active">Work</button>
+    <button data-tab="personal">Personal</button>
+    <button data-tab="secondjob">ADI</button>
+    <button data-tab="charity">Table/41</button>
+  </nav>
+
+  <!-- === TAB: WORK === -->
+  <div id="work" class="tab active">
+    <h2>Work</h2>
+    <h3>Bookmarks</h3>
+    <div id="bookmark-bar-work" class="bookmark-bar"></div>
+    <button id="showBookmarkModal-work" style="margin-top: 10px;">➕ Add Bookmark</button>
+
+    <!-- Modal -->
+    <div id="bookmarkModal-work" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="closeBookmarkModal('work')">&times;</span>
+        <h3>Add Bookmark</h3>
+        <input type="url" id="newBookmarkUrl-work" placeholder="https://example.com" />
+        <button onclick="addBookmark('work')">Save</button>
+      </div>
+    </div>
+
+    <h3>World Clocks</h3>
+    <div id="world-clocks" class="clock-grid"></div>
+
+    <div class="notes-panel">
+      <h3>Work Notes</h3>
+      <textarea id="notes-work" rows="6" placeholder="Work notes..."></textarea><br/>
+      <button onclick="saveNotes('work')">Save</button>
+      <span id="saveStatus-work"></span>
+    </div>
+  </div>
+
+ <!-- === TAB: PERSONAL === -->
+<div id="personal" class="tab">
+  <h2>Personal</h2>
+  <h3>Bookmarks</h3>
+  <div id="bookmark-bar-personal" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-personal" style="margin-top: 10px;">➕ Add Bookmark</button>
+
+  <!-- Modal -->
+  <div id="bookmarkModal-personal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('personal')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-personal" placeholder="https://example.com" />
+      <button onclick="addBookmark('personal')">Save</button>
+    </div>
+  </div>
+
+  <div class="notes-panel">
+    <h3>Personal Notes</h3>
+    <textarea id="notes-personal" rows="6" placeholder="Personal notes..."></textarea><br/>
+    <button onclick="saveNotes('personal')">Save</button>
+    <span id="saveStatus-personal"></span>
+  </div>
+</div>
+
+<!-- === TAB: ADI === -->
+<div id="secondjob" class="tab">
+  <h2>ADI</h2>
+  <h3>Bookmarks</h3>
+  <div id="bookmark-bar-secondjob" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-secondjob" style="margin-top: 10px;">➕ Add Bookmark</button>
+
+  <!-- Modal -->
+  <div id="bookmarkModal-secondjob" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('secondjob')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-secondjob" placeholder="https://example.com" />
+      <button onclick="addBookmark('secondjob')">Save</button>
+    </div>
+  </div>
+
+  <div class="notes-panel">
+    <h3>ADI Notes</h3>
+    <textarea id="notes-secondjob" rows="6" placeholder="ADI notes..."></textarea><br/>
+    <button onclick="saveNotes('secondjob')">Save</button>
+    <span id="saveStatus-secondjob"></span>
+  </div>
+</div>
+
+<!-- === TAB: CHARITY === -->
+<div id="charity" class="tab">
+  <h2>Charity</h2>
+  <h3>Bookmarks</h3>
+  <div id="bookmark-bar-charity" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-charity" style="margin-top: 10px;">➕ Add Bookmark</button>
+
+  <!-- Modal -->
+  <div id="bookmarkModal-charity" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('charity')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-charity" placeholder="https://example.com" />
+      <button onclick="addBookmark('charity')">Save</button>
+    </div>
+  </div>
+
+  <div class="notes-panel">
+    <h3>Charity Notes</h3>
+    <textarea id="notes-charity" rows="6" placeholder="Charity notes..."></textarea><br/>
+    <button onclick="saveNotes('charity')">Save</button>
+    <span id="saveStatus-charity"></span>
+  </div>
+</div>
+<div id="bookmark-context-menu" class="context-menu">
+  <ul>
+    <li data-action="open">Open in New Tab</li>
+    <li data-action="copy">Copy URL</li>
+    <li data-action="edit">Edit Bookmark</li>
+    <li data-action="remove">Remove Bookmark</li>
+    <li data-action="change-favicon">Change Favicon</li>
+  </ul>
+</div>
+
+<input type="file" id="favicon-upload" style="display:none" accept="image/*" />
+
+  <!-- === SCRIPT === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -334,3 +812,6 @@
 
   document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
 </script>
+
+</body>
+</html>
