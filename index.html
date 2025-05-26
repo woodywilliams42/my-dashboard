@@ -513,6 +513,25 @@ body.dark-mode .context-menu li:hover {
       statusEl.style.opacity = 0;
     }, 2000);
   }
+function setupAutosave(tab) {
+  const textarea = document.getElementById(`notes-${tab}`);
+  const statusEl = document.getElementById(`saveStatus-${tab}`);
+
+  let debounceTimer;
+
+  // Save when typing stops for 2 seconds
+  textarea.addEventListener("input", () => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      saveNotes(tab);
+    }, 2000);
+  });
+
+  // Save when focus is lost (clicking out)
+  textarea.addEventListener("blur", () => {
+    saveNotes(tab);
+  });
+}
 
   async function loadNotes(tab) {
     try {
@@ -739,7 +758,10 @@ body.dark-mode .context-menu li:hover {
 
   loadBookmarks("work");
   ["personal", "secondjob", "charity"].forEach(loadBookmarks);
-  ["work", "personal", "secondjob", "charity"].forEach(loadNotes);
+["work", "personal", "secondjob", "charity"].forEach(tab => {
+  loadNotes(tab);
+  setupAutosave(tab); // 👈 This enables autosave for each notes section
+});
 
   function updateClocks() {
     const clocks = [
