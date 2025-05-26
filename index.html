@@ -408,6 +408,12 @@
 #quickCommentContextMenu li:hover {
   background-color: #f5f5f5;
 }
+.quick-comment-button[draggable="true"] {
+  cursor: grab;
+}
+.quick-comment-button:active {
+  opacity: 0.5;
+}
 
 
 body {
@@ -946,27 +952,61 @@ async function saveQuickComments(tab) {
 
 function renderQuickComments(tab) {
   const container = document.getElementById(`quick-comments-${tab}`);
-  if (!container) return;
-  container.innerHTML = "";
+  container.innerHTML = ""; // Clear previous
 
-  Object.keys(quickCommentsData[tab] || {}).forEach(label => {
-    const btn = document.createElement("button");
-    const content = quickCommentsData[tab][label];
+  const comments = quickComments[tab] || [];
 
-    btn.textContent = label;
-    btn.title = content.slice(0, 100);
-    btn.onclick = () => {
-      navigator.clipboard.writeText(content);
-      btn.textContent = "✔ Copied!";
-      setTimeout(() => btn.textContent = label, 1500);
-    };
-    btn.oncontextmenu = (e) => {
+  comments.forEach((comment, index) => {
+    const button = document.createElement("button");
+    button.className = "quick-comment-button";
+    button.textContent = comment.label;
+    button.title = comment.text.slice(0, 100); // Tooltip preview
+    button.setAttribute("draggable", true);
+
+    // Copy to clipboard
+    button.addEventListener("click", () => {
+      navigator.clipboard.writeText(comment.text);
+    });
+
+    // Context menu for edit/delete
+    button.addEventListener("contextmenu", e => {
       e.preventDefault();
-      showQuickCommentContextMenu(e.pageX, e.pageY, tab, label);
-    };
-    container.appendChild(btn);
+      showCommentContextMenu(e, tab, index);
+    });
+
+    // Drag-and-drop events
+    button.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", index);
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    container.appendChild(button);
+  });
+
+  // Container-level drag handling
+  container.addEventListener("dragover", e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  });
+
+  container.addEventListener("drop", async e => {
+    e.preventDefault();
+    const draggedIndex = parseInt(e.dataTransfer.getData("text/plain"));
+    const dropTarget = e.target.closest(".quick-comment-button");
+    if (!dropTarget) return;
+
+    const dropIndex = Array.from(container.children).indexOf(dropTarget);
+    if (draggedIndex === dropIndex) return;
+
+    // Reorder array
+    const moved = quickComments[tab].splice(draggedIndex, 1)[0];
+    quickComments[tab].splice(dropIndex, 0, moved);
+
+    await saveQuickComments(tab);
+    renderQuickComments(tab); // Re-render updated order
   });
 }
+
 
 function showQuickCommentContextMenu(x, y, tab, label) {
   const menu = document.getElementById("quickCommentContextMenu");
