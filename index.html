@@ -364,6 +364,52 @@
   position: relative;
 }
 
+.quick-comments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 1em;
+}
+
+.quick-comments button {
+  font-size: 1rem;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: #f0f0f0;
+  transition: background 0.2s;
+}
+
+.quick-comments button:hover {
+  background-color: #e0e0e0;
+}
+
+#quickCommentContextMenu {
+  position: absolute;
+  display: none;
+  background-color: white;
+  border: 1px solid #aaa;
+  z-index: 9999;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+#quickCommentContextMenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 5px 0;
+}
+
+#quickCommentContextMenu li {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+#quickCommentContextMenu li:hover {
+  background-color: #f5f5f5;
+}
+
+
 body {
   margin: 0;
   font-family: sans-serif;
@@ -421,6 +467,10 @@ body.dark-mode .context-menu li:hover {
     <h3>World Clocks</h3>
     <div id="world-clocks" class="clock-grid"></div>
 
+    <h3>Quick Comments</h3>
+<div id="quick-comments-work" class="quick-comments"></div>
+<button class="addCommentBtn" data-tab="work">➕ Add Comment</button>
+
     <div class="notes-panel">
       <h3>Work Notes</h3>
       <textarea id="notes-work" rows="6" placeholder="Work notes..."></textarea><br/>
@@ -435,8 +485,11 @@ body.dark-mode .context-menu li:hover {
   <h3>Bookmarks</h3>
   <div id="bookmark-bar-personal" class="bookmark-bar"></div>
   <button id="showBookmarkModal-personal" style="margin-top: 10px;">➕ Add Bookmark</button>
-
-  <!-- Modal -->
+<h3>Quick Comments</h3>
+  <div id="quick-comments-personal" class="quick-comments"></div>
+  <button class="addCommentBtn" data-tab="personal">➕ Add Comment</button>
+  
+<!-- Modal -->
   <div id="bookmarkModal-personal" class="modal" style="display:none;">
     <div class="modal-content">
       <span class="close" onclick="closeBookmarkModal('personal')">&times;</span>
@@ -460,6 +513,9 @@ body.dark-mode .context-menu li:hover {
   <h3>Bookmarks</h3>
   <div id="bookmark-bar-secondjob" class="bookmark-bar"></div>
   <button id="showBookmarkModal-secondjob" style="margin-top: 10px;">➕ Add Bookmark</button>
+<h3>Quick Comments</h3>
+  <div id="quick-comments-secondjob" class="quick-comments"></div>
+  <button class="addCommentBtn" data-tab="secondjob">➕ Add Comment</button>
 
   <!-- Modal -->
   <div id="bookmarkModal-secondjob" class="modal" style="display:none;">
@@ -470,7 +526,6 @@ body.dark-mode .context-menu li:hover {
       <button onclick="addBookmark('secondjob')">Save</button>
     </div>
   </div>
-
   <div class="notes-panel">
     <h3>ADI Notes</h3>
     <textarea id="notes-secondjob" rows="6" placeholder="ADI notes..."></textarea><br/>
@@ -483,8 +538,11 @@ body.dark-mode .context-menu li:hover {
 <div id="charity" class="tab">
   <h2>Charity</h2>
   <h3>Bookmarks</h3>
-  <div id="bookmark-bar-charity" class="bookmark-bar"></div>
-  <button id="showBookmarkModal-charity" style="margin-top: 10px;">➕ Add Bookmark</button>
+    <div id="bookmark-bar-charity" class="bookmark-bar"></div>
+    <button id="showBookmarkModal-charity" style="margin-top: 10px;">➕ Add Bookmark</button>
+  <h3>Quick Comments</h3>
+    <div id="quick-comments-charity" class="quick-comments"></div>
+    <button class="addCommentBtn" data-tab="charity">➕ Add Comment</button>
 
   <!-- Modal -->
   <div id="bookmarkModal-charity" class="modal" style="display:none;">
@@ -807,12 +865,16 @@ function setupAutosave(tab) {
     document.getElementById("bookmark-context-menu").style.display = "none";
   });
 
-  loadBookmarks("work");
-  ["personal", "secondjob", "charity"].forEach(loadBookmarks);
+ loadBookmarks("work");
+["personal", "secondjob", "charity"].forEach(loadBookmarks);
+
 ["work", "personal", "secondjob", "charity"].forEach(tab => {
   loadNotes(tab);
   setupAutosave(tab); // 👈 This enables autosave for each notes section
 });
+
+["work", "personal", "secondjob", "charity"].forEach(loadQuickComments); // ✅ Correct placement
+
 
   function updateClocks() {
     const clocks = [
@@ -868,6 +930,101 @@ function setupAutosave(tab) {
     applyDarkMode(isDark);
     localStorage.setItem("theme", isDark ? "dark" : "light");
   });
+  
+  const quickCommentsData = {}; // { tab: { label: text, ... } }
+
+async function loadQuickComments(tab) {
+  const docRef = doc(db, "quickComments", tab);
+  const snap = await getDoc(docRef);
+  quickCommentsData[tab] = snap.exists() ? snap.data() : {};
+  renderQuickComments(tab);
+}
+
+async function saveQuickComments(tab) {
+  await setDoc(doc(db, "quickComments", tab), quickCommentsData[tab]);
+}
+
+function renderQuickComments(tab) {
+  const container = document.getElementById(`quick-comments-${tab}`);
+  if (!container) return;
+  container.innerHTML = "";
+
+  Object.keys(quickCommentsData[tab] || {}).forEach(label => {
+    const btn = document.createElement("button");
+    const content = quickCommentsData[tab][label];
+
+    btn.textContent = label;
+    btn.title = content.slice(0, 100);
+    btn.onclick = () => {
+      navigator.clipboard.writeText(content);
+      btn.textContent = "✔ Copied!";
+      setTimeout(() => btn.textContent = label, 1500);
+    };
+    btn.oncontextmenu = (e) => {
+      e.preventDefault();
+      showQuickCommentContextMenu(e.pageX, e.pageY, tab, label);
+    };
+    container.appendChild(btn);
+  });
+}
+
+function showQuickCommentContextMenu(x, y, tab, label) {
+  const menu = document.getElementById("quickCommentContextMenu");
+  menu.style.top = `${y}px`;
+  menu.style.left = `${x}px`;
+  menu.style.display = "block";
+  menu.dataset.tab = tab;
+  menu.dataset.label = label;
+}
+
+document.addEventListener("click", () => {
+  document.getElementById("quickCommentContextMenu").style.display = "none";
+});
+
+document.querySelectorAll(".addCommentBtn").forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const tab = btn.dataset.tab;
+    const label = prompt("Enter a short label:");
+    if (!label) return;
+    const text = prompt("Enter the comment text:");
+    if (!text) return;
+    quickCommentsData[tab][label] = text;
+    await saveQuickComments(tab);
+    renderQuickComments(tab);
+  });
+});
+
+document.body.insertAdjacentHTML("beforeend", `
+  <div id="quickCommentContextMenu">
+    <ul>
+      <li data-action="edit">✏️ Edit</li>
+      <li data-action="delete">🗑️ Delete</li>
+    </ul>
+  </div>
+`);
+
+document.getElementById("quickCommentContextMenu").addEventListener("click", async (e) => {
+  const action = e.target.dataset.action;
+  const tab = e.currentTarget.dataset.tab;
+  const label = e.currentTarget.dataset.label;
+
+  if (action === "edit") {
+    const newText = prompt("Edit comment text:", quickCommentsData[tab][label]);
+    if (newText !== null) {
+      quickCommentsData[tab][label] = newText;
+      await saveQuickComments(tab);
+      renderQuickComments(tab);
+    }
+  } else if (action === "delete") {
+    if (confirm(`Delete comment "${label}"?`)) {
+      delete quickCommentsData[tab][label];
+      await saveQuickComments(tab);
+      renderQuickComments(tab);
+    }
+  }
+});
+  
+
 
   window.saveNotes = saveNotes;
   window.addBookmark = addBookmark;
