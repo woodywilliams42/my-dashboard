@@ -497,41 +497,52 @@ body.dark-mode .context-menu li:hover {
   window.db = db;
   window.storage = storage;
 
-  async function saveNotes(tab) {
-    const content = document.getElementById(`notes-${tab}`).value;
-    const statusEl = document.getElementById(`saveStatus-${tab}`);
-    try {
-      await setDoc(doc(db, "dashboardNotes", tab), { content });
-      statusEl.textContent = "✔ Saved!";
-      statusEl.style.opacity = 1;
-    } catch (err) {
-      console.error("Error saving notes:", err);
-      statusEl.textContent = "❌ Save failed!";
-      statusEl.style.opacity = 1;
-    }
-    setTimeout(() => {
-      statusEl.style.opacity = 0;
-    }, 2000);
-  }
-function setupAutosave(tab) {
-  const textarea = document.getElementById(`notes-${tab}`);
+async function saveNotes(tab) {
+  const content = document.getElementById(`notes-${tab}`).value;
   const statusEl = document.getElementById(`saveStatus-${tab}`);
 
+  statusEl.textContent = "Saving...";
+  statusEl.style.opacity = 1;
+
+  try {
+    await setDoc(doc(db, "dashboardNotes", tab), { content });
+    statusEl.textContent = "✔ Saved!";
+  } catch (err) {
+    console.error("Error saving notes:", err);
+    statusEl.textContent = "❌ Save failed!";
+  }
+
+  setTimeout(() => {
+    statusEl.style.opacity = 0;
+  }, 2000);
+}
+
+const lastSavedContent = {};
+
+function setupAutosave(tab) {
+  const textarea = document.getElementById(`notes-${tab}`);
   let debounceTimer;
 
-  // Save when typing stops for 2 seconds
   textarea.addEventListener("input", () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-      saveNotes(tab);
+      const currentContent = textarea.value;
+      if (lastSavedContent[tab] !== currentContent) {
+        saveNotes(tab);
+        lastSavedContent[tab] = currentContent;
+      }
     }, 2000);
   });
 
-  // Save when focus is lost (clicking out)
   textarea.addEventListener("blur", () => {
-    saveNotes(tab);
+    const currentContent = textarea.value;
+    if (lastSavedContent[tab] !== currentContent) {
+      saveNotes(tab);
+      lastSavedContent[tab] = currentContent;
+    }
   });
 }
+
 
   async function loadNotes(tab) {
     try {
