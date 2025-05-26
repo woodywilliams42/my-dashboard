@@ -1,836 +1,336 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Dashboard</title>
-  <style>
-     /* === THEME VARIABLES === */
-    :root {
-      --bg-color: #ffffff;
-      --text-color: #000000;
-      --card-bg: #f0f0f0;
-      --button-bg: #444;
-      --button-text: #ffffff;
-      --accent: #2a9d8f;
-      --border-color: #ccc;
-    }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-    body.dark {
-      --bg-color: #121212;
-      --text-color: #f0f0f0;
-      --card-bg: #1e1e1e;
-      --button-bg: #333;
-      --button-text: #ffffff;
-      --accent: #90caf9;
-      --border-color: #555;
-    }
-
-    /* === BASE STYLES === */
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: sans-serif;
-      padding: 20px;
-      transition: background-color 0.4s ease, color 0.4s ease;
-    }
-
-    /* === NAVIGATION === */
-    nav {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    nav button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: var(--button-bg);
-      color: var(--button-text);
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    nav button.active {
-      background-color: var(--accent);
-      color: var(--bg-color);
-    }
-
-    /* === TABS === */
-    .tab {
-      display: none;
-    }
-
-    .tab.active {
-      display: block;
-      margin-top: 20px;
-    }
-
-    /* === CLOCKS === */
-    .clock-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    .clock-card {
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .clock-card h4 {
-      margin: 0 0 5px;
-      font-size: 1.1em;
-      color: var(--accent);
-    }
-
-    .clock-card .time {
-      font-size: 1.3em;
-      font-weight: bold;
-      color: var(--text-color);
-    }
-
-    /* === NOTES PANEL === */
-    .notes-panel {
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background: var(--card-bg);
-    }
-
-    textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      background: var(--bg-color);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-    }
-
-    span[id^="saveStatus-"] {
-      margin-left: 10px;
-      font-weight: bold;
-      color: limegreen;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    /* === DARK MODE TOGGLE === */
-    .dark-toggle {
-      float: right;
-      margin: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 24px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: var(--border-color);
-      transition: 0.4s;
-      border-radius: 34px;
-    }
-
-    .slider::before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider {
-      background-color: var(--accent);
-    }
-
-    input:checked + .slider::before {
-      transform: translateX(26px);
-    }
-.bookmark-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.bookmark-bar a {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  text-align: center;
-  position: relative;
-}
-
-.bookmark-bar a img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.bookmark-bar a .remove {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: red;
-  color: white;
-  font-size: 12px;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  text-align: center;
-  line-height: 16px;
-  cursor: pointer;
-}
-
-.bookmark-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.bookmark-form input {
-  flex: 1;
-  padding: 6px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-.bookmark-button {
-  display: inline-block;
-  position: relative;
-  padding: 5px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.bookmark-link {
-    display: inline-block;
-    margin: 0 5px;
-    padding: 4px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-  }
-
-  .bookmark-link:hover {
-    background-color: rgba(0, 0, 0, 0.07);
-    transform: scale(1.1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  }
-
-  /* Optional: improve image rendering */
-  .bookmark-link img {
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
-  }
-
-  .bookmark-link .remove {
-    margin-left: 4px;
-    cursor: pointer;
-    color: red;
-    font-weight: bold;
-  }
-}
-.modal {
-  position: fixed;
-  z-index: 999;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: var(--card-bg);
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  position: relative;
-}
-
-.modal-content input {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 6px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-
-.modal-content .close {
-  position: absolute;
-  top: 10px; right: 12px;
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--text-color);
-  cursor: pointer;
-}
-/* Base context menu styles */
-.context-menu {
-  background-color: white;
-  color: black;
-  border: 1px solid #ccc;
-  z-index: 1000;
-  position: absolute;
-  display: none;
-  min-width: 160px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.context-menu ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.context-menu li {
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.context-menu li:hover {
-  background-color: #f0f0f0;
-}
-
-/* Dark mode adjustments */
-body.dark-mode .context-menu {
-  background-color: #222;
-  color: white;
-  border-color: #444;
-}
-
-body.dark-mode .context-menu li:hover {
-  background-color: #333;
-}
-
-  </style>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-</head>
-<body>
-  <h1>My Dashboard</h1>
-  <div class="dark-toggle">
-    <label class="switch">
-      <input type="checkbox" id="darkModeToggle" />
-      <span class="slider"></span>
-    </label>
-    <span id="theme-label">🌞</span>
-  </div>
-
-  <nav>
-    <button data-tab="work" class="active">Work</button>
-    <button data-tab="personal">Personal</button>
-    <button data-tab="secondjob">ADI</button>
-    <button data-tab="charity">Table/41</button>
-  </nav>
-
-  <!-- === TAB: WORK === -->
-  <div id="work" class="tab active">
-    <h2>Work</h2>
-    <h3>Bookmarks</h3>
-    <div id="bookmark-bar-work" class="bookmark-bar"></div>
-    <button id="showBookmarkModal-work" style="margin-top: 10px;">➕ Add Bookmark</button>
-
-    <!-- Modal -->
-    <div id="bookmarkModal-work" class="modal" style="display:none;">
-      <div class="modal-content">
-        <span class="close" onclick="closeBookmarkModal('work')">&times;</span>
-        <h3>Add Bookmark</h3>
-        <input type="url" id="newBookmarkUrl-work" placeholder="https://example.com" />
-        <button onclick="addBookmark('work')">Save</button>
-      </div>
-    </div>
-
-    <h3>World Clocks</h3>
-    <div id="world-clocks" class="clock-grid"></div>
-
-    <div class="notes-panel">
-      <h3>Work Notes</h3>
-      <textarea id="notes-work" rows="6" placeholder="Work notes..."></textarea><br/>
-      <button onclick="saveNotes('work')">Save</button>
-      <span id="saveStatus-work"></span>
-    </div>
-  </div>
-
- <!-- === TAB: PERSONAL === -->
-<div id="personal" class="tab">
-  <h2>Personal</h2>
-  <h3>Bookmarks</h3>
-  <div id="bookmark-bar-personal" class="bookmark-bar"></div>
-  <button id="showBookmarkModal-personal" style="margin-top: 10px;">➕ Add Bookmark</button>
-
-  <!-- Modal -->
-  <div id="bookmarkModal-personal" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span class="close" onclick="closeBookmarkModal('personal')">&times;</span>
-      <h3>Add Bookmark</h3>
-      <input type="url" id="newBookmarkUrl-personal" placeholder="https://example.com" />
-      <button onclick="addBookmark('personal')">Save</button>
-    </div>
-  </div>
-
-  <div class="notes-panel">
-    <h3>Personal Notes</h3>
-    <textarea id="notes-personal" rows="6" placeholder="Personal notes..."></textarea><br/>
-    <button onclick="saveNotes('personal')">Save</button>
-    <span id="saveStatus-personal"></span>
-  </div>
-</div>
-
-<!-- === TAB: ADI === -->
-<div id="secondjob" class="tab">
-  <h2>ADI</h2>
-  <h3>Bookmarks</h3>
-  <div id="bookmark-bar-secondjob" class="bookmark-bar"></div>
-  <button id="showBookmarkModal-secondjob" style="margin-top: 10px;">➕ Add Bookmark</button>
-
-  <!-- Modal -->
-  <div id="bookmarkModal-secondjob" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span class="close" onclick="closeBookmarkModal('secondjob')">&times;</span>
-      <h3>Add Bookmark</h3>
-      <input type="url" id="newBookmarkUrl-secondjob" placeholder="https://example.com" />
-      <button onclick="addBookmark('secondjob')">Save</button>
-    </div>
-  </div>
-
-  <div class="notes-panel">
-    <h3>ADI Notes</h3>
-    <textarea id="notes-secondjob" rows="6" placeholder="ADI notes..."></textarea><br/>
-    <button onclick="saveNotes('secondjob')">Save</button>
-    <span id="saveStatus-secondjob"></span>
-  </div>
-</div>
-
-<!-- === TAB: CHARITY === -->
-<div id="charity" class="tab">
-  <h2>Charity</h2>
-  <h3>Bookmarks</h3>
-  <div id="bookmark-bar-charity" class="bookmark-bar"></div>
-  <button id="showBookmarkModal-charity" style="margin-top: 10px;">➕ Add Bookmark</button>
-
-  <!-- Modal -->
-  <div id="bookmarkModal-charity" class="modal" style="display:none;">
-    <div class="modal-content">
-      <span class="close" onclick="closeBookmarkModal('charity')">&times;</span>
-      <h3>Add Bookmark</h3>
-      <input type="url" id="newBookmarkUrl-charity" placeholder="https://example.com" />
-      <button onclick="addBookmark('charity')">Save</button>
-    </div>
-  </div>
-
-  <div class="notes-panel">
-    <h3>Charity Notes</h3>
-    <textarea id="notes-charity" rows="6" placeholder="Charity notes..."></textarea><br/>
-    <button onclick="saveNotes('charity')">Save</button>
-    <span id="saveStatus-charity"></span>
-  </div>
-</div>
-<div id="bookmark-context-menu" class="context-menu">
-  <ul>
-    <li data-action="open">Open in New Tab</li>
-    <li data-action="copy">Copy URL</li>
-    <li data-action="edit">Edit Bookmark</li>
-    <li data-action="remove">Remove Bookmark</li>
-    <li data-action="change-favicon">Change Favicon</li>
-  </ul>
-</div>
-
-<input type="file" id="favicon-upload" style="display:none" accept="image/*" />
-
-  <!-- === SCRIPT === -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
-      authDomain: "woodydashboard.firebaseapp.com",
-      projectId: "woodydashboard",
-      storageBucket: "woodydashboard.appspot.com",
-      messagingSenderId: "180582118415",
-      appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
-
+  const firebaseConfig = {
+    apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
+    authDomain: "woodydashboard.firebaseapp.com",
+    projectId: "woodydashboard",
+    storageBucket: "woodydashboard.appspot.com",
+    messagingSenderId: "180582118415",
+    appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
   };
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  // Make db and storage globally available
   window.db = db;
   window.storage = storage;
-    async function saveNotes(tab) {
-      const content = document.getElementById(`notes-${tab}`).value;
-      const statusEl = document.getElementById(`saveStatus-${tab}`);
-      try {
-        await setDoc(doc(db, "dashboardNotes", tab), { content });
-        console.log(`[SAVED] ${tab}:`, content);
-        statusEl.textContent = "✔ Saved!";
-        statusEl.style.opacity = 1;
-      } catch (err) {
-        console.error("Error saving notes:", err);
-        statusEl.textContent = "❌ Save failed!";
-        statusEl.style.opacity = 1;
-      }
-      setTimeout(() => {
-        statusEl.style.opacity = 0;
-      }, 2000);
-    }
 
-    async function loadNotes(tab) {
-      try {
-        const snap = await getDoc(doc(db, "dashboardNotes", tab));
-const favicons = snap.data().favicons || {};
-        if (snap.exists()) {
-          const data = snap.data();
-          document.getElementById(`notes-${tab}`).value = data.content;
-        }
-      } catch (err) {
-        console.error(`Error loading notes for ${tab}:`, err);
-      }
-    }
-
-    async function loadBookmarks(tab) {
-  try {
-    const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-    if (snap.exists()) {
-      const data = snap.data(); // ✅ get both urls and favicons
-      renderBookmarks(tab, data);
-    }
-  } catch (err) {
-    console.error(`Error loading bookmarks for ${tab}:`, err);
-  }
-}
-
-
-async function addBookmark(tab) {
-  const input = document.getElementById(`newBookmarkUrl-${tab}`);
-  const url = input.value.trim();
-  try {
-    new URL(url); // Validate URL
-  } catch {
-    alert("Please enter a valid URL (e.g. https://example.com)");
-    return;
-  }
-
-  let urls = [];
-  let favicons = {};
-  try {
-    const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-    if (snap.exists()) {
-      const data = snap.data();
-      urls = Array.isArray(data.urls) ? data.urls : [];
-      favicons = data.favicons || {};
-    }
-  } catch (err) {
-    console.error("Error fetching bookmarks before add:", err);
-  }
-
-  if (!urls.includes(url)) {
-    urls.push(url);
+  async function saveNotes(tab) {
+    const content = document.getElementById(`notes-${tab}`).value;
+    const statusEl = document.getElementById(`saveStatus-${tab}`);
     try {
-      await setDoc(doc(db, "dashboardBookmarks", tab), { urls, favicons });
-      input.value = "";
-      renderBookmarks(tab, { urls, favicons }); // 👈 Pass full object here
-      closeBookmarkModal(tab);
+      await setDoc(doc(db, "dashboardNotes", tab), { content });
+      statusEl.textContent = "✔ Saved!";
+      statusEl.style.opacity = 1;
     } catch (err) {
-      console.error("Error saving bookmark:", err);
+      console.error("Error saving notes:", err);
+      statusEl.textContent = "❌ Save failed!";
+      statusEl.style.opacity = 1;
     }
-  } else {
-    alert("Bookmark already exists.");
+    setTimeout(() => {
+      statusEl.style.opacity = 0;
+    }, 2000);
   }
-}
 
-    async function removeBookmark(tab, url) {
+  async function loadNotes(tab) {
+    try {
+      const snap = await getDoc(doc(db, "dashboardNotes", tab));
+      if (snap.exists()) {
+        const data = snap.data();
+        document.getElementById(`notes-${tab}`).value = data.content;
+      }
+    } catch (err) {
+      console.error(`Error loading notes for ${tab}:`, err);
+    }
+  }
+
+  async function loadBookmarks(tab) {
+    try {
       const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-      if (!snap.exists()) return;
+      if (snap.exists()) {
+        const data = snap.data();
+        renderBookmarks(tab, data);
+      }
+    } catch (err) {
+      console.error(`Error loading bookmarks for ${tab}:`, err);
+    }
+  }
 
-      const urls = snap.data().urls || [];
-      const updated = urls.filter(u => u !== url);
-      await setDoc(doc(db, "dashboardBookmarks", tab), { urls: updated });
-      renderBookmarks(tab, updated);
+  async function addBookmark(tab) {
+    const input = document.getElementById(`newBookmarkUrl-${tab}`);
+    const url = input.value.trim();
+
+    try {
+      new URL(url);
+    } catch {
+      alert("Please enter a valid URL (e.g. https://example.com)");
+      return;
     }
 
-function renderBookmarks(tab, data) {
-  const container = document.getElementById(`bookmark-bar-${tab}`);
-  container.innerHTML = "";
+    let urls = [];
+    let favicons = {};
+    try {
+      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+      if (snap.exists()) {
+        const data = snap.data();
+        urls = Array.isArray(data.urls) ? data.urls : [];
+        favicons = data.favicons || {};
+      }
+    } catch (err) {
+      console.error("Error fetching bookmarks before add:", err);
+    }
 
-  const urls = data.urls || [];
-  const favicons = data.favicons || {};
-
-  urls.forEach(url => {
-    const a = document.createElement("a");
-    a.className = "bookmark-button";
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.title = url;
-    a.classList.add("bookmark-link");    
-
-    const img = document.createElement("img");
-
-    // Use custom uploaded favicon if available
-    if (favicons[url]) {
-      img.src = favicons[url];
+    if (!urls.includes(url)) {
+      urls.push(url);
+      try {
+        await setDoc(doc(db, "dashboardBookmarks", tab), { urls, favicons });
+        input.value = "";
+        renderBookmarks(tab, { urls, favicons });
+        closeBookmarkModal(tab);
+      } catch (err) {
+        console.error("Error saving bookmark:", err);
+      }
     } else {
-      const fallback = new URL("/favicon.ico", url).href;
-      img.src = fallback;
-      img.onerror = () => {
-        img.src = "https://www.google.com/s2/favicons?domain=" + url;
-      };
+      alert("Bookmark already exists.");
     }
+  }
 
-    img.alt = "icon";
+  async function removeBookmark(tab, url) {
+    const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+    if (!snap.exists()) return;
 
-    const removeBtn = document.createElement("span");
-    removeBtn.className = "remove";
-    removeBtn.textContent = "×";
-    removeBtn.onclick = (e) => {
+    const urls = snap.data().urls || [];
+    const updated = urls.filter(u => u !== url);
+    await setDoc(doc(db, "dashboardBookmarks", tab), { urls: updated });
+    renderBookmarks(tab, { urls: updated, favicons: snap.data().favicons || {} });
+  }
+
+  function renderBookmarks(tab, data) {
+    const container = document.getElementById(`bookmark-bar-${tab}`);
+    container.innerHTML = "";
+
+    const urls = data.urls || [];
+    const favicons = data.favicons || {};
+
+    urls.forEach(url => {
+      const a = document.createElement("a");
+      a.className = "bookmark-button";
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      a.title = url;
+      a.classList.add("bookmark-link");
+
+      const img = document.createElement("img");
+      img.alt = "icon";
+
+      if (favicons[url]) {
+        img.src = favicons[url];
+      } else {
+        const fallback = new URL("/favicon.ico", url).href;
+        img.src = fallback;
+        img.onerror = () => {
+          img.src = "https://www.google.com/s2/favicons?domain=" + url;
+        };
+      }
+
+      const removeBtn = document.createElement("span");
+      removeBtn.className = "remove";
+      removeBtn.textContent = "×";
+      removeBtn.onclick = (e) => {
+        e.preventDefault();
+        removeBookmark(tab, url);
+      };
+
+      a.appendChild(img);
+      a.appendChild(removeBtn);
+      container.appendChild(a);
+
+      a.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        currentContextUrl = url;
+        currentContextTab = tab;
+        currentContextImg = img;
+
+        const menu = document.getElementById("bookmark-context-menu");
+        menu.style.top = `${e.pageY}px`;
+        menu.style.left = `${e.pageX}px`;
+        menu.style.display = "block";
+      });
+    });
+
+    Sortable.create(container, {
+      animation: 150,
+      onEnd: async function () {
+        const newOrder = Array.from(container.querySelectorAll("a")).map(a => a.href);
+        try {
+          await setDoc(doc(db, "dashboardBookmarks", tab), {
+            urls: newOrder,
+            favicons
+          });
+        } catch (err) {
+          console.error("Error saving new bookmark order:", err);
+        }
+      }
+    });
+  }
+
+  let currentContextUrl = null;
+  let currentContextTab = null;
+  let currentContextImg = null;
+
+  document.addEventListener("contextmenu", (e) => {
+    const link = e.target.closest(".bookmark-button");
+    if (link) {
       e.preventDefault();
-      removeBookmark(tab, url);
-    };
-
-    a.appendChild(img);
-    a.appendChild(removeBtn);
-    container.appendChild(a);
-
-    // Enable context menu tracking
-    a.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      currentContextUrl = url;
-      currentContextTab = tab;
-      currentContextImg = img;
+      currentContextUrl = link.href;
+      const bar = link.closest("[id^='bookmark-bar-']");
+      if (bar) {
+        currentContextTab = bar.id.replace("bookmark-bar-", "");
+      }
 
       const menu = document.getElementById("bookmark-context-menu");
       menu.style.top = `${e.pageY}px`;
       menu.style.left = `${e.pageX}px`;
       menu.style.display = "block";
-    });
-  });
-
-  Sortable.create(container, {
-    animation: 150,
-    onEnd: async function () {
-      const newOrder = Array.from(container.querySelectorAll("a")).map(a => a.href);
-      try {
-        await setDoc(doc(db, "dashboardBookmarks", tab), {
-          urls: newOrder,
-          favicons: favicons // preserve existing custom favicons
-        });
-        console.log(`[REORDERED] ${tab}:`, newOrder);
-      } catch (err) {
-        console.error("Error saving new bookmark order:", err);
-      }
+    } else {
+      document.getElementById("bookmark-context-menu").style.display = "none";
     }
   });
-}
-let currentContextUrl = null;
-let currentContextTab = null;
-let currentContextImg = null;
 
-
-document.addEventListener("contextmenu", (e) => {
-  const link = e.target.closest(".bookmark-button");
-  if (link) {
-    e.preventDefault();
-    currentContextUrl = link.href;
-
-    // Infer the tab name from the closest container ID (like 'bookmark-bar-tab1')
-    const bar = link.closest("[id^='bookmark-bar-']");
-    if (bar) {
-      currentContextTab = bar.id.replace("bookmark-bar-", "");
-    }
-
-    const menu = document.getElementById("bookmark-context-menu");
-    menu.style.top = `${e.pageY}px`;
-    menu.style.left = `${e.pageX}px`;
-    menu.style.display = "block";
-  } else {
+  document.addEventListener("click", () => {
     document.getElementById("bookmark-context-menu").style.display = "none";
-  }
-});
+  });
 
-document.addEventListener("click", () => {
-  document.getElementById("bookmark-context-menu").style.display = "none";
-});
+  document.getElementById("bookmark-context-menu").addEventListener("click", async (e) => {
+    const action = e.target.dataset.action;
+    if (!action) return;
 
-document.getElementById("bookmark-context-menu").addEventListener("click", async (e) => {
-  const action = e.target.dataset.action;
-  if (!action) return;
+    if (action === "open") {
+      window.open(currentContextUrl, "_blank");
 
-  if (action === "open") {
-    window.open(currentContextUrl, "_blank");
+    } else if (action === "copy") {
+      await navigator.clipboard.writeText(currentContextUrl);
 
-  } else if (action === "copy") {
-    await navigator.clipboard.writeText(currentContextUrl);
+    } else if (action === "edit") {
+      const newUrl = prompt("Edit bookmark URL:", currentContextUrl);
+      if (newUrl && newUrl !== currentContextUrl) {
+        const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
+        if (snap.exists()) {
+          const urls = snap.data().urls || [];
+          const index = urls.indexOf(currentContextUrl);
+          if (index !== -1) {
+            urls[index] = newUrl;
+            await setDoc(doc(db, "dashboardBookmarks", currentContextTab), { 
+              urls, 
+              favicons: snap.data().favicons || {} 
+            });
+            renderBookmarks(currentContextTab, { urls, favicons: snap.data().favicons || {} });
+          }
+        }
+      }
 
-  } else if (action === "edit") {
-    const newUrl = prompt("Edit bookmark URL:", currentContextUrl);
-    if (newUrl && newUrl !== currentContextUrl) {
-      const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
-      if (snap.exists()) {
-        const urls = snap.data().urls || [];
-        const index = urls.indexOf(currentContextUrl);
-        if (index !== -1) {
-          urls[index] = newUrl;
-          await setDoc(doc(db, "dashboardBookmarks", currentContextTab), { urls });
-          renderBookmarks(currentContextTab, urls);
+    } else if (action === "remove") {
+      if (currentContextTab && currentContextUrl) {
+        await removeBookmark(currentContextTab, currentContextUrl);
+      }
+
+    } else if (action === "change-favicon") {
+      const newFaviconUrl = prompt("Enter URL of new favicon:", "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/icon1.png");
+      if (newFaviconUrl && currentContextImg && currentContextUrl && currentContextTab) {
+        currentContextImg.src = newFaviconUrl;
+
+        const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
+        if (snap.exists()) {
+          const urls = snap.data().urls || [];
+          const favicons = snap.data().favicons || {};
+          if (urls.includes(currentContextUrl)) {
+            favicons[currentContextUrl] = newFaviconUrl;
+            await setDoc(doc(db, "dashboardBookmarks", currentContextTab), { urls, favicons });
+          }
         }
       }
     }
 
-} else if (action === "remove") {
-  if (currentContextTab && currentContextUrl) {
-    await removeBookmark(currentContextTab, currentContextUrl);
-  }
-} else if (action === "change-favicon") {
+    document.getElementById("bookmark-context-menu").style.display = "none";
+  });
 
-  const newFaviconUrl = prompt("Enter URL of new favicon:", "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/icon1.png");
+  loadBookmarks("work");
+  ["personal", "secondjob", "charity"].forEach(loadBookmarks);
+  ["work", "personal", "secondjob", "charity"].forEach(loadNotes);
 
-  if (newFaviconUrl && currentContextImg && currentContextUrl && currentContextTab) {
-    // Set new image source
-    currentContextImg.src = newFaviconUrl;
-
-    // Save it to Firestore
-    const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
-    if (snap.exists()) {
-      const urls = snap.data().urls || [];
-      const favicons = snap.data().favicons || {};
-      if (urls.includes(currentContextUrl)) {
-        favicons[currentContextUrl] = newFaviconUrl;
-        await setDoc(doc(db, "dashboardBookmarks", currentContextTab), {
-          urls,
-          favicons
-        });
-      }
-    }
-  }
-
-  // Hide the context menu after
-  }
- document.getElementById("bookmark-context-menu").style.display = "none";
-});
-
-    loadBookmarks("work");
-
-    const tabs = ["work", "personal", "secondjob", "charity"];
-    tabs.forEach(loadNotes);
-
-    function updateClocks() {
-      const clocks = [
-        { city: "Shanghai", timeZone: "Asia/Shanghai" },
-        { city: "Chennai", timeZone: "Asia/Kolkata" },
-        { city: "London", timeZone: "Europe/London" },
-        { city: "New York", timeZone: "America/New_York" },
-        { city: "Dallas", timeZone: "America/Chicago" },
-        { city: "Honolulu", timeZone: "Pacific/Honolulu" }
-      ];
-      const container = document.getElementById("world-clocks");
-      container.innerHTML = clocks.map(({ city, timeZone }) => {
-        const now = new Date().toLocaleTimeString("en-US", {
-          timeZone,
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false
-        });
-        return `<div class="clock-card">
-                  <h4>${city}</h4>
-                  <div class="time">${now}</div>
-                </div>`;
-      }).join("");
-    }
-
-    setInterval(updateClocks, 1000);
-    updateClocks();
-
-    document.querySelectorAll("nav button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const target = btn.dataset.tab;
-        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-        document.getElementById(target).classList.add("active");
-        document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
+  function updateClocks() {
+    const clocks = [
+      { city: "Shanghai", timeZone: "Asia/Shanghai" },
+      { city: "Chennai", timeZone: "Asia/Kolkata" },
+      { city: "London", timeZone: "Europe/London" },
+      { city: "New York", timeZone: "America/New_York" },
+      { city: "Dallas", timeZone: "America/Chicago" },
+      { city: "Honolulu", timeZone: "Pacific/Honolulu" }
+    ];
+    const container = document.getElementById("world-clocks");
+    container.innerHTML = clocks.map(({ city, timeZone }) => {
+      const now = new Date().toLocaleTimeString("en-US", {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
       });
+      return `<div class="clock-card"><h4>${city}</h4><div class="time">${now}</div></div>`;
+    }).join("");
+  }
+
+  setInterval(updateClocks, 1000);
+  updateClocks();
+
+  document.querySelectorAll("nav button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tab;
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      document.getElementById(target).classList.add("active");
+      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
     });
+  });
 
-    const darkToggle = document.getElementById("darkModeToggle");
-    const themeLabel = document.getElementById("theme-label");
+  const darkToggle = document.getElementById("darkModeToggle");
+  const themeLabel = document.getElementById("theme-label");
 
-    function applyDarkMode(isDark) {
-      document.body.classList.toggle("dark", isDark);
-      darkToggle.checked = isDark;
-      themeLabel.textContent = isDark ? "🌙" : "🌞";
-    }
+  function applyDarkMode(isDark) {
+    document.body.classList.toggle("dark", isDark);
+    darkToggle.checked = isDark;
+    themeLabel.textContent = isDark ? "🌙" : "🌞";
+  }
 
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const isDarkMode = savedTheme ? savedTheme === "dark" : systemPrefersDark;
-    applyDarkMode(isDarkMode);
+  const savedTheme = localStorage.getItem("theme");
+  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const isDarkMode = savedTheme ? savedTheme === "dark" : systemPrefersDark;
+  applyDarkMode(isDarkMode);
 
-    darkToggle.addEventListener("change", () => {
-      const isDark = darkToggle.checked;
-      applyDarkMode(isDark);
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-    });
+  darkToggle.addEventListener("change", () => {
+    const isDark = darkToggle.checked;
+    applyDarkMode(isDark);
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  });
 
-    window.saveNotes = saveNotes;
-    window.addBookmark = addBookmark;
-    window.removeBookmark = removeBookmark;
-    window.showBookmarkModal = function(tab) {
-      document.getElementById(`bookmarkModal-${tab}`).style.display = 'flex';
-    };
-    window.closeBookmarkModal = function(tab) {
-      document.getElementById(`bookmarkModal-${tab}`).style.display = 'none';
-    };
+  window.saveNotes = saveNotes;
+  window.addBookmark = addBookmark;
+  window.removeBookmark = removeBookmark;
+  window.showBookmarkModal = function(tab) {
+    document.getElementById(`bookmarkModal-${tab}`).style.display = 'flex';
+  };
+  window.closeBookmarkModal = function(tab) {
+    document.getElementById(`bookmarkModal-${tab}`).style.display = 'none';
+  };
 
-    document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
-// Load all bookmark bars
-["personal", "secondjob", "charity"].forEach(loadBookmarks);
+  ["personal", "secondjob", "charity"].forEach(tab => {
+    document.getElementById(`showBookmarkModal-${tab}`).addEventListener("click", () => window.showBookmarkModal(tab));
+  });
 
-// Add modal open handlers
-["personal", "secondjob", "charity"].forEach(tab => {
-  document.getElementById(`showBookmarkModal-${tab}`).addEventListener("click", () => window.showBookmarkModal(tab));
-});
-  </script>
-</body>
-</html>
+  document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
+</script>
