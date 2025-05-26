@@ -330,6 +330,45 @@
   background-color: #f0f0f0;
 }
 
+.hero-background {
+  background-image: url('https://github.com/woodywilliams42/my-dashboard/blob/main/images/Belissima.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 2rem;
+  color: white;
+  height: 300px; /* Adjust as needed */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.hero-background h1,
+.hero-background nav,
+.hero-background .dark-toggle {
+  z-index: 2;
+  position: relative;
+}
+
+.hero-background::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.4); /* optional dark overlay */
+  z-index: 1;
+}
+
+.hero-background {
+  position: relative;
+}
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
 /* Dark mode adjustments */
 body.dark-mode .context-menu {
   background-color: #222;
@@ -345,6 +384,7 @@ body.dark-mode .context-menu li:hover {
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
+  <div class="hero-background">
   <h1>My Dashboard</h1>
   <div class="dark-toggle">
     <label class="switch">
@@ -360,7 +400,7 @@ body.dark-mode .context-menu li:hover {
     <button data-tab="secondjob">ADI</button>
     <button data-tab="charity">Table/41</button>
   </nav>
-
+</div>
   <!-- === TAB: WORK === -->
   <div id="work" class="tab active">
     <h2>Work</h2>
