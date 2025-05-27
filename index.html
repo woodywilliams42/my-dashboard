@@ -939,17 +939,17 @@ function setupAutosave(tab) {
     localStorage.setItem("theme", isDark ? "dark" : "light");
   });
   
-  const quickCommentsData = {}; // { tab: { label: text, ... } }
+const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
 
 async function loadQuickComments(tab) {
   const docRef = doc(db, "quickComments", tab);
   const snap = await getDoc(docRef);
-  quickCommentsData[tab] = snap.exists() ? snap.data() : {};
+  quickCommentsData[tab] = snap.exists() ? snap.data().comments || [] : [];
   renderQuickComments(tab);
 }
 
 async function saveQuickComments(tab) {
-  await setDoc(doc(db, "quickComments", tab), quickCommentsData[tab]);
+  await setDoc(doc(db, "quickComments", tab), { comments: quickCommentsData[tab] });
 }
 
 function renderQuickComments(tab) {
@@ -962,16 +962,13 @@ function renderQuickComments(tab) {
     const button = document.createElement("button");
     button.className = "quick-comment-button";
     button.textContent = comment.label;
-    button.title = comment.text.slice(0, 100); // Tooltip preview
+    button.title = comment.text.slice(0, 100);
     button.setAttribute("draggable", true);
 
     // Copy to clipboard
     button.addEventListener("click", () => {
       navigator.clipboard.writeText(comment.text);
     });
-
-    container.appendChild(button);
-  });
 
     // Context menu for edit/delete
     button.addEventListener("contextmenu", e => {
@@ -994,24 +991,19 @@ function renderQuickComments(tab) {
     e.dataTransfer.dropEffect = "move";
   });
 
-  container.addEventListener("drop", async e => {
+  container.addEventListener("drop", e => {
     e.preventDefault();
-    const draggedIndex = parseInt(e.dataTransfer.getData("text/plain"));
-    const dropTarget = e.target.closest(".quick-comment-button");
-    if (!dropTarget) return;
+    const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+    const toIndex = [...container.children].findIndex(child => child === e.target);
 
-    const dropIndex = Array.from(container.children).indexOf(dropTarget);
-    if (draggedIndex === dropIndex) return;
-
-    // Reorder array
-    const moved = quickComments[tab].splice(draggedIndex, 1)[0];
-    quickComments[tab].splice(dropIndex, 0, moved);
-
-    await saveQuickComments(tab);
-    renderQuickComments(tab); // Re-render updated order
+    if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+      const moved = comments.splice(fromIndex, 1)[0];
+      comments.splice(toIndex, 0, moved);
+      saveQuickComments(tab);
+      renderQuickComments(tab);
+    }
   });
 }
-
 
 function showQuickCommentContextMenu(x, y, tab, label) {
   const menu = document.getElementById("quickCommentContextMenu");
