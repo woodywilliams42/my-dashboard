@@ -446,18 +446,43 @@ body.dark-mode .context-menu {
 body.dark-mode .context-menu li:hover {
   background-color: #333;
 }
-/* QUICK COMMENTS PANEL */
-.quick-comments-panel {
-  display: inline-block; /* <-- Shrink to fit content */
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--card-bg); /* default for dark mode */
+.utility-panels {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: stretch;
+  flex-wrap: wrap;
   margin-top: 20px;
 }
 
-/* LIGHT MODE BACKGROUND OVERRIDE */
-body:not(.dark) .quick-comments-panel {
+/* Shared styles for both panels */
+.utility-panels .panel {
+  flex: 1 1 45%;
+  max-width: 50%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Bookmark bar wraps icons */
+.bookmark-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Match panel heights */
+.utility-panels {
+  align-items: stretch;
+}
+
+/* Light mode override for panels */
+body:not(.dark) .utility-panels .panel {
   background: white;
 }
 
@@ -519,29 +544,52 @@ body:not(.dark) .quick-comments-panel {
   <!-- === TAB: WORK === -->
   <div id="work" class="tab active">
     <h2>Work</h2>
-    <h3>Bookmarks</h3>
+    
+
     <div id="bookmark-bar-work" class="bookmark-bar"></div>
     <button id="showBookmarkModal-work" style="margin-top: 10px;">➕ Add Bookmark</button>
 
     <!-- Modal -->
-    <div id="bookmarkModal-work" class="modal" style="display:none;">
-      <div class="modal-content">
-        <span class="close" onclick="closeBookmarkModal('work')">&times;</span>
-        <h3>Add Bookmark</h3>
-        <input type="url" id="newBookmarkUrl-work" placeholder="https://example.com" />
-        <button onclick="addBookmark('work')">Save</button>
-      </div>
-    </div>
+    <div class="utility-panels">
+  <div class="panel" id="bookmarks-panel-work">
+    <h3>Bookmarks</h3>
 
-    <h3>World Clocks</h3>
-    <div id="world-clocks" class="clock-grid"></div>
+    <!-- Bookmark Icons will go here -->
+    <div id="bookmarks-work" class="bookmark-icons"></div>
 
-   <div class="quick-comments-panel">
-  <h3>Quick Comments</h3>
-  <div id="quick-comments-work" class="quick-comments"></div>
-  <button class="addCommentBtn" data-tab="work">➕ Add Comment</button>
+    <!-- Add Bookmark Button -->
+    <button class="addBookmarkBtn" onclick="openBookmarkModal('work')">➕ Add Bookmark</button>
+  </div>
+ </div>     
+<div id="bookmarkModal-work" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeBookmarkModal('work')">&times;</span>
+    <h3>Add Bookmark</h3>
+    <input type="url" id="newBookmarkUrl-work" placeholder="https://example.com" />
+    <button onclick="addBookmark('work')">Save</button>
+  </div>
 </div>
 
+
+  <div class="panel" id="quick-comments-panel-work">
+    <h3>Quick Comments</h3>
+
+    <!-- Quick Comment Buttons -->
+    <div id="quick-comments-work" class="quick-comments"></div>
+
+    <!-- Add Comment Button -->
+    <button class="addCommentBtn" data-tab="work">➕ Add Comment</button>
+  </div>
+</div>
+
+ <div class="panel quick-comments-panel">
+    <h3>Quick Comments</h3>
+    <div id="quick-comments-work" class="quick-comments"></div>
+    <button class="addCommentBtn" data-tab="work">➕ Add Comment</button>
+  </div>
+</div>
+    <h3>World Clocks</h3>
+    <div id="world-clocks" class="clock-grid"></div>
     <div class="notes-panel">
       <h3>Work Notes</h3>
       <textarea id="notes-work" rows="6" placeholder="Work notes..."></textarea><br/>
