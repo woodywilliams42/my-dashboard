@@ -452,8 +452,25 @@ body.dark-mode .context-menu li:hover {
   border: 1px solid var(--border-color);
   border-radius: 8px;
   background: var(--card-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-wrap: wrap;
   max-width: 100%;
   box-sizing: border-box;
+}
+
+/* Ensures the buttons inside can wrap */
+.quick-comments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* Optional: ensures each button doesn't shrink too small */
+.quick-comments button {
+  min-width: 100px;
+  flex: 1 0 auto;
 }
   </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
