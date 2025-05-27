@@ -941,6 +941,7 @@ function setupAutosave(tab) {
   
 const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
 
+// Load from Firestore
 async function loadQuickComments(tab) {
   const docRef = doc(db, "quickComments", tab);
   const snap = await getDoc(docRef);
@@ -948,14 +949,15 @@ async function loadQuickComments(tab) {
   renderQuickComments(tab);
 }
 
+// Save to Firestore
 async function saveQuickComments(tab) {
   await setDoc(doc(db, "quickComments", tab), { comments: quickCommentsData[tab] });
 }
 
+// Render buttons
 function renderQuickComments(tab) {
   const container = document.getElementById(`quick-comments-${tab}`);
   container.innerHTML = ""; // Clear previous
-
   const comments = quickCommentsData[tab] || [];
 
   comments.forEach((comment, index) => {
@@ -970,14 +972,14 @@ function renderQuickComments(tab) {
       navigator.clipboard.writeText(comment.text);
     });
 
-    // Context menu for edit/delete
-    button.addEventListener("contextmenu", e => {
+    // Context menu
+    button.addEventListener("contextmenu", (e) => {
       e.preventDefault();
-      showCommentContextMenu(e, tab, index);
+      showQuickCommentContextMenu(e.pageX, e.pageY, tab, index);
     });
 
-    // Drag-and-drop events
-    button.addEventListener("dragstart", e => {
+    // Drag-and-drop
+    button.addEventListener("dragstart", (e) => {
       e.dataTransfer.setData("text/plain", index);
       e.dataTransfer.effectAllowed = "move";
     });
@@ -985,18 +987,18 @@ function renderQuickComments(tab) {
     container.appendChild(button);
   });
 
-  // Container-level drag handling
-  container.addEventListener("dragover", e => {
+  // Container-level drag handlers
+  container.addEventListener("dragover", (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   });
 
-  container.addEventListener("drop", e => {
+  container.addEventListener("drop", (e) => {
     e.preventDefault();
     const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
     const toIndex = [...container.children].findIndex(child => child === e.target);
-
     if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+      const comments = quickCommentsData[tab];
       const moved = comments.splice(fromIndex, 1)[0];
       comments.splice(toIndex, 0, moved);
       saveQuickComments(tab);
@@ -1005,119 +1007,72 @@ function renderQuickComments(tab) {
   });
 }
 
-async function saveQuickComments(tab) {
-  await setDoc(doc(db, "quickComments", tab), { comments: quickCommentsData[tab] });
-}
-
-function renderQuickComments(tab) {
-  const container = document.getElementById(`quick-comments-${tab}`);
-  container.innerHTML = ""; // Clear previous
-
-  const comments = quickCommentsData[tab] || [];
-
-  comments.forEach((comment, index) => {
-    const button = document.createElement("button");
-    button.className = "quick-comment-button";
-    button.textContent = comment.label;
-    button.title = comment.text.slice(0, 100);
-    button.setAttribute("draggable", true);
-
-    // Copy to clipboard
-    button.addEventListener("click", () => {
-      navigator.clipboard.writeText(comment.text);
-    });
-
-    // Context menu for edit/delete
-    button.addEventListener("contextmenu", e => {
-      e.preventDefault();
-      showCommentContextMenu(e, tab, index);
-    });
-
-    // Drag-and-drop events
-    button.addEventListener("dragstart", e => {
-      e.dataTransfer.setData("text/plain", index);
-      e.dataTransfer.effectAllowed = "move";
-    });
-
-    container.appendChild(button);
-  });
-
-  // Container-level drag handling
-  container.addEventListener("dragover", e => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  });
-
-  container.addEventListener("drop", e => {
-    e.preventDefault();
-    const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-    const toIndex = [...container.children].findIndex(child => child === e.target);
-
-    if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
-      const moved = comments.splice(fromIndex, 1)[0];
-      comments.splice(toIndex, 0, moved);
-      saveQuickComments(tab);
-      renderQuickComments(tab);
-    }
-  });
-}
-
-function showQuickCommentContextMenu(x, y, tab, label) {
+// Context menu UI
+function showQuickCommentContextMenu(x, y, tab, index) {
   const menu = document.getElementById("quickCommentContextMenu");
   menu.style.top = `${y}px`;
   menu.style.left = `${x}px`;
   menu.style.display = "block";
   menu.dataset.tab = tab;
-  menu.dataset.label = label;
+  menu.dataset.index = index;
 }
 
+// Hide menu on click elsewhere
 document.addEventListener("click", () => {
   document.getElementById("quickCommentContextMenu").style.display = "none";
 });
 
-document.querySelectorAll(".addCommentBtn").forEach(btn => {
+// Add comment button
+document.querySelectorAll(".addCommentBtn").forEach((btn) => {
   btn.addEventListener("click", async () => {
     const tab = btn.dataset.tab;
     const label = prompt("Enter a short label:");
     if (!label) return;
     const text = prompt("Enter the comment text:");
     if (!text) return;
-    quickCommentsData[tab][label] = text;
+    quickCommentsData[tab].push({ label, text });
     await saveQuickComments(tab);
     renderQuickComments(tab);
   });
 });
 
-document.body.insertAdjacentHTML("beforeend", `
-  <div id="quickCommentContextMenu">
-    <ul>
-      <li data-action="edit">✏️ Edit</li>
-      <li data-action="delete">🗑️ Delete</li>
-    </ul>
-  </div>
-`);
+// Context menu HTML (ensure only added once)
+if (!document.getElementById("quickCommentContextMenu")) {
+  document.body.insertAdjacentHTML("beforeend", `
+    <div id="quickCommentContextMenu" style="position: absolute; display: none; background: white; border: 1px solid #ccc; z-index: 1000;">
+      <ul style="list-style: none; margin: 0; padding: 0;">
+        <li data-action="edit" style="padding: 4px 8px; cursor: pointer;">✏️ Edit</li>
+        <li data-action="delete" style="padding: 4px 8px; cursor: pointer;">🗑️ Delete</li>
+      </ul>
+    </div>
+  `);
+}
 
+// Context menu actions
 document.getElementById("quickCommentContextMenu").addEventListener("click", async (e) => {
   const action = e.target.dataset.action;
-  const tab = e.currentTarget.dataset.tab;
-  const label = e.currentTarget.dataset.label;
+  const menu = e.currentTarget;
+  const tab = menu.dataset.tab;
+  const index = parseInt(menu.dataset.index, 10);
+  const comment = quickCommentsData[tab][index];
 
   if (action === "edit") {
-    const newText = prompt("Edit comment text:", quickCommentsData[tab][label]);
+    const newText = prompt("Edit comment text:", comment.text);
     if (newText !== null) {
-      quickCommentsData[tab][label] = newText;
+      quickCommentsData[tab][index].text = newText;
       await saveQuickComments(tab);
       renderQuickComments(tab);
     }
   } else if (action === "delete") {
-    if (confirm(`Delete comment "${label}"?`)) {
-      delete quickCommentsData[tab][label];
+    if (confirm(`Delete comment "${comment.label}"?`)) {
+      quickCommentsData[tab].splice(index, 1);
       await saveQuickComments(tab);
       renderQuickComments(tab);
     }
   }
+
+  menu.style.display = "none";
 });
-  
 
 
   window.saveNotes = saveNotes;
