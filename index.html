@@ -186,12 +186,15 @@
   display: inline-block;
   width: 32px;
   height: 32px;
+  margin: 0 5px; /* From bookmark-link */
+  padding: 4px;   /* From bookmark-link */
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--border-color);
   background: var(--card-bg);
   text-align: center;
   position: relative;
+  transition: all 0.2s ease; /* From bookmark-link */
 }
 
 .bookmark-bar a img {
@@ -214,7 +217,11 @@
   line-height: 16px;
   cursor: pointer;
 }
-
+.bookmark-bar a:hover {
+  background-color: rgba(0, 0, 0, 0.07);
+  transform: scale(1.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
 .bookmark-form {
   display: flex;
   gap: 10px;
@@ -236,34 +243,6 @@
   border-radius: 6px;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
-
-.bookmark-link {
-    display: inline-block;
-    margin: 0 5px;
-    padding: 4px;
-    border-radius: 8px;
-    transition: all 0.2s ease;
-  }
-
-  .bookmark-link:hover {
-    background-color: rgba(0, 0, 0, 0.07);
-    transform: scale(1.1);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  }
-
-  /* Optional: improve image rendering */
-  .bookmark-link img {
-    width: 24px;
-    height: 24px;
-    vertical-align: middle;
-  }
-
-  .bookmark-link .remove {
-    margin-left: 4px;
-    cursor: pointer;
-    color: red;
-    font-weight: bold;
-  }
 }
 .modal {
   position: fixed;
