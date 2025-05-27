@@ -435,6 +435,12 @@ body {
   margin: 0;
   font-family: sans-serif;
 }
+.top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 100;
+}
 
 /* Dark mode adjustments */
 body.dark-mode .context-menu {
@@ -453,6 +459,7 @@ body.dark-mode .context-menu li:hover {
 <body>
   <div class="hero-background">
   <h1>My Dashboard</h1>
+  <div class="top-right">
   <div class="dark-toggle">
     <label class="switch">
       <input type="checkbox" id="darkModeToggle" />
@@ -460,6 +467,7 @@ body.dark-mode .context-menu li:hover {
     </label>
     <span id="theme-label">🌞</span>
   </div>
+</div>
 
   <nav>
     <button data-tab="work" class="active">Work</button>
