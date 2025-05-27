@@ -446,7 +446,15 @@ body.dark-mode .context-menu {
 body.dark-mode .context-menu li:hover {
   background-color: #333;
 }
-
+.quick-comments-panel {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  max-width: 100%;
+  box-sizing: border-box;
+}
   </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
@@ -492,9 +500,11 @@ body.dark-mode .context-menu li:hover {
     <h3>World Clocks</h3>
     <div id="world-clocks" class="clock-grid"></div>
 
-    <h3>Quick Comments</h3>
-<div id="quick-comments-work" class="quick-comments"></div>
-<button class="addCommentBtn" data-tab="work">➕ Add Comment</button>
+   <div class="quick-comments-panel">
+  <h3>Quick Comments</h3>
+  <div id="quick-comments-work" class="quick-comments"></div>
+  <button class="addCommentBtn" data-tab="work">➕ Add Comment</button>
+</div>
 
     <div class="notes-panel">
       <h3>Work Notes</h3>
