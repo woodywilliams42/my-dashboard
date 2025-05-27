@@ -1229,6 +1229,26 @@ loadAlarmSettings();
   });
 
   document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
+const textarea = document.querySelector('.notes-panel textarea');
+  const STORAGE_KEY_WIDTH = 'notesWidth';
+  const STORAGE_KEY_HEIGHT = 'notesHeight';
+
+  // Load saved width and height
+  const savedWidth = localStorage.getItem(STORAGE_KEY_WIDTH);
+  const savedHeight = localStorage.getItem(STORAGE_KEY_HEIGHT);
+  if (savedWidth) textarea.style.width = savedWidth;
+  if (savedHeight) textarea.style.height = savedHeight;
+
+  // Monitor resizing using ResizeObserver
+  const resizeObserver = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      const { width, height } = entry.contentRect;
+      localStorage.setItem(STORAGE_KEY_WIDTH, width + 'px');
+      localStorage.setItem(STORAGE_KEY_HEIGHT, height + 'px');
+    }
+  });
+
+  resizeObserver.observe(textarea);
 </script>
 
 </body>
