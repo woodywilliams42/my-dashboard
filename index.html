@@ -98,23 +98,20 @@
       color: var(--text-color);
     }
 
-    /* === NOTES PANEL === */
-    .notes-panel {
-      margin-top: 20px;
-      padding: 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      background: var(--card-bg);
-    }
+ .notes-panel {
+  display: inline-block;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
 
-    textarea {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      background: var(--bg-color);
-      color: var(--text-color);
-      border: 1px solid var(--border-color);
-    }
+textarea {
+  resize: both;
+  min-width: 200px;
+  min-height: 100px;
+  display: block;
+}
 
     span[id^="saveStatus-"] {
       margin-left: 10px;
