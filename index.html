@@ -415,14 +415,18 @@
   opacity: 0.5;
 }
 
+@font-face {
+  font-family: 'E1234';
+  src: url('https://cdn.jsdelivr.net/gh/woodywilliams42/my-dashboard/font/E1234.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 .led {
-  font-family: 'Courier New', monospace;
+  font-family: 'E1234', monospace;
   font-size: 2rem;
-  background: black;
-  color: limegreen;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  width: fit-content;
+  letter-spacing: 0.1em;
+  color: #0f0;
 }
 .led.red {
   color: red;
