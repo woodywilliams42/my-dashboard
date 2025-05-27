@@ -27,13 +27,15 @@
     }
 
     /* === BASE STYLES === */
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      font-family: sans-serif;
-      padding: 20px;
-      transition: background-color 0.4s ease, color 0.4s ease;
-    }
+   body {
+  margin: 0; /* from the first block */
+  padding: 20px; /* from the second block */
+  font-family: sans-serif; /* common to both */
+  background-color: var(--bg-color); /* from the second block */
+  color: var(--text-color); /* from the second block */
+  transition: background-color 0.4s ease, color 0.4s ease; /* from the second block */
+}
+
 
     /* === NAVIGATION === */
     nav {
@@ -410,10 +412,7 @@
 .led.red {
   color: red;
 }
-body {
-  margin: 0;
-  font-family: sans-serif;
-}
+
 .top-right {
   position: absolute;
   top: 10px;
@@ -474,7 +473,7 @@ body.dark-mode .context-menu li:hover {
         </div>
       
     </div>
-      <div class="dashboard-title">My Dashboard</div>
+      <div class="dashboard-title">Woody</div>
     </div>
   <!-- === TAB: WORK === -->
   <div id="work" class="tab active">
