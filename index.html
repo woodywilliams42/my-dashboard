@@ -415,7 +415,18 @@
   opacity: 0.5;
 }
 
-
+.led {
+  font-family: 'Courier New', monospace;
+  font-size: 2rem;
+  background: black;
+  color: limegreen;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  width: fit-content;
+}
+.led.red {
+  color: red;
+}
 body {
   margin: 0;
   font-family: sans-serif;
@@ -522,7 +533,18 @@ body.dark-mode .context-menu li:hover {
 <h3>Quick Comments</h3>
   <div id="quick-comments-secondjob" class="quick-comments"></div>
   <button class="addCommentBtn" data-tab="secondjob">➕ Add Comment</button>
-
+<div id="secondjob-alarm">
+  <div id="alarm-countdown" class="led green">00:00</div>
+  <label>
+    Frequency (seconds):
+    <input type="number" id="alarm-frequency" min="1" value="120">
+  </label>
+  <label>
+    <input type="checkbox" id="alarm-random"> Randomize ±10%
+  </label>
+  <button id="alarm-start">Start Alarm</button>
+  <button id="alarm-stop">Stop Alarm</button>
+</div>
   <!-- Modal -->
   <div id="bookmarkModal-secondjob" class="modal" style="display:none;">
     <div class="modal-content">
@@ -1080,6 +1102,109 @@ document.getElementById("quickCommentContextMenu").addEventListener("click", asy
   menu.style.display = "none";
 });
 
+const alarmSettings = {
+  frequency: 120, // default in seconds (2 minutes)
+  randomize: false,
+  timerId: null,
+};
+
+const alarmSounds = [
+  new Audio("https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/sounds/Alarm1.mp3"),
+  new Audio("https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/sounds/Alarm2.mp3"),
+  new Audio("https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/sounds/Alarm3.mp3"),
+];
+
+const dbDoc = doc(db, "alarmSettings", "secondjob");
+
+// --- Load Settings ---
+async function loadAlarmSettings() {
+  const snap = await getDoc(dbDoc);
+  if (snap.exists()) {
+    Object.assign(alarmSettings, snap.data());
+  }
+  document.getElementById("alarm-frequency").value = alarmSettings.frequency;
+  document.getElementById("alarm-random").checked = alarmSettings.randomize;
+  updateCountdownDisplay(alarmSettings.frequency);
+}
+
+async function saveAlarmSettings() {
+  await setDoc(dbDoc, {
+    frequency: alarmSettings.frequency,
+    randomize: alarmSettings.randomize,
+  });
+}
+
+// --- Timer Logic ---
+function startAlarmTimer() {
+  stopAlarmTimer();
+  scheduleNextAlarm();
+}
+
+function stopAlarmTimer() {
+  if (alarmSettings.timerId) clearTimeout(alarmSettings.timerId);
+  alarmSettings.timerId = null;
+}
+
+function scheduleNextAlarm() {
+  let interval = alarmSettings.frequency;
+  if (alarmSettings.randomize) {
+    const delta = interval * 0.1;
+    interval = interval + (Math.random() * delta * 2 - delta);
+  }
+  const ms = Math.round(interval * 1000);
+
+  countdownStart(Date.now(), ms);
+
+  alarmSettings.timerId = setTimeout(() => {
+    playRandomAlarm();
+    scheduleNextAlarm();
+  }, ms);
+}
+
+function playRandomAlarm() {
+  const sound = alarmSounds[Math.floor(Math.random() * alarmSounds.length)];
+  sound.play();
+}
+
+// --- Countdown Display ---
+let countdownInterval;
+function countdownStart(startTime, duration) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  countdownInterval = setInterval(() => {
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, duration - elapsed);
+    updateCountdownDisplay(Math.floor(remaining / 1000));
+    if (remaining <= 0) clearInterval(countdownInterval);
+  }, 1000);
+}
+
+function updateCountdownDisplay(seconds) {
+  const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
+  const secs = (seconds % 60).toString().padStart(2, "0");
+  const display = document.getElementById("alarm-countdown");
+  display.innerText = `${minutes}:${secs}`;
+  display.className = seconds <= 7 ? "led red" : "led green";
+}
+
+// --- Event Handlers ---
+document.getElementById("alarm-start").addEventListener("click", startAlarmTimer);
+document.getElementById("alarm-stop").addEventListener("click", () => {
+  stopAlarmTimer();
+  updateCountdownDisplay(alarmSettings.frequency);
+});
+
+document.getElementById("alarm-frequency").addEventListener("change", e => {
+  alarmSettings.frequency = parseInt(e.target.value);
+  saveAlarmSettings();
+});
+
+document.getElementById("alarm-random").addEventListener("change", e => {
+  alarmSettings.randomize = e.target.checked;
+  saveAlarmSettings();
+});
+
+// --- Initial Load ---
+loadAlarmSettings();
 
   window.saveNotes = saveNotes;
   window.addBookmark = addBookmark;
