@@ -969,8 +969,14 @@ function renderQuickComments(tab) {
 
     // Copy to clipboard
     button.addEventListener("click", () => {
-      navigator.clipboard.writeText(comment.text);
-    });
+  navigator.clipboard.writeText(comment.text).then(() => {
+    const originalText = button.textContent;
+    button.textContent = "Copied";
+    setTimeout(() => {
+      button.textContent = originalText;
+    }, 1000);
+  });
+});
 
     // Context menu
     button.addEventListener("contextmenu", (e) => {
