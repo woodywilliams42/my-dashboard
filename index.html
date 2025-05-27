@@ -970,6 +970,10 @@ function renderQuickComments(tab) {
       navigator.clipboard.writeText(comment.text);
     });
 
+    container.appendChild(button);
+  });
+}
+
     // Context menu for edit/delete
     button.addEventListener("contextmenu", e => {
       e.preventDefault();
