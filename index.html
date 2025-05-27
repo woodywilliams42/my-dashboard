@@ -442,6 +442,13 @@ body {
   z-index: 100;
 }
 
+.top-left {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+}
+
 /* Dark mode adjustments */
 body.dark-mode .context-menu {
   background-color: #222;
@@ -469,12 +476,14 @@ body.dark-mode .context-menu li:hover {
   </div>
 </div>
 
+<div class="top-left">
   <nav>
     <button data-tab="work" class="active">Work</button>
     <button data-tab="personal">Personal</button>
     <button data-tab="secondjob">ADI</button>
     <button data-tab="charity">Table/41</button>
   </nav>
+</div>
 </div>
   <!-- === TAB: WORK === -->
   <div id="work" class="tab active">
