@@ -446,31 +446,50 @@ body.dark-mode .context-menu {
 body.dark-mode .context-menu li:hover {
   background-color: #333;
 }
+/* QUICK COMMENTS PANEL */
 .quick-comments-panel {
-  margin-top: 20px;
+  display: inline-block; /* <-- Shrink to fit content */
   padding: 10px;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background: var(--card-bg);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  flex-wrap: wrap;
-  max-width: 100%;
-  box-sizing: border-box;
+  background: var(--card-bg); /* default for dark mode */
+  margin-top: 20px;
 }
 
-/* Ensures the buttons inside can wrap */
+/* LIGHT MODE BACKGROUND OVERRIDE */
+body:not(.dark) .quick-comments-panel {
+  background: white;
+}
+
+/* QUICK COMMENTS BUTTON CONTAINER */
 .quick-comments {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
 }
 
-/* Optional: ensures each button doesn't shrink too small */
+/* INDIVIDUAL COMMENT BUTTONS */
 .quick-comments button {
-  min-width: 100px;
-  flex: 1 0 auto;
+  padding: 6px 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: #f0f0f0;
+  color: var(--accent);
+  white-space: nowrap;        /* Prevent breaking label */
+  flex: 0 0 auto;             /* Don’t grow or shrink */
+}
+
+/* ADD COMMENT BUTTON (keep distinct style) */
+.addCommentBtn {
+  padding: 6px 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--accent);
+  color: var(--bg-color);
+  font-weight: bold;
+  cursor: pointer;
 }
   </style>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
