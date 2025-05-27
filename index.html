@@ -941,11 +941,70 @@ function setupAutosave(tab) {
   
 const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
 
+const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
+
 async function loadQuickComments(tab) {
   const docRef = doc(db, "quickComments", tab);
   const snap = await getDoc(docRef);
   quickCommentsData[tab] = snap.exists() ? snap.data().comments || [] : [];
   renderQuickComments(tab);
+}
+
+async function saveQuickComments(tab) {
+  await setDoc(doc(db, "quickComments", tab), { comments: quickCommentsData[tab] });
+}
+
+function renderQuickComments(tab) {
+  const container = document.getElementById(`quick-comments-${tab}`);
+  container.innerHTML = ""; // Clear previous
+
+  const comments = quickCommentsData[tab] || [];
+
+  comments.forEach((comment, index) => {
+    const button = document.createElement("button");
+    button.className = "quick-comment-button";
+    button.textContent = comment.label;
+    button.title = comment.text.slice(0, 100);
+    button.setAttribute("draggable", true);
+
+    // Copy to clipboard
+    button.addEventListener("click", () => {
+      navigator.clipboard.writeText(comment.text);
+    });
+
+    // Context menu for edit/delete
+    button.addEventListener("contextmenu", e => {
+      e.preventDefault();
+      showCommentContextMenu(e, tab, index);
+    });
+
+    // Drag-and-drop events
+    button.addEventListener("dragstart", e => {
+      e.dataTransfer.setData("text/plain", index);
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    container.appendChild(button);
+  });
+
+  // Container-level drag handling
+  container.addEventListener("dragover", e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  });
+
+  container.addEventListener("drop", e => {
+    e.preventDefault();
+    const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+    const toIndex = [...container.children].findIndex(child => child === e.target);
+
+    if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+      const moved = comments.splice(fromIndex, 1)[0];
+      comments.splice(toIndex, 0, moved);
+      saveQuickComments(tab);
+      renderQuickComments(tab);
+    }
+  });
 }
 
 async function saveQuickComments(tab) {
