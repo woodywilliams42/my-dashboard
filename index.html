@@ -601,6 +601,8 @@ body.dark-mode .context-menu li:hover {
   window.db = db;
   window.storage = storage;
 
+
+
 async function saveNotes(tab) {
   const content = document.getElementById(`notes-${tab}`).value;
   const statusEl = document.getElementById(`saveStatus-${tab}`);
@@ -954,7 +956,7 @@ function renderQuickComments(tab) {
   const container = document.getElementById(`quick-comments-${tab}`);
   container.innerHTML = ""; // Clear previous
 
-  const comments = quickComments[tab] || [];
+  const comments = quickCommentsData[tab] || [];
 
   comments.forEach((comment, index) => {
     const button = document.createElement("button");
