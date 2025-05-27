@@ -941,8 +941,6 @@ function setupAutosave(tab) {
   
 const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
 
-const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
-
 async function loadQuickComments(tab) {
   const docRef = doc(db, "quickComments", tab);
   const snap = await getDoc(docRef);
