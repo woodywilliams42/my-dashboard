@@ -704,338 +704,125 @@ body:not(.dark) .utility-panels .panel {
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  window.db = db;
-  window.storage = storage;
+  // Theme Toggle
+  const darkToggle = document.getElementById("darkModeToggle");
+  const themeLabel = document.getElementById("theme-label");
 
-  // --- Notes Section ---
-  async function saveNotes(tab) {
-    const content = document.getElementById(`notes-${tab}`).value;
-    const statusEl = document.getElementById(`saveStatus-${tab}`);
-
-    statusEl.textContent = "Saving...";
-    statusEl.style.opacity = 1;
-
-    try {
-      await setDoc(doc(db, "dashboardNotes", tab), { content });
-      statusEl.textContent = "✔ Saved!";
-    } catch (err) {
-      console.error("Error saving notes:", err);
-      statusEl.textContent = "❌ Save failed!";
-    }
-
-    setTimeout(() => {
-      statusEl.style.opacity = 0;
-    }, 2000);
+  function applyDarkMode(isDark) {
+    document.body.classList.toggle("dark", isDark);
+    darkToggle.checked = isDark;
+    themeLabel.textContent = isDark ? "🌙" : "🌞";
   }
 
-  const lastSavedContent = {};
+  const savedTheme = localStorage.getItem("theme");
+  const isDarkMode = savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  applyDarkMode(isDarkMode);
 
-  function setupAutosave(tab) {
-    const textarea = document.getElementById(`notes-${tab}`);
-    let debounceTimer;
+  darkToggle.addEventListener("change", () => {
+    const isDark = darkToggle.checked;
+    applyDarkMode(isDark);
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  });
 
-    textarea.addEventListener("input", () => {
-      clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        const currentContent = textarea.value;
-        if (lastSavedContent[tab] !== currentContent) {
-          saveNotes(tab);
-          lastSavedContent[tab] = currentContent;
-        }
-      }, 2000);
+  // Tabs
+  document.querySelectorAll("nav button").forEach(button => {
+    button.addEventListener("click", () => {
+      const tabId = button.dataset.tab;
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
     });
+  });
 
-    textarea.addEventListener("blur", () => {
-      const currentContent = textarea.value;
-      if (lastSavedContent[tab] !== currentContent) {
-        saveNotes(tab);
-        lastSavedContent[tab] = currentContent;
-      }
-    });
+  // World Clocks
+  function updateClocks() {
+    const clocks = [
+      { city: "Shanghai", timeZone: "Asia/Shanghai" },
+      { city: "Chennai", timeZone: "Asia/Kolkata" },
+      { city: "London", timeZone: "Europe/London" },
+      { city: "New York", timeZone: "America/New_York" },
+      { city: "Dallas", timeZone: "America/Chicago" },
+      { city: "Honolulu", timeZone: "Pacific/Honolulu" }
+    ];
+    const container = document.getElementById("world-clocks-work");
+    if (!container) return;
+    container.innerHTML = clocks.map(({ city, timeZone }) => {
+      const now = new Date().toLocaleTimeString("en-GB", {
+        timeZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false
+      });
+      return `<div class="clock-card"><strong>${city}</strong> <span>${now}</span></div>`;
+    }).join("");
   }
+  setInterval(updateClocks, 1000);
+  updateClocks();
+
+  // Firebase data loading
+  const tabs = ["work", "personal", "secondjob", "charity"];
 
   async function loadNotes(tab) {
+    const el = document.getElementById(`notes-${tab}`);
+    if (!el) return;
     try {
       const snap = await getDoc(doc(db, "dashboardNotes", tab));
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById(`notes-${tab}`).value = data.content;
-        lastSavedContent[tab] = data.content;
-      }
+      if (snap.exists()) el.value = snap.data().content;
     } catch (err) {
       console.error(`Error loading notes for ${tab}:`, err);
     }
   }
 
-  // --- Bookmark Functions ---
   async function loadBookmarks(tab) {
+    const container = document.getElementById(`bookmarks-${tab}`);
+    if (!container) return;
     try {
       const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-      if (snap.exists()) {
-        const data = snap.data();
-        renderBookmarks(tab, data);
-      }
+      const data = snap.exists() ? snap.data() : { urls: [], favicons: {} };
+      container.innerHTML = "";
+      data.urls.forEach(url => {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.className = "bookmark-button";
+        const img = document.createElement("img");
+        img.src = data.favicons?.[url] || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
+        img.alt = "icon";
+        a.appendChild(img);
+        container.appendChild(a);
+      });
     } catch (err) {
       console.error(`Error loading bookmarks for ${tab}:`, err);
     }
   }
 
-  async function addBookmark(tab) {
-    const input = document.getElementById(`newBookmarkUrl-${tab}`);
-    const url = input.value.trim();
-
+  async function loadQuickComments(tab) {
+    const container = document.getElementById(`quick-comments-${tab}`);
+    if (!container) return;
     try {
-      new URL(url);
-    } catch {
-      alert("Please enter a valid URL (e.g. https://example.com)");
-      return;
-    }
-
-    let urls = [];
-    let favicons = {};
-    try {
-      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-      if (snap.exists()) {
-        const data = snap.data();
-        urls = Array.isArray(data.urls) ? data.urls : [];
-        favicons = data.favicons || {};
-      }
-    } catch (err) {
-      console.error("Error fetching bookmarks before add:", err);
-    }
-
-    if (!urls.includes(url)) {
-      urls.push(url);
-      try {
-        await setDoc(doc(db, "dashboardBookmarks", tab), { urls, favicons });
-        input.value = "";
-        renderBookmarks(tab, { urls, favicons });
-        closeBookmarkModal(tab);
-      } catch (err) {
-        console.error("Error saving bookmark:", err);
-      }
-    } else {
-      alert("Bookmark already exists.");
-    }
-  }
-
-  async function removeBookmark(tab, url) {
-    try {
-      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-      if (!snap.exists()) return;
-
-      const urls = snap.data().urls || [];
-      const favicons = snap.data().favicons || {};
-      const updated = urls.filter(u => u !== url);
-
-      if (favicons[url]) {
-        delete favicons[url];
-      }
-
-      await setDoc(doc(db, "dashboardBookmarks", tab), { urls: updated, favicons });
-      renderBookmarks(tab, { urls: updated, favicons });
-    } catch (err) {
-      console.error("Error removing bookmark:", err);
-    }
-  }
-
-  function renderBookmarks(tab, data) {
-    const container = document.getElementById(`bookmark-bar-${tab}`);
-    container.innerHTML = "";
-
-    const urls = data.urls || [];
-    const favicons = data.favicons || {};
-
-    urls.forEach(url => {
-      const a = document.createElement("a");
-      a.className = "bookmark-button bookmark-link";
-      a.href = url;
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.title = url;
-
-      const img = document.createElement("img");
-      img.alt = "icon";
-
-      if (favicons[url]) {
-        img.src = favicons[url];
-      } else {
-        const fallback = new URL("/favicon.ico", url).href;
-        img.src = fallback;
-        img.onerror = () => {
-          img.src = "https://www.google.com/s2/favicons?domain=" + new URL(url).hostname;
-        };
-      }
-
-      const removeBtn = document.createElement("span");
-      removeBtn.className = "remove";
-      removeBtn.textContent = "×";
-      removeBtn.onclick = (e) => {
-        e.preventDefault();
-        removeBookmark(tab, url);
-      };
-
-      a.appendChild(img);
-      a.appendChild(removeBtn);
-      container.appendChild(a);
-
-      a.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        currentContextUrl = url;
-        currentContextTab = tab;
-        currentContextImg = img;
-
-        const menu = document.getElementById("bookmark-context-menu");
-        menu.style.top = `${e.pageY}px`;
-        menu.style.left = `${e.pageX}px`;
-        menu.style.display = "block";
+      const snap = await getDoc(doc(db, "quickComments", tab));
+      const comments = snap.exists() ? snap.data().comments : [];
+      container.innerHTML = "";
+      comments.forEach(comment => {
+        const btn = document.createElement("button");
+        btn.className = "quick-comment-button";
+        btn.textContent = comment.label;
+        btn.title = comment.text;
+        btn.onclick = () => navigator.clipboard.writeText(comment.text);
+        container.appendChild(btn);
       });
-    });
-
-    if (window.Sortable) {
-      Sortable.create(container, {
-        animation: 150,
-        onEnd: async function () {
-          const newOrder = Array.from(container.querySelectorAll("a")).map(a => a.href);
-          try {
-            await setDoc(doc(db, "dashboardBookmarks", tab), {
-              urls: newOrder,
-              favicons
-            });
-          } catch (err) {
-            console.error("Error saving new bookmark order:", err);
-          }
-        }
-      });
+    } catch (err) {
+      console.error(`Error loading comments for ${tab}:`, err);
     }
   }
 
-  let currentContextUrl = null;
-  let currentContextTab = null;
-  let currentContextImg = null;
-
-  document.addEventListener("contextmenu", (e) => {
-    const link = e.target.closest(".bookmark-button");
-    if (link) {
-      e.preventDefault();
-      currentContextUrl = link.href;
-      const bar = link.closest("[id^='bookmark-bar-']");
-      if (bar) {
-        currentContextTab = bar.id.replace("bookmark-bar-", "");
-      }
-
-      const menu = document.getElementById("bookmark-context-menu");
-      menu.style.top = `${e.pageY}px`;
-      menu.style.left = `${e.pageX}px`;
-      menu.style.display = "block";
-    } else {
-      document.getElementById("bookmark-context-menu").style.display = "none";
-    }
-  });
-
-  document.addEventListener("click", () => {
-    document.getElementById("bookmark-context-menu").style.display = "none";
-  });
-
-  document.getElementById("bookmark-context-menu").addEventListener("click", async (e) => {
-    const action = e.target.dataset.action;
-    if (!action) return;
-
-    if (action === "open") {
-      window.open(currentContextUrl, "_blank");
-
-    } else if (action === "copy") {
-      try {
-        await navigator.clipboard.writeText(currentContextUrl);
-        alert("Copied to clipboard!");
-      } catch {
-        alert("Failed to copy!");
-      }
-
-    } else if (action === "edit") {
-      const newUrl = prompt("Edit bookmark URL:", currentContextUrl);
-      if (newUrl && newUrl !== currentContextUrl) {
-        try {
-          new URL(newUrl);
-        } catch {
-          alert("Invalid URL");
-          return;
-        }
-        try {
-          const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
-          if (snap.exists()) {
-            const urls = snap.data().urls || [];
-            const favicons = snap.data().favicons || {};
-            const index = urls.indexOf(currentContextUrl);
-            if (index !== -1) {
-              urls[index] = newUrl;
-              if (favicons[currentContextUrl]) {
-                favicons[newUrl] = favicons[currentContextUrl];
-                delete favicons[currentContextUrl];
-              }
-              await setDoc(doc(db, "dashboardBookmarks", currentContextTab), { urls, favicons });
-              renderBookmarks(currentContextTab, { urls, favicons });
-            }
-          }
-        } catch (err) {
-          console.error("Error editing bookmark:", err);
-        }
-      }
-
-    } else if (action === "remove") {
-      removeBookmark(currentContextTab, currentContextUrl);
-    }
-    document.getElementById("bookmark-context-menu").style.display = "none";
-  });
-
-  function openBookmarkModal(tab) {
-    const modal = document.getElementById(`bookmarkModal-${tab}`);
-    if (modal) modal.style.display = "block";
-  }
-
-  function closeBookmarkModal(tab) {
-    const modal = document.getElementById(`bookmarkModal-${tab}`);
-    if (modal) modal.style.display = "none";
-  }
-
-  // --- Clock functions ---
-  function updateClock() {
-    const date = new Date();
-    const utcHours = date.getUTCHours();
-    const utcMinutes = date.getUTCMinutes();
-    const utcSeconds = date.getUTCSeconds();
-
-    // Convert UTC to EST (UTC-5)
-    let estHours = utcHours - 5;
-    if (estHours < 0) estHours += 24;
-
-    // Format with leading zero
-    const formatTime = (h, m, s) =>
-      `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-
-    const utcClock = document.getElementById("clock-utc");
-    const estClock = document.getElementById("clock-est");
-
-    if (utcClock) utcClock.textContent = formatTime(utcHours, utcMinutes, utcSeconds);
-    if (estClock) estClock.textContent = formatTime(estHours, utcMinutes, utcSeconds);
-  }
-
-  setInterval(updateClock, 1000);
-  updateClock();
-
-  // --- Load Notes and Bookmarks on page load ---
-  // Your tabs: work, personal, secondjob, charity
-  ["work", "personal", "secondjob", "charity"].forEach(tab => {
+  tabs.forEach(tab => {
     loadNotes(tab);
-    setupAutosave(tab);
     loadBookmarks(tab);
+    loadQuickComments(tab);
   });
-
-  // --- Export bookmark modal open/close to window for HTML onclick ---
-  window.openBookmarkModal = openBookmarkModal;
-  window.closeBookmarkModal = closeBookmarkModal;
-  window.addBookmark = addBookmark;
-
 </script>
 
 
