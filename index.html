@@ -760,6 +760,7 @@ body:not(.dark) .utility-panels .panel {
       if (snap.exists()) {
         const data = snap.data();
         document.getElementById(`notes-${tab}`).value = data.content;
+        lastSavedContent[tab] = data.content;
       }
     } catch (err) {
       console.error(`Error loading notes for ${tab}:`, err);
@@ -819,20 +820,23 @@ body:not(.dark) .utility-panels .panel {
   }
 
   async function removeBookmark(tab, url) {
-    const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-    if (!snap.exists()) return;
+    try {
+      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+      if (!snap.exists()) return;
 
-    const urls = snap.data().urls || [];
-    const favicons = snap.data().favicons || {};
-    const updated = urls.filter(u => u !== url);
+      const urls = snap.data().urls || [];
+      const favicons = snap.data().favicons || {};
+      const updated = urls.filter(u => u !== url);
 
-    // Also remove favicon for that url
-    if (favicons[url]) {
-      delete favicons[url];
+      if (favicons[url]) {
+        delete favicons[url];
+      }
+
+      await setDoc(doc(db, "dashboardBookmarks", tab), { urls: updated, favicons });
+      renderBookmarks(tab, { urls: updated, favicons });
+    } catch (err) {
+      console.error("Error removing bookmark:", err);
     }
-
-    await setDoc(doc(db, "dashboardBookmarks", tab), { urls: updated, favicons });
-    renderBookmarks(tab, { urls: updated, favicons });
   }
 
   function renderBookmarks(tab, data) {
@@ -888,20 +892,22 @@ body:not(.dark) .utility-panels .panel {
       });
     });
 
-    Sortable.create(container, {
-      animation: 150,
-      onEnd: async function () {
-        const newOrder = Array.from(container.querySelectorAll("a")).map(a => a.href);
-        try {
-          await setDoc(doc(db, "dashboardBookmarks", tab), {
-            urls: newOrder,
-            favicons
-          });
-        } catch (err) {
-          console.error("Error saving new bookmark order:", err);
+    if (window.Sortable) {
+      Sortable.create(container, {
+        animation: 150,
+        onEnd: async function () {
+          const newOrder = Array.from(container.querySelectorAll("a")).map(a => a.href);
+          try {
+            await setDoc(doc(db, "dashboardBookmarks", tab), {
+              urls: newOrder,
+              favicons
+            });
+          } catch (err) {
+            console.error("Error saving new bookmark order:", err);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   let currentContextUrl = null;
@@ -939,7 +945,12 @@ body:not(.dark) .utility-panels .panel {
       window.open(currentContextUrl, "_blank");
 
     } else if (action === "copy") {
-      await navigator.clipboard.writeText(currentContextUrl);
+      try {
+        await navigator.clipboard.writeText(currentContextUrl);
+        alert("Copied to clipboard!");
+      } catch {
+        alert("Failed to copy!");
+      }
 
     } else if (action === "edit") {
       const newUrl = prompt("Edit bookmark URL:", currentContextUrl);
@@ -950,21 +961,24 @@ body:not(.dark) .utility-panels .panel {
           alert("Invalid URL");
           return;
         }
-        const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
-        if (snap.exists()) {
-          const urls = snap.data().urls || [];
-          const favicons = snap.data().favicons || {};
-          const index = urls.indexOf(currentContextUrl);
-          if (index !== -1) {
-            urls[index] = newUrl;
-            // Optionally update favicon key if exists
-            if (favicons[currentContextUrl]) {
-              favicons[newUrl] = favicons[currentContextUrl];
-              delete favicons[currentContextUrl];
+        try {
+          const snap = await getDoc(doc(db, "dashboardBookmarks", currentContextTab));
+          if (snap.exists()) {
+            const urls = snap.data().urls || [];
+            const favicons = snap.data().favicons || {};
+            const index = urls.indexOf(currentContextUrl);
+            if (index !== -1) {
+              urls[index] = newUrl;
+              if (favicons[currentContextUrl]) {
+                favicons[newUrl] = favicons[currentContextUrl];
+                delete favicons[currentContextUrl];
+              }
+              await setDoc(doc(db, "dashboardBookmarks", currentContextTab), { urls, favicons });
+              renderBookmarks(currentContextTab, { urls, favicons });
             }
-            await setDoc(doc(db, "dashboardBookmarks", currentContextTab), { urls, favicons });
-            renderBookmarks(currentContextTab, { urls, favicons });
           }
+        } catch (err) {
+          console.error("Error editing bookmark:", err);
         }
       }
 
@@ -975,11 +989,13 @@ body:not(.dark) .utility-panels .panel {
   });
 
   function openBookmarkModal(tab) {
-    document.getElementById(`bookmark-modal-${tab}`).style.display = "block";
+    const modal = document.getElementById(`bookmarkModal-${tab}`);
+    if (modal) modal.style.display = "block";
   }
 
   function closeBookmarkModal(tab) {
-    document.getElementById(`bookmark-modal-${tab}`).style.display = "none";
+    const modal = document.getElementById(`bookmarkModal-${tab}`);
+    if (modal) modal.style.display = "none";
   }
 
   // --- Clock functions ---
@@ -997,15 +1013,19 @@ body:not(.dark) .utility-panels .panel {
     const formatTime = (h, m, s) =>
       `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
 
-    document.getElementById("clock-utc").textContent = formatTime(utcHours, utcMinutes, utcSeconds);
-    document.getElementById("clock-est").textContent = formatTime(estHours, utcMinutes, utcSeconds);
+    const utcClock = document.getElementById("clock-utc");
+    const estClock = document.getElementById("clock-est");
+
+    if (utcClock) utcClock.textContent = formatTime(utcHours, utcMinutes, utcSeconds);
+    if (estClock) estClock.textContent = formatTime(estHours, utcMinutes, utcSeconds);
   }
 
   setInterval(updateClock, 1000);
   updateClock();
 
   // --- Load Notes and Bookmarks on page load ---
-  ["work", "personal", "private"].forEach(tab => {
+  // Your tabs: work, personal, secondjob, charity
+  ["work", "personal", "secondjob", "charity"].forEach(tab => {
     loadNotes(tab);
     setupAutosave(tab);
     loadBookmarks(tab);
