@@ -1,523 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Dashboard</title>
+  <meta charset="UTF-8">
+  <title>Woody Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-     /* === THEME VARIABLES === */
-    :root {
-      --bg-color: #ffffff;
-      --text-color: #000000;
-      --card-bg: #f0f0f0;
-      --button-bg: #444;
-      --button-text: #ffffff;
-      --accent: #2a9d8f;
-      --border-color: #ccc;
-    }
-
-    body.dark {
-      --bg-color: #121212;
-      --text-color: #f0f0f0;
-      --card-bg: #1e1e1e;
-      --button-bg: #333;
-      --button-text: #ffffff;
-      --accent: #90caf9;
-      --border-color: #555;
-    }
-
-    /* === BASE STYLES === */
-   body {
-  margin: 0; /* from the first block */
-  padding: 20px; /* from the second block */
-  font-family: sans-serif; /* common to both */
-  background-color: var(--bg-color); /* from the second block */
-  color: var(--text-color); /* from the second block */
-  transition: background-color 0.4s ease, color 0.4s ease; /* from the second block */
-}
-
-
-    /* === NAVIGATION === */
-    nav {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    nav button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 5px;
-      background-color: var(--button-bg);
-      color: var(--button-text);
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    nav button.active {
-      background-color: var(--accent);
-      color: var(--bg-color);
-    }
-
-    /* === TABS === */
-    .tab {
-      display: none;
-    }
-
-    .tab.active {
-      display: block;
-      margin-top: 20px;
-    }
-
-    /* === CLOCKS === */
-    .clock-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    .clock-card {
-      background: var(--card-bg);
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .clock-card h4 {
-      margin: 0 0 5px;
-      font-size: 1.1em;
-      color: var(--accent);
-    }
-
-    .clock-card .time {
-      font-size: 1.3em;
-      font-weight: bold;
-      color: var(--text-color);
-    }
-
- .notes-panel {
-  display: inline-block;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--card-bg);
-}
-
-textarea {
-  resize: both;
-  min-width: 200px;
-  min-height: 100px;
-  display: block;
-}
-
-    span[id^="saveStatus-"] {
-      margin-left: 10px;
-      font-weight: bold;
-      color: limegreen;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    /* === DARK MODE TOGGLE === */
-    .dark-toggle {
-      float: right;
-      margin: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 50px;
-      height: 24px;
-    }
-
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: var(--border-color);
-      transition: 0.4s;
-      border-radius: 34px;
-    }
-
-    .slider::before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.4s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider {
-      background-color: var(--accent);
-    }
-
-    input:checked + .slider::before {
-      transform: translateX(26px);
-    }
-.bookmark-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.bookmark-bar a {
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  margin: 0 5px; /* From bookmark-link */
-  padding: 4px;   /* From bookmark-link */
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  text-align: center;
-  position: relative;
-  transition: all 0.2s ease; /* From bookmark-link */
-}
-
-.bookmark-bar a img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.bookmark-bar a .remove {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: red;
-  color: white;
-  font-size: 12px;
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  text-align: center;
-  line-height: 16px;
-  cursor: pointer;
-}
-.bookmark-bar a:hover {
-  background-color: rgba(0, 0, 0, 0.07);
-  transform: scale(1.1);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-.bookmark-form {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.bookmark-form input {
-  flex: 1;
-  padding: 6px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-.bookmark-button {
-  display: inline-block;
-  position: relative;
-  padding: 5px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.modal {
-  position: fixed;
-  z-index: 999;
-  left: 0; top: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.modal-content {
-  background-color: var(--card-bg);
-  padding: 20px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  position: relative;
-}
-
-.modal-content input {
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 6px;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-
-.modal-content .close {
-  position: absolute;
-  top: 10px; right: 12px;
-  font-size: 20px;
-  font-weight: bold;
-  color: var(--text-color);
-  cursor: pointer;
-}
-/* Base context menu styles */
-.context-menu {
-  background-color: white;
-  color: black;
-  border: 1px solid #ccc;
-  z-index: 1000;
-  position: absolute;
-  display: none;
-  min-width: 160px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.context-menu ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.context-menu li {
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.context-menu li:hover {
-  background-color: #f0f0f0;
-}
-
-.hero-background {
-  background-image: url('https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/images/Belissima.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  padding: 2rem;
-  color: white;
-  height: 300px; /* Adjust as needed */
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-}
-
-.hero-background h1,
-.hero-background nav,
-.hero-background .dark-toggle {
-  z-index: 2;
-  position: relative;
-}
-
-.hero-background::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.4); /* optional dark overlay */
-  z-index: 1;
-}
-
-.hero-background {
-  position: relative;
-}
-
-.quick-comments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 1em;
-}
-
-.quick-comments button {
-  font-size: 1rem;
-  padding: 10px 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background-color: #f0f0f0;
-  transition: background 0.2s;
-}
-
-.quick-comments button:hover {
-  background-color: #e0e0e0;
-}
-
-#quickCommentContextMenu {
-  position: absolute;
-  display: none;
-  background-color: white;
-  border: 1px solid #aaa;
-  z-index: 9999;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-}
-
-#quickCommentContextMenu ul {
-  list-style: none;
-  margin: 0;
-  padding: 5px 0;
-}
-
-#quickCommentContextMenu li {
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-#quickCommentContextMenu li:hover {
-  background-color: #f5f5f5;
-}
-.quick-comment-button[draggable="true"] {
-  cursor: grab;
-}
-.quick-comment-button:active {
-  opacity: 0.5;
-}
-
-@font-face {
-  font-family: 'E1234';
-  src: url('https://cdn.jsdelivr.net/gh/woodywilliams42/my-dashboard/font/E1234.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-.led {
-  font-family: 'E1234', monospace;
-  font-size: 2rem;
-  letter-spacing: 0.1em;
-  color: #0f0;
-}
-.led.red {
-  color: red;
-}
-
-.top-right {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 100;
-}
-
-.top-left {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 100;
-}
-#header {
-  position: relative;
-}
-
-.dashboard-title {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  color: white;
-  font-size: 2rem;
-  font-weight: bold;
-  text-shadow: 1px 1px 3px black;
-}
-/* Dark mode adjustments */
-body.dark-mode .context-menu {
-  background-color: #222;
-  color: white;
-  border-color: #444;
-}
-
-body.dark-mode .context-menu li:hover {
-  background-color: #333;
-}
-.utility-panels {
-  display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  align-items: stretch;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-
-/* Shared styles for both panels */
-.utility-panels .panel {
-  flex: 1 1 45%;
-  max-width: 50%;
-  box-sizing: border-box;
-  padding: 10px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--card-bg);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* Bookmark bar wraps icons */
-.bookmark-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* Match panel heights */
-.utility-panels {
-  align-items: stretch;
-}
-
-/* Light mode override for panels */
-body:not(.dark) .utility-panels .panel {
-  background: white;
-}
-
-/* QUICK COMMENTS BUTTON CONTAINER */
-.quick-comments {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-/* INDIVIDUAL COMMENT BUTTONS */
-.quick-comments button {
-  padding: 6px 12px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: #f0f0f0;
-  color: var(--accent);
-  white-space: nowrap;        /* Prevent breaking label */
-  flex: 0 0 auto;             /* Don’t grow or shrink */
-}
-
-/* ADD COMMENT BUTTON (keep distinct style) */
-.addCommentBtn {
-  padding: 6px 12px;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background-color: #e0e0e0;
-  color: #000000;
-  font-weight: normal;
-  cursor: pointer;
-}
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+    nav button.active { font-weight: bold; }
+    .tab { display: none; padding: 1rem; }
+    .tab.active { display: block; }
+    .panel { border: 1px solid #ccc; padding: 10px; margin: 10px 0; border-radius: 8px; }
+    .bookmark-icons { display: flex; flex-wrap: wrap; gap: 10px; }
+    .bookmark-button { position: relative; display: inline-block; }
+    .bookmark-button img { width: 32px; height: 32px; }
+    .remove { position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; padding: 0 4px; cursor: pointer; }
+    .quick-comments { display: flex; flex-wrap: wrap; gap: 10px; }
+    .quick-comment-button { padding: 5px 10px; }
+    .dark .panel { background: #333; color: white; }
+    .dark body { background: #111; color: white; }
+    .dark-toggle { float: right; margin: 10px; }
+    .notes-panel textarea { width: 100%; min-height: 100px; }
   </style>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
    <div class="hero-background">
@@ -552,7 +56,7 @@ body:not(.dark) .utility-panels .panel {
     <div class="utility-panels">
       <div class="panel" id="bookmarks-panel-work">
         <h3>Bookmarks</h3>
-        <div id="bookmarks-work" class="bookmark-icons"></div>
+        <div id="bookmark-bar-work" class="bookmark-bar"></div>
         <button class="addBookmarkBtn" onclick="openBookmarkModal('work')">➕ Add Bookmark</button>
       </div>
 
@@ -687,145 +191,98 @@ body:not(.dark) .utility-panels .panel {
 <input type="file" id="favicon-upload" style="display:none" accept="image/*" />
   <!-- === SCRIPT === -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
-    authDomain: "woodydashboard.firebaseapp.com",
-    projectId: "woodydashboard",
-    storageBucket: "woodydashboard.appspot.com",
-    messagingSenderId: "180582118415",
-    appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-
-  // Theme Toggle
-  const darkToggle = document.getElementById("darkModeToggle");
-  const themeLabel = document.getElementById("theme-label");
-
-  function applyDarkMode(isDark) {
-    document.body.classList.toggle("dark", isDark);
-    darkToggle.checked = isDark;
-    themeLabel.textContent = isDark ? "🌙" : "🌞";
-  }
-
-  const savedTheme = localStorage.getItem("theme");
-  const isDarkMode = savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  applyDarkMode(isDarkMode);
-
-  darkToggle.addEventListener("change", () => {
-    const isDark = darkToggle.checked;
-    applyDarkMode(isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  });
-
-  // Tabs
-  document.querySelectorAll("nav button").forEach(button => {
-    button.addEventListener("click", () => {
-      const tabId = button.dataset.tab;
-      document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
-      document.getElementById(tabId).classList.add("active");
-      document.querySelectorAll("nav button").forEach(btn => btn.classList.remove("active"));
-      button.classList.add("active");
+    const app = initializeApp({
+      apiKey: "...",
+      authDomain: "...",
+      projectId: "...",
     });
-  });
 
-  // World Clocks
-  function updateClocks() {
-    const clocks = [
-      { city: "Shanghai", timeZone: "Asia/Shanghai" },
-      { city: "Chennai", timeZone: "Asia/Kolkata" },
-      { city: "London", timeZone: "Europe/London" },
-      { city: "New York", timeZone: "America/New_York" },
-      { city: "Dallas", timeZone: "America/Chicago" },
-      { city: "Honolulu", timeZone: "Pacific/Honolulu" }
-    ];
-    const container = document.getElementById("world-clocks-work");
-    if (!container) return;
-    container.innerHTML = clocks.map(({ city, timeZone }) => {
-      const now = new Date().toLocaleTimeString("en-GB", {
-        timeZone,
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false
-      });
-      return `<div class="clock-card"><strong>${city}</strong> <span>${now}</span></div>`;
-    }).join("");
-  }
-  setInterval(updateClocks, 1000);
-  updateClocks();
+    const db = getFirestore(app);
 
-  // Firebase data loading
-  const tabs = ["work", "personal", "secondjob", "charity"];
+    async function saveNotes(tab) {
+      const content = document.getElementById(\`notes-\${tab}\`).value;
+      await setDoc(doc(db, "dashboardNotes", tab), { content });
+      document.getElementById(\`saveStatus-\${tab}\`).textContent = "✔ Saved!";
+    }
 
-  async function loadNotes(tab) {
-    const el = document.getElementById(`notes-${tab}`);
-    if (!el) return;
-    try {
+    async function loadNotes(tab) {
       const snap = await getDoc(doc(db, "dashboardNotes", tab));
-      if (snap.exists()) el.value = snap.data().content;
-    } catch (err) {
-      console.error(`Error loading notes for ${tab}:`, err);
+      if (snap.exists()) {
+        document.getElementById(\`notes-\${tab}\`).value = snap.data().content;
+      }
     }
-  }
 
-  async function loadBookmarks(tab) {
-    const container = document.getElementById(`bookmarks-${tab}`);
-    if (!container) return;
-    try {
+    async function loadBookmarks(tab) {
       const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-      const data = snap.exists() ? snap.data() : { urls: [], favicons: {} };
+      const container = document.getElementById(\`bookmark-bar-\${tab}\`);
       container.innerHTML = "";
-      data.urls.forEach(url => {
-        const a = document.createElement("a");
-        a.href = url;
-        a.target = "_blank";
-        a.className = "bookmark-button";
-        const img = document.createElement("img");
-        img.src = data.favicons?.[url] || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
-        img.alt = "icon";
-        a.appendChild(img);
-        container.appendChild(a);
-      });
-    } catch (err) {
-      console.error(`Error loading bookmarks for ${tab}:`, err);
+      if (snap.exists()) {
+        for (const url of snap.data().urls || []) {
+          const img = document.createElement("img");
+          img.src = "https://www.google.com/s2/favicons?domain=" + new URL(url).hostname;
+          img.style.width = "32px";
+          img.style.height = "32px";
+          const a = document.createElement("a");
+          a.href = url;
+          a.target = "_blank";
+          a.appendChild(img);
+          container.appendChild(a);
+        }
+      }
     }
-  }
 
-  async function loadQuickComments(tab) {
-    const container = document.getElementById(`quick-comments-${tab}`);
-    if (!container) return;
-    try {
+    async function addBookmark(tab) {
+      const input = document.getElementById(\`newBookmarkUrl-\${tab}\`);
+      const url = input.value;
+      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+      const data = snap.exists() ? snap.data() : { urls: [] };
+      if (!data.urls.includes(url)) {
+        data.urls.push(url);
+        await setDoc(doc(db, "dashboardBookmarks", tab), data);
+        loadBookmarks(tab);
+        input.value = "";
+      }
+    }
+
+    async function loadQuickComments(tab) {
       const snap = await getDoc(doc(db, "quickComments", tab));
-      const comments = snap.exists() ? snap.data().comments : [];
+      const container = document.getElementById(\`quick-comments-\${tab}\`);
       container.innerHTML = "";
-      comments.forEach(comment => {
-        const btn = document.createElement("button");
-        btn.className = "quick-comment-button";
-        btn.textContent = comment.label;
-        btn.title = comment.text;
-        btn.onclick = () => navigator.clipboard.writeText(comment.text);
-        container.appendChild(btn);
-      });
-    } catch (err) {
-      console.error(`Error loading comments for ${tab}:`, err);
+      if (snap.exists()) {
+        for (const item of snap.data().comments || []) {
+          const btn = document.createElement("button");
+          btn.textContent = item.label;
+          btn.className = "quick-comment-button";
+          btn.onclick = () => navigator.clipboard.writeText(item.text);
+          container.appendChild(btn);
+        }
+      }
     }
-  }
 
-  tabs.forEach(tab => {
-    loadNotes(tab);
-    loadBookmarks(tab);
-    loadQuickComments(tab);
-  });
-</script>
+    document.querySelectorAll('nav button').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        document.getElementById(btn.dataset.tab).classList.add('active');
+        btn.classList.add('active');
+      };
+    });
 
+    const tabs = ["work", "personal", "secondjob", "charity"];
+    tabs.forEach(tab => {
+      loadNotes(tab);
+      loadBookmarks(tab);
+      loadQuickComments(tab);
+    });
 
+    const toggle = document.getElementById("darkModeToggle");
+    toggle.addEventListener("change", () => {
+      document.body.classList.toggle("dark", toggle.checked);
+    });
+  </script>
 
 </body>
 </html>
