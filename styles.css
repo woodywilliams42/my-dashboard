@@ -1,6 +1,4 @@
- 
- 
-       /* === THEME VARIABLES === */
+        /* === THEME VARIABLES === */
     :root {
       --bg-color: #ffffff;
       --text-color: #000000;
@@ -443,4 +441,3 @@ body.dark-mode .context-menu li:hover {
 }
 
   
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
