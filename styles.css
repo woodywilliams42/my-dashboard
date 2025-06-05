@@ -1,4 +1,4 @@
-        /* === THEME VARIABLES === */
+/* === THEME VARIABLES === */
     :root {
       --bg-color: #ffffff;
       --text-color: #000000;
@@ -439,5 +439,3 @@ body.dark-mode .context-menu {
 body.dark-mode .context-menu li:hover {
   background-color: #333;
 }
-
-  
