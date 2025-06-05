@@ -116,13 +116,16 @@
     }
 
     /* === DARK MODE TOGGLE === */
-    .dark-toggle {
-      float: right;
-      margin: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+.dark-toggle {
+  float: right;
+  margin: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.5); /* dark semi-transparent background */
+  padding: 8px 12px;
+  border-radius: 8px;
+}
 
  .switch {
   position: relative;
