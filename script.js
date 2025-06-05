@@ -1,4 +1,6 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  <!-- === SCRIPT === -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -21,8 +23,8 @@
 
 
 async function saveNotes(tab) {
-  const content = document.getElementById(notes-${tab}).value;
-  const statusEl = document.getElementById(saveStatus-${tab});
+  const content = document.getElementById(`notes-${tab}`).value;
+  const statusEl = document.getElementById(`saveStatus-${tab}`);
 
   statusEl.textContent = "Saving...";
   statusEl.style.opacity = 1;
@@ -43,7 +45,7 @@ async function saveNotes(tab) {
 const lastSavedContent = {};
 
 function setupAutosave(tab) {
-  const textarea = document.getElementById(notes-${tab});
+  const textarea = document.getElementById(`notes-${tab}`);
   let debounceTimer;
 
   textarea.addEventListener("input", () => {
@@ -72,10 +74,10 @@ function setupAutosave(tab) {
       const snap = await getDoc(doc(db, "dashboardNotes", tab));
       if (snap.exists()) {
         const data = snap.data();
-        document.getElementById(notes-${tab}).value = data.content;
+        document.getElementById(`notes-${tab}`).value = data.content;
       }
     } catch (err) {
-      console.error(Error loading notes for ${tab}:, err);
+      console.error(`Error loading notes for ${tab}:`, err);
     }
   }
 
@@ -87,12 +89,12 @@ function setupAutosave(tab) {
         renderBookmarks(tab, data);
       }
     } catch (err) {
-      console.error(Error loading bookmarks for ${tab}:, err);
+      console.error(`Error loading bookmarks for ${tab}:`, err);
     }
   }
 
   async function addBookmark(tab) {
-    const input = document.getElementById(newBookmarkUrl-${tab});
+    const input = document.getElementById(`newBookmarkUrl-${tab}`);
     const url = input.value.trim();
 
     try {
@@ -141,7 +143,7 @@ function setupAutosave(tab) {
   }
 
   function renderBookmarks(tab, data) {
-    const container = document.getElementById(bookmark-bar-${tab});
+    const container = document.getElementById(`bookmark-bar-${tab}`);
     container.innerHTML = "";
 
     const urls = data.urls || [];
@@ -188,8 +190,8 @@ function setupAutosave(tab) {
         currentContextImg = img;
 
         const menu = document.getElementById("bookmark-context-menu");
-        menu.style.top = ${e.pageY}px;
-        menu.style.left = ${e.pageX}px;
+        menu.style.top = `${e.pageY}px`;
+        menu.style.left = `${e.pageX}px`;
         menu.style.display = "block";
       });
     });
@@ -225,8 +227,8 @@ function setupAutosave(tab) {
       }
 
       const menu = document.getElementById("bookmark-context-menu");
-      menu.style.top = ${e.pageY}px;
-      menu.style.left = ${e.pageX}px;
+      menu.style.top = `${e.pageY}px`;
+      menu.style.left = `${e.pageX}px`;
       menu.style.display = "block";
     } else {
       document.getElementById("bookmark-context-menu").style.display = "none";
@@ -319,7 +321,7 @@ function setupAutosave(tab) {
         second: '2-digit',
         hour12: false
       });
-      return <div class="clock-card"><h4>${city}</h4><div class="time">${now}</div></div>;
+      return `<div class="clock-card"><h4>${city}</h4><div class="time">${now}</div></div>`;
     }).join("");
   }
 
@@ -373,7 +375,7 @@ async function saveQuickComments(tab) {
 
 // Render buttons
 function renderQuickComments(tab) {
-  const container = document.getElementById(quick-comments-${tab});
+  const container = document.getElementById(`quick-comments-${tab}`);
   container.innerHTML = ""; // Clear previous
   const comments = quickCommentsData[tab] || [];
 
@@ -433,8 +435,8 @@ function renderQuickComments(tab) {
 // Context menu UI
 function showQuickCommentContextMenu(x, y, tab, index) {
   const menu = document.getElementById("quickCommentContextMenu");
-  menu.style.top = ${y}px;
-  menu.style.left = ${x}px;
+  menu.style.top = `${y}px`;
+  menu.style.left = `${x}px`;
   menu.style.display = "block";
   menu.dataset.tab = tab;
   menu.dataset.index = index;
@@ -461,14 +463,14 @@ document.querySelectorAll(".addCommentBtn").forEach((btn) => {
 
 // Context menu HTML (ensure only added once)
 if (!document.getElementById("quickCommentContextMenu")) {
-  document.body.insertAdjacentHTML("beforeend", 
+  document.body.insertAdjacentHTML("beforeend", `
     <div id="quickCommentContextMenu" style="position: absolute; display: none; background: white; border: 1px solid #ccc; z-index: 1000;">
       <ul style="list-style: none; margin: 0; padding: 0;">
         <li data-action="edit" style="padding: 4px 8px; cursor: pointer;">✏️ Edit</li>
         <li data-action="delete" style="padding: 4px 8px; cursor: pointer;">🗑️ Delete</li>
       </ul>
     </div>
-  );
+  `);
 }
 
 // Context menu actions
@@ -487,7 +489,7 @@ document.getElementById("quickCommentContextMenu").addEventListener("click", asy
       renderQuickComments(tab);
     }
   } else if (action === "delete") {
-    if (confirm(Delete comment "${comment.label}"?)) {
+    if (confirm(`Delete comment "${comment.label}"?`)) {
       quickCommentsData[tab].splice(index, 1);
       await saveQuickComments(tab);
       renderQuickComments(tab);
@@ -577,7 +579,7 @@ function updateCountdownDisplay(seconds) {
   const minutes = Math.floor(seconds / 60).toString().padStart(2, "0");
   const secs = (seconds % 60).toString().padStart(2, "0");
   const display = document.getElementById("alarm-countdown");
-  display.innerText = ${minutes}:${secs};
+  display.innerText = `${minutes}:${secs}`;
   display.className = seconds <= 7 ? "led red" : "led green";
 }
 
@@ -605,14 +607,15 @@ loadAlarmSettings();
   window.addBookmark = addBookmark;
   window.removeBookmark = removeBookmark;
   window.showBookmarkModal = function(tab) {
-    document.getElementById(bookmarkModal-${tab}).style.display = 'flex';
+    document.getElementById(`bookmarkModal-${tab}`).style.display = 'flex';
   };
   window.closeBookmarkModal = function(tab) {
-    document.getElementById(bookmarkModal-${tab}).style.display = 'none';
+    document.getElementById(`bookmarkModal-${tab}`).style.display = 'none';
   };
 
   ["personal", "secondjob", "charity"].forEach(tab => {
-    document.getElementById(showBookmarkModal-${tab}).addEventListener("click", () => window.showBookmarkModal(tab));
+    document.getElementById(`showBookmarkModal-${tab}`).addEventListener("click", () => window.showBookmarkModal(tab));
   });
 
   document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
+</script>
