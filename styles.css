@@ -1,4 +1,8 @@
-/* === THEME VARIABLES === */
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Dashboard</title>
+  <style>
+     /* === THEME VARIABLES === */
     :root {
       --bg-color: #ffffff;
       --text-color: #000000;
@@ -439,3 +443,6 @@ body.dark-mode .context-menu {
 body.dark-mode .context-menu li:hover {
   background-color: #333;
 }
+
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
