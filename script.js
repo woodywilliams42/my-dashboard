@@ -1,5 +1,5 @@
   <!-- === SCRIPT === -->
-<script type="module">
+
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
@@ -618,4 +618,4 @@ loadAlarmSettings();
   });
 
   document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
-</script>
+
