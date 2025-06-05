@@ -117,14 +117,16 @@
 
     /* === DARK MODE TOGGLE === */
 .dark-toggle {
-  float: right;
-  margin: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.5); /* dark semi-transparent background */
   padding: 8px 12px;
+  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 8px;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
 }
 
 .switch {
@@ -147,7 +149,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc; /* fallback color */
+  background-color: #ccc;
   transition: 0.4s;
   border-radius: 26px;
 }
@@ -171,6 +173,7 @@ input:checked + .slider {
 input:checked + .slider::before {
   transform: translateX(24px);
 }
+
 
 
 .bookmark-bar {
