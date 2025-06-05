@@ -127,7 +127,7 @@
   border-radius: 8px;
 }
 
- .switch {
+.switch {
   position: relative;
   display: inline-block;
   width: 50px;
@@ -147,7 +147,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #ccc; /* fallback color */
   transition: 0.4s;
   border-radius: 26px;
 }
@@ -171,6 +171,7 @@ input:checked + .slider {
 input:checked + .slider::before {
   transform: translateX(24px);
 }
+
 
 .bookmark-bar {
   display: flex;
