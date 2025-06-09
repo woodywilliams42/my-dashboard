@@ -140,6 +140,7 @@
   opacity: 0;
   width: 0;
   height: 0;
+  position: absolute;
 }
 
 .slider {
@@ -149,14 +150,15 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #bbb;
   transition: background-color 0.4s;
   border-radius: 34px;
+  z-index: 1;
 }
 
 .slider::before {
-  position: absolute;
   content: "";
+  position: absolute;
   height: 18px;
   width: 18px;
   left: 4px;
@@ -164,10 +166,11 @@
   background-color: white;
   transition: transform 0.4s;
   border-radius: 50%;
+  z-index: 2;
 }
 
 input:checked + .slider {
-  background-color: var(--accent);
+  background-color: #2a9d8f; /* or use var(--accent) */
 }
 
 input:checked + .slider::before {
@@ -178,7 +181,9 @@ input:checked + .slider::before {
   font-size: 1.2rem;
   line-height: 1;
   margin-left: 4px;
+  vertical-align: middle;
 }
+
 
 .bookmark-bar {
   display: flex;
