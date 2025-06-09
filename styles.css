@@ -149,10 +149,17 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: #ccc; /* Ensure visible background */
   border-radius: 34px;
   transition: 0.4s;
+  z-index: 1; /* 👈 Ensure it's above background */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2); /* 👈 Optional: soft outline to help visibility */
 }
+body.dark .slider {
+  background-color: #555;
+}
+
+
 
 .slider::before {
   content: "";
