@@ -145,32 +145,29 @@
 
 .slider {
   position: absolute;
-  cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #bbb;
-  transition: background-color 0.4s;
+  background-color: #ccc;
   border-radius: 34px;
-  z-index: 1;
+  transition: 0.4s;
 }
 
 .slider::before {
   content: "";
   position: absolute;
-  height: 18px;
-  width: 18px;
-  left: 4px;
-  bottom: 4px;
+  height: 22px;
+  width: 22px;
+  left: 2px;
+  top: 2px;
   background-color: white;
-  transition: transform 0.4s;
+  transition: transform 0.4s ease;
   border-radius: 50%;
-  z-index: 2;
 }
 
 input:checked + .slider {
-  background-color: #2a9d8f; /* or use var(--accent) */
+  background-color: #2a9d8f;
 }
 
 input:checked + .slider::before {
@@ -178,10 +175,10 @@ input:checked + .slider::before {
 }
 
 #theme-label {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   line-height: 1;
-  margin-left: 4px;
-  vertical-align: middle;
+  margin: 0;
+  align-self: center;
 }
 
 
