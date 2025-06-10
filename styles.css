@@ -170,6 +170,7 @@ input:checked + .slider::before {
   transform: translateX(26px);
 }
 
+
 /* Emoji */
 #theme-label {
   font-size: 1.4rem;
