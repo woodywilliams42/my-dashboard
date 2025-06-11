@@ -535,5 +535,7 @@ body.dark-mode .context-menu li:hover {
 .clock-left img {
   width: 16px;
   height: 12px;
+  object-fit: cover;
   border-radius: 2px;
+  flex-shrink: 0;
 }
