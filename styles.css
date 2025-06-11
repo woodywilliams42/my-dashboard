@@ -121,10 +121,12 @@
   align-items: center;
   gap: 10px;
   margin: 10px;
+  z-index: 10;
 }
 
 .switch {
   position: relative;
+  display: inline-block;
   width: 50px;
   height: 24px;
   flex-shrink: 0;
@@ -137,13 +139,16 @@
 }
 
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
-  transition: background-color 0.4s;
-  border-radius: 24px;
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc !important;
+  border-radius: 24px !important;
+  transition: background-color 0.4s ease !important;
   z-index: 0;
+  display: block !important;
 }
 
 .slider::before {
@@ -154,13 +159,13 @@
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: transform 0.4s;
+  transition: transform 0.4s ease;
   border-radius: 50%;
   z-index: 1;
 }
 
 input:checked + .slider {
-  background-color: var(--accent);
+  background-color: #2a9d8f !important;
 }
 
 input:checked + .slider::before {
@@ -171,6 +176,7 @@ input:checked + .slider::before {
   font-size: 20px;
   line-height: 24px;
 }
+
 .bookmark-bar {
   display: flex;
   flex-wrap: wrap;
