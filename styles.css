@@ -488,11 +488,6 @@ body.dark-mode .context-menu li:hover {
   font-weight: 500;
 }
 
-.mini-clocks .clock-entry img.flag {
-  width: 18px;
-  height: 12px;
-  object-fit: contain;
-}
 .top-right-clocks {
   position: absolute;
   top: 20px;
@@ -532,10 +527,11 @@ body.dark-mode .context-menu li:hover {
   gap: 6px;
 }
 
-.clock-left img {
+.clock-left img,
+.mini-clocks .clock-entry img.flag {
   width: 16px;
   height: 12px;
-  object-fit: cover;
-  border-radius: 2px;
+  object-fit: contain;
   flex-shrink: 0;
+  border-radius: 2px;
 }
