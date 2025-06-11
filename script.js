@@ -339,6 +339,14 @@ function updateClocks() {
       document.getElementById(target).classList.add("active");
       document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+    // Toggle clock visibility
+    const clockWrapper = document.getElementById("world-clocks-wrapper");
+    if (target === "work") {
+      clockWrapper.style.display = "block";
+    } else {
+      clockWrapper.style.display = "none";
+    }
+
     });
   });
 
