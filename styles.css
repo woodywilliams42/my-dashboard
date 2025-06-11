@@ -466,30 +466,3 @@ body.dark-mode .context-menu {
 body.dark-mode .context-menu li:hover {
   background-color: #333;
 }
-.mini-clocks {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  font-size: 0.85rem;
-  margin: 10px 0 0;
-  padding-right: 10px;
-  z-index: 10;
-}
-
-.mini-clocks .clock-entry {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background-color: rgba(255, 255, 255, 0.15);
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: white;
-  font-weight: 500;
-}
-
-.mini-clocks .clock-entry img.flag {
-  width: 18px;
-  height: 12px;
-  object-fit: contain;
-}
