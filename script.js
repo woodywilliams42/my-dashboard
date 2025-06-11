@@ -301,62 +301,27 @@ function setupAutosave(tab) {
 ["work", "personal", "secondjob", "charity"].forEach(loadQuickComments); // ✅ Correct placement
 
 
-.mini-clocks {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  font-size: 0.85rem;
-  margin: 10px 0 0;
-  padding-right: 10px;
-  z-index: 10;
-}
-
-.mini-clocks .clock-entry {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background-color: rgba(255, 255, 255, 0.15);
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: white;
-  font-weight: 500;
-}
-
-.mini-clocks .clock-entry img.flag {
-  width: 18px;
-  height: 12px;
-  object-fit: contain;
-}
-
-function updateClocks() {
-  const clocks = [
-    { city: "Shanghai", timeZone: "Asia/Shanghai", country: "cn" },
-    { city: "Chennai", timeZone: "Asia/Kolkata", country: "in" },
-    { city: "London", timeZone: "Europe/London", country: "gb" },
-    { city: "New York", timeZone: "America/New_York", country: "us" },
-    { city: "Dallas", timeZone: "America/Chicago", country: "us" },
-    { city: "Honolulu", timeZone: "Pacific/Honolulu", country: "us" }
-  ];
-
-  const container = document.getElementById("world-clocks");
-  container.innerHTML = clocks.map(({ city, timeZone, country }) => {
-    const time = new Date().toLocaleTimeString("en-US", {
-      timeZone,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false
-    });
-
-    return `
-      <div class="clock-entry">
-        <img class="flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
-        <span>${city}: ${time}</span>
-      </div>
-    `;
-  }).join("");
-}
+  function updateClocks() {
+    const clocks = [
+      { city: "Shanghai", timeZone: "Asia/Shanghai" },
+      { city: "Chennai", timeZone: "Asia/Kolkata" },
+      { city: "London", timeZone: "Europe/London" },
+      { city: "New York", timeZone: "America/New_York" },
+      { city: "Dallas", timeZone: "America/Chicago" },
+      { city: "Honolulu", timeZone: "Pacific/Honolulu" }
+    ];
+    const container = document.getElementById("world-clocks");
+    container.innerHTML = clocks.map(({ city, timeZone }) => {
+      const now = new Date().toLocaleTimeString("en-US", {
+        timeZone,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+      return `<div class="clock-card"><h4>${city}</h4><div class="time">${now}</div></div>`;
+    }).join("");
+  }
 
   setInterval(updateClocks, 1000);
   updateClocks();
@@ -651,4 +616,3 @@ loadAlarmSettings();
   });
 
   document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
-
