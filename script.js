@@ -329,6 +329,35 @@ function setupAutosave(tab) {
   object-fit: contain;
 }
 
+function updateClocks() {
+  const clocks = [
+    { city: "Shanghai", timeZone: "Asia/Shanghai", country: "cn" },
+    { city: "Chennai", timeZone: "Asia/Kolkata", country: "in" },
+    { city: "London", timeZone: "Europe/London", country: "gb" },
+    { city: "New York", timeZone: "America/New_York", country: "us" },
+    { city: "Dallas", timeZone: "America/Chicago", country: "us" },
+    { city: "Honolulu", timeZone: "Pacific/Honolulu", country: "us" }
+  ];
+
+  const container = document.getElementById("world-clocks");
+  container.innerHTML = clocks.map(({ city, timeZone, country }) => {
+    const time = new Date().toLocaleTimeString("en-US", {
+      timeZone,
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false
+    });
+
+    return `
+      <div class="clock-entry">
+        <img class="flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
+        <span>${city}: ${time}</span>
+      </div>
+    `;
+  }).join("");
+}
+
   setInterval(updateClocks, 1000);
   updateClocks();
 
