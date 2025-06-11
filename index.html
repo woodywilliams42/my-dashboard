@@ -9,7 +9,7 @@
 
 </head>
 <body>
-  <div class="hero-background">
+<div class="hero-background">
   <div class="top-row">
     <nav>
       <button data-tab="work" class="active">Work</button>
@@ -18,17 +18,20 @@
       <button data-tab="charity">Table/41</button>
     </nav>
 
-<div class="top-right-clocks">
-<div class="dark-toggle">
-  <label class="switch">
-    <input type="checkbox" id="darkModeToggle" />
-    <span class="slider"></span>
-  </label>
-  <span id="theme-label">🌞</span>
-</div>
- <div id="world-clocks" class="mini-clocks"></div>
+    <div class="top-right-clocks">
+      <div class="dark-toggle">
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" />
+          <span class="slider"></span>
+        </label>
+        <span id="theme-label">🌞</span>
+      </div>
 
-</div>
+      <!-- World clocks wrapper to be shown only for Work tab -->
+      <div id="world-clocks-wrapper" class="hero-clocks">
+        <div id="world-clocks" class="clock-grid"></div>
+      </div>
+    </div>
   </div>
 
   <div class="dashboard-title">My Dashboard</div>
