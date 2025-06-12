@@ -558,3 +558,11 @@ img.flag {
   z-index: 10;
 }
 
+.circle-flag {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
