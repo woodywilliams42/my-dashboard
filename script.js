@@ -322,13 +322,18 @@ function updateClocks() {
 
     return `
   <div class="clock-entry">
-    <div class="city">
+    <div class="clock-left">
       <img class="flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
       <span>${city}</span>
     </div>
-    <div class="time">${time}</div>
+    <div class="clock-right">
+      <span>${Intl.DateTimeFormat("en-US", { timeZoneName: "short", timeZone })
+        .formatToParts(new Date())
+        .find(p => p.type === "timeZoneName")?.value || ""} ${time}</span>
+    </div>
   </div>
 `;
+
   }).join("");
 }
 
