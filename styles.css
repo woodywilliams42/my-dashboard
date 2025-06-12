@@ -502,14 +502,14 @@ body.dark-mode .context-menu li:hover {
   font-family: monospace;
 }
 
-.mini-clocks .clock-entry .flag,
-img.flag {
+.mini-clocks .clock-entry .flag {
   width: 16px;
-  height: 12px;
-  object-fit: contain;
-  margin-right: 6px;
+  height: 16px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 8px;
   flex-shrink: 0;
-  border-radius: 2px;
+  border: 1px solid white; /* optional for contrast */
 }
 
 .clock-entry {
