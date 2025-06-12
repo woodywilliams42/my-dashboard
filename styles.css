@@ -466,6 +466,7 @@ body.dark-mode .context-menu {
 body.dark-mode .context-menu li:hover {
   background-color: #333;
 }
+/* === WORLD CLOCKS: MINI FORMAT === */
 .mini-clocks {
   display: flex;
   flex-direction: column;
@@ -486,14 +487,7 @@ body.dark-mode .context-menu li:hover {
   border-radius: 6px;
   margin-bottom: 4px;
   font-size: 0.85rem;
-}
-
-.mini-clocks .clock-entry .flag {
-  width: 16px;
-  height: 12px;
-  object-fit: contain;
-  margin-right: 8px;
-  flex-shrink: 0;
+  width: 220px;
 }
 
 .mini-clocks .clock-entry .city {
@@ -508,6 +502,17 @@ body.dark-mode .context-menu li:hover {
   font-family: monospace;
 }
 
+.mini-clocks .clock-entry .flag,
+img.flag {
+  width: 16px;
+  height: 12px;
+  object-fit: contain;
+  margin-right: 6px;
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+/* Clock wrapper in hero image */
 .top-right-clocks {
   position: absolute;
   top: 20px;
@@ -518,40 +523,4 @@ body.dark-mode .context-menu li:hover {
   gap: 10px;
   z-index: 10;
 }
-.hero-clocks {
-  margin-top: 10px;
-  display: block;
-  max-width: 240px;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 10px;
-  border-radius: 8px;
-  color: white;
-}
 
-.clock-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.clock-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.8rem;
-}
-
-.clock-left {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.clock-left img,
-.mini-clocks .clock-entry img.flag {
-  width: 16px;
-  height: 12px;
-  object-fit: contain;
-  flex-shrink: 0;
-  border-radius: 2px;
-}
