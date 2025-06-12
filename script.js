@@ -308,7 +308,11 @@ function getTimeZoneAbbr(timeZone) {
   }).formatToParts(date);
 
   const tzPart = parts.find(p => p.type === "timeZoneName");
-  return tzPart ? tzPart.value.replace(/^GMT[+-]?\d+(:\d+)?/, '').trim() : "";
+  if (tzPart && tzPart.value.includes("GMT")) {
+    // Handle fallback abbreviation (e.g. GMT+5:30) — extract offset if needed
+    return timeZone.split('/').pop().slice(0, 3).toUpperCase();
+  }
+  return tzPart ? tzPart.value.trim() : "";
 }
 
 function updateClocks() {
@@ -335,11 +339,11 @@ function updateClocks() {
 
     return `
       <div class="clock-entry">
-        <div class="city">
+        <div class="city-info">
           <img class="flag circle-flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
-          <span>${city}</span>
+          <span class="city-name">${city}</span>
         </div>
-        <div class="time">${abbr}: ${now}</div>
+        <div class="time-info">${abbr} ${now}</div>
       </div>
     `;
   }).join("");
