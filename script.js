@@ -320,17 +320,18 @@ function updateClocks() {
       hour12: false
     });
 
-return `
-  <div class="clock-entry">
-    <div class="city">
-      <img class="flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
-      <span>${city}</span>
-    </div>
-    <div class="time">${timeZone.split("/")[1]}: ${time}</div>
-  </div>
-`;
+    return `
+      <div class="clock-entry">
+        <div class="city">
+          <img class="flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
+          <span>${city}</span>
+        </div>
+        <div class="time">${timeZone.split("/")[1]}: ${time}</div>
+      </div>
+    `;
   }).join("");
 }
+
 
   setInterval(updateClocks, 1000);
   updateClocks();
