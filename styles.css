@@ -549,6 +549,14 @@ body.dark-mode .context-menu li:hover {
   object-fit: contain;
   border-radius: 2px;
 }
+.circle-flag {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
 
 
 /* Clock wrapper in hero image */
@@ -563,11 +571,3 @@ body.dark-mode .context-menu li:hover {
   z-index: 10;
 }
 
-.circle-flag {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-right: 6px;
-  flex-shrink: 0;
-}
