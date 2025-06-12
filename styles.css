@@ -512,6 +512,40 @@ img.flag {
   border-radius: 2px;
 }
 
+.clock-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.clock-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.clock-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: monospace;
+  text-align: right;
+}
+
+.clock-right .timezone {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.clock-entry img.flag {
+  width: 16px;
+  height: 12px;
+  object-fit: contain;
+  border-radius: 2px;
+}
+
+
 /* Clock wrapper in hero image */
 .top-right-clocks {
   position: absolute;
