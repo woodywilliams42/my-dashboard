@@ -300,6 +300,17 @@ function setupAutosave(tab) {
 
 ["work", "personal", "secondjob", "charity"].forEach(loadQuickComments); // ✅ Correct placement
 
+function getTimeZoneAbbr(timeZone) {
+  const date = new Date();
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    timeZoneName: "short"
+  }).formatToParts(date);
+
+  const tzPart = parts.find(p => p.type === "timeZoneName");
+  return tzPart ? tzPart.value.replace(/^GMT[+-]?\d+(:\d+)?/, '').trim() : "";
+}
+
 function updateClocks() {
   const clocks = [
     { city: "Shanghai", timeZone: "Asia/Shanghai", country: "cn" },
@@ -312,7 +323,7 @@ function updateClocks() {
 
   const container = document.getElementById("world-clocks");
   container.innerHTML = clocks.map(({ city, timeZone, country }) => {
-    const time = new Date().toLocaleTimeString("en-US", {
+    const now = new Date().toLocaleTimeString("en-US", {
       timeZone,
       hour: "2-digit",
       minute: "2-digit",
@@ -320,20 +331,17 @@ function updateClocks() {
       hour12: false
     });
 
-    return `
-  <div class="clock-entry">
-    <div class="clock-left">
-      <img class="flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
-      <span>${city}</span>
-    </div>
-    <div class="clock-right">
-      <span>${Intl.DateTimeFormat("en-US", { timeZoneName: "short", timeZone })
-        .formatToParts(new Date())
-        .find(p => p.type === "timeZoneName")?.value || ""} ${time}</span>
-    </div>
-  </div>
-`;
+    const abbr = getTimeZoneAbbr(timeZone);
 
+    return `
+      <div class="clock-entry">
+        <div class="city">
+          <img class="flag circle-flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
+          <span>${city}</span>
+        </div>
+        <div class="time">${abbr}: ${now}</div>
+      </div>
+    `;
   }).join("");
 }
 
