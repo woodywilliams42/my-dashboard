@@ -65,6 +65,31 @@ function setupAutosave(tab) {
     }
   });
 }
+function savePanelSize(tab) {
+  const panel = document.getElementById(`notes-panel-${tab}`);
+  const rect = panel.getBoundingClientRect();
+  const size = { width: rect.width, height: rect.height };
+  localStorage.setItem(`notesSize-${tab}`, JSON.stringify(size));
+}
+
+function applySavedPanelSize(tab) {
+  const panel = document.getElementById(`notes-panel-${tab}`);
+  const saved = localStorage.getItem(`notesSize-${tab}`);
+  if (saved) {
+    const { width, height } = JSON.parse(saved);
+    panel.style.width = `${width}px`;
+    panel.style.height = `${height}px`;
+  }
+}
+
+// Observe resize
+function observeResize(tab) {
+  const panel = document.getElementById(`notes-panel-${tab}`);
+  const resizeObserver = new ResizeObserver(() => {
+    savePanelSize(tab);
+  });
+  resizeObserver.observe(panel);
+}
 
 
   async function loadNotes(tab) {
