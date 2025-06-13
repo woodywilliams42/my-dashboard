@@ -90,6 +90,27 @@ function observeResize(tab) {
   });
   resizeObserver.observe(panel);
 }
+function setupResizableNotesPanel(tab) {
+  const panel = document.querySelector(`#notes-${tab}`).closest(".notes-panel");
+
+  // Load saved size
+  const savedWidth = localStorage.getItem(`notes-${tab}-width`);
+  const savedHeight = localStorage.getItem(`notes-${tab}-height`);
+
+  if (savedWidth) panel.style.width = savedWidth;
+  if (savedHeight) panel.style.height = savedHeight;
+
+  // Listen for resize and save dimensions
+  const observer = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      const { width, height } = entry.contentRect;
+      localStorage.setItem(`notes-${tab}-width`, `${width}px`);
+      localStorage.setItem(`notes-${tab}-height`, `${height}px`);
+    }
+  });
+
+  observer.observe(panel);
+}
 
 
   async function loadNotes(tab) {
@@ -321,6 +342,7 @@ function observeResize(tab) {
 ["work", "personal", "secondjob", "charity"].forEach(tab => {
   loadNotes(tab);
   setupAutosave(tab); // 👈 This enables autosave for each notes section
+setupResizableNotesPanel(tab);
 });
 
 ["work", "personal", "secondjob", "charity"].forEach(loadQuickComments); // ✅ Correct placement
