@@ -18,17 +18,23 @@
   window.db = db;
   window.storage = storage;
 
-
-
 async function saveNotes(tab) {
   const content = document.getElementById(`notes-${tab}`).value;
+  const panel = document.querySelector(`#notes-${tab}`).closest(".notes-panel");
   const statusEl = document.getElementById(`saveStatus-${tab}`);
+
+  const width = panel.style.width || "";
+  const height = panel.style.height || "";
 
   statusEl.textContent = "Saving...";
   statusEl.style.opacity = 1;
 
   try {
-    await setDoc(doc(db, "dashboardNotes", tab), { content });
+    await setDoc(doc(db, "dashboardNotes", tab), {
+      content,
+      width,
+      height
+    });
     statusEl.textContent = "✔ Saved!";
   } catch (err) {
     console.error("Error saving notes:", err);
@@ -113,29 +119,24 @@ function setupResizableNotesPanel(tab) {
 }
 
 
-  async function loadNotes(tab) {
-    try {
-      const snap = await getDoc(doc(db, "dashboardNotes", tab));
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById(`notes-${tab}`).value = data.content;
-      }
-    } catch (err) {
-      console.error(`Error loading notes for ${tab}:`, err);
-    }
-  }
+ async function loadNotes(tab) {
+  try {
+    const snap = await getDoc(doc(db, "dashboardNotes", tab));
+    if (snap.exists()) {
+      const data = snap.data();
+      const textarea = document.getElementById(`notes-${tab}`);
+      const panel = textarea.closest(".notes-panel");
 
-  async function loadBookmarks(tab) {
-    try {
-      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
-      if (snap.exists()) {
-        const data = snap.data();
-        renderBookmarks(tab, data);
-      }
-    } catch (err) {
-      console.error(`Error loading bookmarks for ${tab}:`, err);
+      textarea.value = data.content || "";
+
+      if (data.width) panel.style.width = data.width;
+      if (data.height) panel.style.height = data.height;
     }
+  } catch (err) {
+    console.error(`Error loading notes for ${tab}:`, err);
   }
+}
+
 
   async function addBookmark(tab) {
     const input = document.getElementById(`newBookmarkUrl-${tab}`);
