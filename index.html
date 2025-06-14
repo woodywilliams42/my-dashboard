@@ -1,122 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+ <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Dashboard</title>
+  <title>Woody</title>
+<link rel="stylesheet" href="styles.css?v=2">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
- <!-- Link main CSS files -->
-  <link rel="stylesheet" href="css/reset.css" />
-  <link rel="stylesheet" href="css/theme.css" />
-  <link rel="stylesheet" href="css/layout.css" />
-  <link rel="stylesheet" href="css/clocks.css" />
-  <link rel="stylesheet" href="css/notes.css" />
-  <link rel="stylesheet" href="css/bookmarks.css" />
-  <link rel="stylesheet" href="css/comments.css" />
-  <!-- Sortable.js for drag-and-drop (used for bookmarks, quick comments, etc.) -->
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body>
+<div class="hero-background">
+  <div class="top-row">
+    <nav>
+      <button data-tab="work" class="active">LSI</button>
+      <button data-tab="personal">Me</button>
+      <button data-tab="secondjob">ADI</button>
+      <button data-tab="charity">41</button>
+    </nav>
 
-  <!-- === Hero Image + Navigation === -->
-  <div class="hero-background">
-    <div class="top-row">
+    <div class="top-right-clocks">
+      <div class="dark-toggle">
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" />
+          <span class="slider"></span>
+        </label>
+        <span id="theme-label">🌞</span>
+      </div>
 
-      <!-- Tabs / Navigation -->
-      <nav>
-        <button data-tab="work" class="active">Work</button>
-        <button data-tab="personal">Personal</button>
-        <button data-tab="secondjob">ADI</button>
-        <button data-tab="charity">Table/41</button>
-      </nav>
+      <!-- World clocks wrapper to be shown only for Work tab -->
+      <div id="world-clocks-wrapper" class="hero-clocks">
+        <div id="world-clocks" class="clock-grid"></div>
+      </div>
+    </div>
+  </div>
 
-      <!-- Top-right: Toggle & Clocks -->
-      <div class="top-right-clocks">
-        <div class="dark-toggle">
-          <label class="switch">
-            <input type="checkbox" id="darkModeToggle" />
-            <span class="slider"></span>
-          </label>
-          <span id="theme-label">🌞</span>
-        </div>
+  <div class="dashboard-title">Woody</div>
+</div>
+  <!-- === TAB: WORK === -->
+  <div id="work" class="tab active">
+       <h3>Bookmarks</h3>
+    <div id="bookmark-bar-work" class="bookmark-bar"></div>
+    <button id="showBookmarkModal-work" style="margin-top: 10px;">➕ Add Bookmark</button>
 
-        <!-- World clocks container -->
-        <div id="world-clocks-wrapper">
-          <div id="world-clocks" class="mini-clocks"></div>
-        </div>
+    <!-- Modal -->
+    <div id="bookmarkModal-work" class="modal" style="display:none;">
+      <div class="modal-content">
+        <span class="close" onclick="closeBookmarkModal('work')">&times;</span>
+        <h3>Add Bookmark</h3>
+        <input type="url" id="newBookmarkUrl-work" placeholder="https://example.com" />
+        <button onclick="addBookmark('work')">Save</button>
       </div>
     </div>
 
-    <!-- Title -->
-    <div class="dashboard-title">My Dashboard</div>
-  </div>
+    <h3>World Clocks</h3>
+    <div id="world-clocks" class="clock-grid"></div>
 
-  <!-- === Content Tabs === -->
+    <h3>Quick Comments</h3>
+<div id="quick-comments-work" class="quick-comments"></div>
+<button class="addCommentBtn" data-tab="work">➕ Add Comment</button>
 
-  <!-- Work Tab -->
-  <div id="work" class="tab active">
-    <h2>Work</h2>
-    <h3>Bookmarks</h3>
-    <div id="bookmark-bar-work" class="bookmark-bar"></div>
-    <button id="showBookmarkModal-work">➕ Add Bookmark</button>
-
-    <!-- Notes -->
-    <div class="notes-panel" id="notes-panel-work">
+    <div class="notes-panel">
       <h3>Work Notes</h3>
-      <textarea id="notes-work" rows="6" placeholder="Write your notes..."></textarea>
+      <textarea id="notes-work" rows="6" placeholder="Work notes..."></textarea><br/>
+      <button onclick="saveNotes('work')">Save</button>
       <span id="saveStatus-work"></span>
     </div>
   </div>
 
-  <!-- Personal Tab -->
-  <div id="personal" class="tab">
-    <h2>Personal</h2>
-    <div class="notes-panel" id="notes-panel-personal">
-      <h3>Personal Notes</h3>
-      <textarea id="notes-personal" rows="6"></textarea>
-      <span id="saveStatus-personal"></span>
+ <!-- === TAB: PERSONAL === -->
+<div id="personal" class="tab">
+   <h3>Bookmarks</h3>
+  <div id="bookmark-bar-personal" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-personal" style="margin-top: 10px;">➕ Add Bookmark</button>
+<h3>Quick Comments</h3>
+  <div id="quick-comments-personal" class="quick-comments"></div>
+  <button class="addCommentBtn" data-tab="personal">➕ Add Comment</button>
+  
+<!-- Modal -->
+  <div id="bookmarkModal-personal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('personal')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-personal" placeholder="https://example.com" />
+      <button onclick="addBookmark('personal')">Save</button>
     </div>
   </div>
 
-  <!-- ADI Tab -->
-  <div id="secondjob" class="tab">
-    <h2>ADI</h2>
-    <div class="notes-panel" id="notes-panel-secondjob">
-      <h3>ADI Notes</h3>
-      <textarea id="notes-secondjob" rows="6"></textarea>
-      <span id="saveStatus-secondjob"></span>
+  <div class="notes-panel">
+    <h3>Personal Notes</h3>
+    <textarea id="notes-personal" rows="6" placeholder="Personal notes..."></textarea><br/>
+    <button onclick="saveNotes('personal')">Save</button>
+    <span id="saveStatus-personal"></span>
+  </div>
+</div>
+
+<!-- === TAB: ADI === -->
+<div id="secondjob" class="tab">
+   <h3>Bookmarks</h3>
+  <div id="bookmark-bar-secondjob" class="bookmark-bar"></div>
+  <button id="showBookmarkModal-secondjob" style="margin-top: 10px;">➕ Add Bookmark</button>
+<h3>Quick Comments</h3>
+  <div id="quick-comments-secondjob" class="quick-comments"></div>
+  <button class="addCommentBtn" data-tab="secondjob">➕ Add Comment</button>
+<div id="secondjob-alarm">
+  <div id="alarm-countdown" class="led green">00:00</div>
+  <label>
+    Frequency (seconds):
+    <input type="number" id="alarm-frequency" min="1" value="120">
+  </label>
+  <label>
+    <input type="checkbox" id="alarm-random"> Randomize ±10%
+  </label>
+  <button id="alarm-start">Start Alarm</button>
+  <button id="alarm-stop">Stop Alarm</button>
+</div>
+  <!-- Modal -->
+  <div id="bookmarkModal-secondjob" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('secondjob')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-secondjob" placeholder="https://example.com" />
+      <button onclick="addBookmark('secondjob')">Save</button>
+    </div>
+  </div>
+  <div class="notes-panel">
+    <h3>ADI Notes</h3>
+    <textarea id="notes-secondjob" rows="6" placeholder="ADI notes..."></textarea><br/>
+    <button onclick="saveNotes('secondjob')">Save</button>
+    <span id="saveStatus-secondjob"></span>
+  </div>
+</div>
+
+<!-- === TAB: CHARITY === -->
+<div id="charity" class="tab">
+   <h3>Bookmarks</h3>
+    <div id="bookmark-bar-charity" class="bookmark-bar"></div>
+    <button id="showBookmarkModal-charity" style="margin-top: 10px;">➕ Add Bookmark</button>
+  <h3>Quick Comments</h3>
+    <div id="quick-comments-charity" class="quick-comments"></div>
+    <button class="addCommentBtn" data-tab="charity">➕ Add Comment</button>
+
+  <!-- Modal -->
+  <div id="bookmarkModal-charity" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" onclick="closeBookmarkModal('charity')">&times;</span>
+      <h3>Add Bookmark</h3>
+      <input type="url" id="newBookmarkUrl-charity" placeholder="https://example.com" />
+      <button onclick="addBookmark('charity')">Save</button>
     </div>
   </div>
 
-  <!-- Charity Tab -->
-  <div id="charity" class="tab">
-    <h2>Charity</h2>
-    <div class="notes-panel" id="notes-panel-charity">
-      <h3>Charity Notes</h3>
-      <textarea id="notes-charity" rows="6"></textarea>
-      <span id="saveStatus-charity"></span>
-    </div>
+  <div class="notes-panel">
+    <h3>Charity Notes</h3>
+    <textarea id="notes-charity" rows="6" placeholder="Charity notes..."></textarea><br/>
+    <button onclick="saveNotes('charity')">Save</button>
+    <span id="saveStatus-charity"></span>
   </div>
+</div>
+<div id="bookmark-context-menu" class="context-menu">
+  <ul>
+    <li data-action="open">Open in New Tab</li>
+    <li data-action="copy">Copy URL</li>
+    <li data-action="edit">Edit Bookmark</li>
+    <li data-action="remove">Remove Bookmark</li>
+    <li data-action="change-favicon">Change Favicon</li>
+  </ul>
+</div>
 
-  <!-- === Context Menu for Bookmarks (optional enhancement) === -->
-  <div id="bookmark-context-menu" class="context-menu">
-    <ul>
-      <li data-action="open">Open in New Tab</li>
-      <li data-action="copy">Copy URL</li>
-      <li data-action="edit">Edit Bookmark</li>
-      <li data-action="remove">Remove Bookmark</li>
-      <li data-action="change-favicon">Change Favicon</li>
-    </ul>
-  </div>
-
-  <!-- === Load Modular JS === -->
- <!-- === MODULE SCRIPTS === -->
-  <script type="module" src="js/init.js"></script>
-  <script type="module" src="js/firebase.js"></script>
-  <script type="module" src="js/theme.js"></script>
-  <script type="module" src="js/clocks.js"></script>
-  <script type="module" src="js/notes.js"></script>
-  <script type="module" src="js/bookmarks.js"></script>
-  <script type="module" src="js/comments.js"></script>
-</body>
+<input type="file" id="favicon-upload" style="display:none" accept="image/*" />
+<script type="module" src="script.js"></script>
+ </body>
 </html>
