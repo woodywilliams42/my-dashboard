@@ -340,10 +340,12 @@ function setupResizableNotesPanel(tab) {
  loadBookmarks("work");
 ["personal", "secondjob", "charity"].forEach(loadBookmarks);
 
+// Initial load of data and UI rendering:
 ["work", "personal", "secondjob", "charity"].forEach(tab => {
+  loadBookmarks(tab);
   loadNotes(tab);
-  setupAutosave(tab); // 👈 This enables autosave for each notes section
-setupResizableNotesPanel(tab);
+  setupAutosave(tab);
+  loadQuickComments(tab);
 });
 
 ["work", "personal", "secondjob", "charity"].forEach(loadQuickComments); // ✅ Correct placement
@@ -397,9 +399,9 @@ function updateClocks() {
   }).join("");
 }
 
-
-  setInterval(updateClocks, 1000);
-  updateClocks();
+// Render world clocks (only on Work tab):
+updateClocks();
+setInterval(updateClocks, 1000);
 
   document.querySelectorAll("nav button").forEach(btn => {
     btn.addEventListener("click", () => {
