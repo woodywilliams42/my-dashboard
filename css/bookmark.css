@@ -1,0 +1,40 @@
+/* bookmarks.css — styling for bookmark panels */
+
+.bookmark-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.bookmark-bar a {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  position: relative;
+}
+
+.bookmark-bar a img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.bookmark-bar a .remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  cursor: pointer;
+}

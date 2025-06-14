@@ -1,0 +1,21 @@
+/* theme.css — Light and dark mode variables */
+
+:root {
+  --bg-color: #ffffff;
+  --text-color: #000000;
+  --card-bg: #f0f0f0;
+  --button-bg: #444;
+  --button-text: #ffffff;
+  --accent: #2a9d8f;
+  --border-color: #ccc;
+}
+
+body.dark {
+  --bg-color: #121212;
+  --text-color: #f0f0f0;
+  --card-bg: #1e1e1e;
+  --button-bg: #333;
+  --button-text: #ffffff;
+  --accent: #90caf9;
+  --border-color: #555;
+}

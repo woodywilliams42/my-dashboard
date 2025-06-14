@@ -1,0 +1,31 @@
+/* notes.css — Styling for resizable notes */
+
+.notes-panel {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+  resize: both;
+  overflow: auto;
+  min-width: 240px;
+  min-height: 120px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 8px;
+  background: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  resize: none;
+}
+
+span[id^="saveStatus-"] {
+  margin-left: 10px;
+  font-weight: bold;
+  color: limegreen;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
