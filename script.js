@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -18,23 +18,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
   window.db = db;
   window.storage = storage;
 
+
+
 async function saveNotes(tab) {
   const content = document.getElementById(`notes-${tab}`).value;
-  const panel = document.querySelector(`#notes-${tab}`).closest(".notes-panel");
   const statusEl = document.getElementById(`saveStatus-${tab}`);
-
-  const width = panel.style.width || "";
-  const height = panel.style.height || "";
 
   statusEl.textContent = "Saving...";
   statusEl.style.opacity = 1;
 
   try {
-    await setDoc(doc(db, "dashboardNotes", tab), {
-      content,
-      width,
-      height
-    });
+    await setDoc(doc(db, "dashboardNotes", tab), { content });
     statusEl.textContent = "✔ Saved!";
   } catch (err) {
     console.error("Error saving notes:", err);
@@ -71,72 +65,31 @@ function setupAutosave(tab) {
     }
   });
 }
-function savePanelSize(tab) {
-  const panel = document.getElementById(`notes-panel-${tab}`);
-  const rect = panel.getBoundingClientRect();
-  const size = { width: rect.width, height: rect.height };
-  localStorage.setItem(`notesSize-${tab}`, JSON.stringify(size));
-}
 
-function applySavedPanelSize(tab) {
-  const panel = document.getElementById(`notes-panel-${tab}`);
-  const saved = localStorage.getItem(`notesSize-${tab}`);
-  if (saved) {
-    const { width, height } = JSON.parse(saved);
-    panel.style.width = `${width}px`;
-    panel.style.height = `${height}px`;
-  }
-}
 
-// Observe resize
-function observeResize(tab) {
-  const panel = document.getElementById(`notes-panel-${tab}`);
-  const resizeObserver = new ResizeObserver(() => {
-    savePanelSize(tab);
-  });
-  resizeObserver.observe(panel);
-}
-function setupResizableNotesPanel(tab) {
-  const panel = document.querySelector(`#notes-${tab}`).closest(".notes-panel");
-
-  // Load saved size
-  const savedWidth = localStorage.getItem(`notes-${tab}-width`);
-  const savedHeight = localStorage.getItem(`notes-${tab}-height`);
-
-  if (savedWidth) panel.style.width = savedWidth;
-  if (savedHeight) panel.style.height = savedHeight;
-
-  // Listen for resize and save dimensions
-  const observer = new ResizeObserver(entries => {
-    for (let entry of entries) {
-      const { width, height } = entry.contentRect;
-      localStorage.setItem(`notes-${tab}-width`, `${width}px`);
-      localStorage.setItem(`notes-${tab}-height`, `${height}px`);
+  async function loadNotes(tab) {
+    try {
+      const snap = await getDoc(doc(db, "dashboardNotes", tab));
+      if (snap.exists()) {
+        const data = snap.data();
+        document.getElementById(`notes-${tab}`).value = data.content;
+      }
+    } catch (err) {
+      console.error(`Error loading notes for ${tab}:`, err);
     }
-  });
-
-  observer.observe(panel);
-}
-
-
- async function loadNotes(tab) {
-  try {
-    const snap = await getDoc(doc(db, "dashboardNotes", tab));
-    if (snap.exists()) {
-      const data = snap.data();
-      const textarea = document.getElementById(`notes-${tab}`);
-      const panel = textarea.closest(".notes-panel");
-
-      textarea.value = data.content || "";
-
-      if (data.width) panel.style.width = data.width;
-      if (data.height) panel.style.height = data.height;
-    }
-  } catch (err) {
-    console.error(`Error loading notes for ${tab}:`, err);
   }
-}
 
+  async function loadBookmarks(tab) {
+    try {
+      const snap = await getDoc(doc(db, "dashboardBookmarks", tab));
+      if (snap.exists()) {
+        const data = snap.data();
+        renderBookmarks(tab, data);
+      }
+    } catch (err) {
+      console.error(`Error loading bookmarks for ${tab}:`, err);
+    }
+  }
 
   async function addBookmark(tab) {
     const input = document.getElementById(`newBookmarkUrl-${tab}`);
@@ -340,12 +293,9 @@ function setupResizableNotesPanel(tab) {
  loadBookmarks("work");
 ["personal", "secondjob", "charity"].forEach(loadBookmarks);
 
-// Initial load of data and UI rendering:
 ["work", "personal", "secondjob", "charity"].forEach(tab => {
-  loadBookmarks(tab);
   loadNotes(tab);
-  setupAutosave(tab);
-  loadQuickComments(tab);
+  setupAutosave(tab); // 👈 This enables autosave for each notes section
 });
 
 ["work", "personal", "secondjob", "charity"].forEach(loadQuickComments); // ✅ Correct placement
@@ -399,9 +349,9 @@ function updateClocks() {
   }).join("");
 }
 
-// Render world clocks (only on Work tab):
-updateClocks();
-setInterval(updateClocks, 1000);
+
+  setInterval(updateClocks, 1000);
+  updateClocks();
 
   document.querySelectorAll("nav button").forEach(btn => {
     btn.addEventListener("click", () => {
