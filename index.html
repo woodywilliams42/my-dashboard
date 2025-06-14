@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Dashboard</title>
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/base.css" />
-  <link rel="stylesheet" href="css/hero.css" />
-  <link rel="stylesheet" href="css/clocks.css" />
+  <!-- Link main CSS files -->
+  <link rel="stylesheet" href="css/reset.css" />
   <link rel="stylesheet" href="css/theme.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/clocks.css" />
+  <link rel="stylesheet" href="css/notes.css" />
+  <link rel="stylesheet" href="css/bookmarks.css" />
+  <link rel="stylesheet" href="css/comments.css" />
+
 
   <!-- Sortable.js for drag-and-drop (used for bookmarks, quick comments, etc.) -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -107,8 +111,13 @@
     </ul>
   </div>
 
-  <!-- === Load Modular JS === -->
+  <!-- === MODULE SCRIPTS === -->
   <script type="module" src="js/init.js"></script>
-
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/theme.js"></script>
+  <script type="module" src="js/clocks.js"></script>
+  <script type="module" src="js/notes.js"></script>
+  <script type="module" src="js/bookmarks.js"></script>
+  <script type="module" src="js/comments.js"></script>
 </body>
 </html>
