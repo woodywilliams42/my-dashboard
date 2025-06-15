@@ -1,4 +1,5 @@
-import { db, storage } from './firebase.js';
+import { db, storage } from "./firebase.js";
+
 
 async function saveNotes(tab) {
   const content = document.getElementById(`notes-${tab}`).value;
