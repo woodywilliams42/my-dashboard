@@ -52,3 +52,42 @@ function setupTabImageRefresh() {
   setupTabImageRefresh();
 })();
 
+// === HERO IMAGE UPLOAD UI ===
+document.getElementById("uploadHeroImageBtn").addEventListener("click", async () => {
+  const fileInput = document.getElementById("heroImageUpload");
+  const file = fileInput.files[0];
+  const status = document.getElementById("uploadStatus");
+
+  if (!file) {
+    status.textContent = "Please select an image.";
+    return;
+  }
+
+  const allowedTypes = ["image/jpeg", "image/png"];
+  if (!allowedTypes.includes(file.type)) {
+    status.textContent = "Only JPG and PNG are allowed.";
+    return;
+  }
+
+  const fileName = file.name;
+  const storageRef = ref(storage, `heroImages/${fileName}`);
+
+  try {
+    // Check if the file already exists
+    const list = await listAll(ref(storage, "heroImages"));
+    const names = list.items.map(item => item.name);
+
+    if (names.includes(fileName)) {
+      status.textContent = "A file with this name already exists. Rename and try again.";
+      return;
+    }
+
+    // Upload
+    await uploadBytes(storageRef, file);
+    status.textContent = "✅ Uploaded!";
+    fileInput.value = "";
+  } catch (err) {
+    console.error("Upload error:", err);
+    status.textContent = "❌ Upload failed.";
+  }
+});
