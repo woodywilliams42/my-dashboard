@@ -30,7 +30,9 @@ function setupTabImageRefresh(imageUrls) {
 }
 
 (async function initHero() {
+  console.log("Hero.js loaded");
   const heroImages = await fetchHeroImages();
+  console.log("Fetched hero images:", heroImages);
   setRandomHeroImage(heroImages);
   setupTabImageRefresh(heroImages);
 })();
