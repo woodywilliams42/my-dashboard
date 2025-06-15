@@ -1,5 +1,11 @@
 import { db, storage } from './firebase.js';
 
+import {
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 async function saveNotes(tab) {
   const content = document.getElementById(`notes-${tab}`).value;
   const statusEl = document.getElementById(`saveStatus-${tab}`);
