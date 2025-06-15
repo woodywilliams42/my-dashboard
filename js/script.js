@@ -1,4 +1,6 @@
 import { db, storage } from './firebase.js';
+import { setupTabSwitching } from './tabs.js';
+
 
 import {
   doc,
@@ -637,3 +639,4 @@ loadAlarmSettings();
   });
 
   document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
+setupTabSwitching();
