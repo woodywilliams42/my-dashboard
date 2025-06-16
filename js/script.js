@@ -341,24 +341,6 @@ function updateClocks() {
   setInterval(updateClocks, 1000);
   updateClocks();
 
-  document.querySelectorAll("nav button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.tab;
-      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-      document.getElementById(target).classList.add("active");
-      document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-    // Toggle clock visibility
-    const clockWrapper = document.getElementById("world-clocks-wrapper");
-    if (target === "work") {
-      clockWrapper.style.display = "block";
-    } else {
-      clockWrapper.style.display = "none";
-    }
-
-    });
-  });
-
   const darkToggle = document.getElementById("darkModeToggle");
   const themeLabel = document.getElementById("theme-label");
 
