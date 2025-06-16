@@ -1,0 +1,57 @@
+/* === HERO BACKGROUND === */
+.hero-background {
+  position: relative;
+  background-image: url('https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/images/Belissima.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 360px;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Overlay for darkness */
+.hero-background::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1;
+}
+
+/* Make children sit above overlay */
+.hero-background * {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-background h1,
+.hero-background nav,
+.hero-background .dark-toggle {
+  z-index: 2;
+  position: relative;
+}
+
+/* Layout structure inside hero */
+.top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.dashboard-title {
+  align-self: flex-start;
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+/* Optional: fix nav spacing in hero */
+.hero-background nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
