@@ -44,8 +44,17 @@
 </div>
   <!-- === TAB: WORK === -->
   <div id="work" class="tab active">
-       <h3>Bookmarks</h3>
-    <div id="bookmark-bar-work" class="bookmark-bar"></div>
+<div class="frame-controls">
+  <select id="frameType">
+    <option value="note">Note</option>
+    <option value="quick">Quick Comment</option>
+    <option value="bookmark">Bookmark</option>
+    <option value="timer">Timer</option>
+  </select>
+  <button id="addFrameBtn">➕ Add Frame</button>
+</div>      
+ <h3>Bookmarks</h3>
+<div id="bookmark-bar-work" class="bookmark-bar"></div>
     <button id="showBookmarkModal-work" style="margin-top: 10px;">➕ Add Bookmark</button>
 
     <!-- Modal -->
