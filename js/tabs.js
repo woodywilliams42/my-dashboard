@@ -60,6 +60,7 @@ function setupTabSwitching() {
       if (clockWrapper) {
         clockWrapper.style.display = target === "work" ? "block" : "none";
       }
+ loadFramesForTab(tabId);
     });
   });
 }
