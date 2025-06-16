@@ -1,6 +1,7 @@
 import { db, storage } from './firebase.js';
 import { setupTabSwitching } from './tabs.js';
 import { setupDarkModeToggle } from './darkmode.js';
+import { initClocks } from './clocks.js';
 
 import {
   doc,
@@ -288,60 +289,6 @@ function setupAutosave(tab) {
 
 ["work", "personal", "secondjob", "charity"].forEach(loadQuickComments); // ✅ Correct placement
 
-function getTimeZoneAbbr(timeZone) {
-  const date = new Date();
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    timeZoneName: "short"
-  }).formatToParts(date);
-
-  const tzPart = parts.find(p => p.type === "timeZoneName");
-  if (tzPart && tzPart.value.includes("GMT")) {
-    // Handle fallback abbreviation (e.g. GMT+5:30) — extract offset if needed
-    return timeZone.split('/').pop().slice(0, 3).toUpperCase();
-  }
-  return tzPart ? tzPart.value.trim() : "";
-}
-
-function updateClocks() {
-  const clocks = [
-    { city: "Shanghai", timeZone: "Asia/Shanghai", country: "cn" },
-    { city: "Chennai", timeZone: "Asia/Kolkata", country: "in" },
-    { city: "London", timeZone: "Europe/London", country: "gb" },
-    { city: "New York", timeZone: "America/New_York", country: "us" },
-    { city: "Dallas", timeZone: "America/Chicago", country: "us" },
-    { city: "Honolulu", timeZone: "Pacific/Honolulu", country: "us" }
-  ];
-
-  const container = document.getElementById("world-clocks");
-  container.innerHTML = clocks.map(({ city, timeZone, country }) => {
-    const now = new Date().toLocaleTimeString("en-US", {
-      timeZone,
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false
-    });
-
-    const abbr = getTimeZoneAbbr(timeZone);
-
-    return `
-      <div class="clock-entry">
-        <div class="city-info">
-          <img class="flag circle-flag" src="https://flagcdn.com/${country}.svg" alt="${country} flag" />
-          <span class="city-name">${city}</span>
-        </div>
-        <div class="time-info">${abbr} ${now}</div>
-      </div>
-    `;
-  }).join("");
-}
-
-
-  setInterval(updateClocks, 1000);
-  updateClocks();
-
- 
 const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
 
 // Load from Firestore
@@ -604,3 +551,4 @@ loadAlarmSettings();
   document.getElementById("showBookmarkModal-work").addEventListener("click", () => window.showBookmarkModal("work"));
 setupTabSwitching();
 setupDarkModeToggle();
+initClocks();
