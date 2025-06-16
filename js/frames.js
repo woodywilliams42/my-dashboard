@@ -1,4 +1,4 @@
-// === FRAME COMPONENT MANAGER ===
+// === FRAME COMPONENT MANAGER === 
 const frameContainer = document.body; // You can change this to a specific tab container if needed
 let frameIdCounter = 0;
 
