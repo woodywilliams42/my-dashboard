@@ -43,3 +43,40 @@
   cursor: pointer;
   color: var(--text-color);
 }
+.bookmark-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bookmark-input {
+  width: 100%;
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.bookmark-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bookmark-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.bookmark-item button {
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+
