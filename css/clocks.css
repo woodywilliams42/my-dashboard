@@ -1,5 +1,6 @@
-/* clocks.css — styling for small inline clocks shown in hero */
+/* === WORLD CLOCKS: MINI FORMAT === */
 
+/* World clock container on top right */
 .top-right-clocks {
   position: absolute;
   top: 20px;
@@ -11,42 +12,44 @@
   z-index: 10;
 }
 
-.mini-clocks {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  font-size: 0.85rem;
-  padding-right: 10px;
-}
-
+/* Main clock row container */
 .clock-entry {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   background-color: rgba(255, 255, 255, 0.1);
-  padding: 4px 8px;
+  padding: 6px 10px;
   border-radius: 6px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   width: 220px;
 }
 
+/* Left side: flag and city */
 .city-info {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex: 1;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-.city-info .flag {
+.city-name {
+  white-space: nowrap;
+}
+
+/* Right side: time info */
+.time-info {
+  font-family: monospace;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* Flag styling (circular) */
+.circle-flag {
   width: 16px;
   height: 16px;
-  object-fit: cover;
   border-radius: 50%;
-  border: 1px solid white;
-}
-
-.time-info {
-  white-space: nowrap;
-  font-family: monospace;
+  object-fit: cover;
+  margin-right: 6px;
+  flex-shrink: 0;
 }
