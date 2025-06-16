@@ -1,5 +1,4 @@
-// clocks.js — Display world clocks in the header
-
+// === TIMEZONE ABBREVIATION ===
 function getTimeZoneAbbr(timeZone) {
   const date = new Date();
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -7,12 +6,15 @@ function getTimeZoneAbbr(timeZone) {
     timeZoneName: "short"
   }).formatToParts(date);
 
-  const part = parts.find(p => p.type === "timeZoneName");
-  if (!part) return "";
-  return part.value.includes("GMT") ? timeZone.split("/").pop().slice(0, 3).toUpperCase() : part.value.trim();
+  const tzPart = parts.find(p => p.type === "timeZoneName");
+  if (tzPart && tzPart.value.includes("GMT")) {
+    return timeZone.split('/').pop().slice(0, 3).toUpperCase();
+  }
+  return tzPart ? tzPart.value.trim() : "";
 }
 
-export function updateClocks() {
+// === UPDATE CLOCKS ===
+function updateClocks() {
   const clocks = [
     { city: "Shanghai", timeZone: "Asia/Shanghai", country: "cn" },
     { city: "Chennai", timeZone: "Asia/Kolkata", country: "in" },
@@ -23,6 +25,8 @@ export function updateClocks() {
   ];
 
   const container = document.getElementById("world-clocks");
+  if (!container) return;
+
   container.innerHTML = clocks.map(({ city, timeZone, country }) => {
     const now = new Date().toLocaleTimeString("en-US", {
       timeZone,
@@ -46,7 +50,8 @@ export function updateClocks() {
   }).join("");
 }
 
-export function initClockUpdater() {
+// === INITIALIZER ===
+export function initClocks() {
   updateClocks();
   setInterval(updateClocks, 1000);
 }
