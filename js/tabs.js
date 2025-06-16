@@ -35,6 +35,11 @@ async function loadTabs() {
     `;
     mainContainer.appendChild(tabDiv);
   });
+// After creating tab buttons
+if (tabsArray.length > 0) {
+  const firstTab = tabsArray[0].id;
+  document.querySelector(`button[data-tab="${firstTab}"]`)?.click();
+}
 
   setupTabSwitching();
 }
