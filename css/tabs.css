@@ -1,1 +1,38 @@
+/* === NAVIGATION BAR === */
+nav {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
+nav button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+nav button:hover {
+  background-color: var(--accent);
+  color: var(--bg-color);
+}
+
+nav button.active {
+  background-color: var(--accent);
+  color: var(--bg-color);
+}
+
+/* === TAB PANELS === */
+.tab {
+  display: none;
+  margin-top: 20px;
+}
+
+.tab.active {
+  display: block;
+}
