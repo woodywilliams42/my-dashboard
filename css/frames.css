@@ -2,6 +2,7 @@
 .frame-component {
   position: absolute;
   background: var(--card-bg);
+  color: var(--text);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 10px;
@@ -30,4 +31,10 @@
   cursor: pointer;
   font-weight: bold;
 }
+:root {
+  --card-bg: white;
+}
 
+body.dark-mode {
+  --card-bg: #1f1f1f;
+}
