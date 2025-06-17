@@ -1,27 +1,21 @@
-// darkmode.js
+export function setupDarkModeToggle() {
+  const toggle = document.getElementById("darkModeToggle");
+  const themeLabel = document.getElementById("theme-label");
 
-const darkToggle = document.getElementById("darkModeToggle");
-const themeLabel = document.getElementById("theme-label");
-
-function applyDarkMode(isDark) {
-  document.body.classList.toggle("dark", isDark);
-  if (darkToggle) darkToggle.checked = isDark;
-  if (themeLabel) themeLabel.textContent = isDark ? "🌙" : "🌞";
-}
-
-function setupDarkMode() {
-  const savedTheme = localStorage.getItem("theme");
-  const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const isDarkMode = savedTheme ? savedTheme === "dark" : systemPrefersDark;
-  applyDarkMode(isDarkMode);
-
-  if (darkToggle) {
-    darkToggle.addEventListener("change", () => {
-      const isDark = darkToggle.checked;
-      applyDarkMode(isDark);
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-    });
+  function applyTheme(isDark) {
+    document.body.classList.toggle("dark-mode", isDark);
+    themeLabel.textContent = isDark ? "🌙" : "🌞";
+    localStorage.setItem("darkMode", isDark);
   }
+
+  toggle.addEventListener("change", () => {
+    applyTheme(toggle.checked);
+  });
+
+  // Init
+  const saved = localStorage.getItem("darkMode") === "true";
+  toggle.checked = saved;
+  applyTheme(saved);
 }
 
-document.addEventListener("DOMContentLoaded", setupDarkMode);
+document.addEventListener("DOMContentLoaded", setupDarkModeToggle);
