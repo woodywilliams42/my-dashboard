@@ -1,74 +1,207 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Woody</title>
+import { db } from './firebase.js';
+import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="styles.css?v=2">
-  <link rel="stylesheet" href="css/clocks.css" />
-  <link rel="stylesheet" href="css/darkmode.css" />
-  <link rel="stylesheet" href="css/hero.css" />
-  <link rel="stylesheet" href="css/tabs.css" />
+let currentTab = 'work';
+let framesData = {}; // { work: [...], personal: [...], etc. }
 
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-</head>
-<body>
-  <div class="hero-background">
-    <div class="top-row">
-      <nav id="tab-nav"></nav>
+function generateFrameId(type) {
+  return `${type}-${Math.random().toString(36).substr(2, 6)}`;
+}
 
-      <div class="top-right-clocks">
-        <div class="dark-toggle">
-          <label class="switch">
-            <input type="checkbox" id="darkModeToggle" />
-            <span class="slider"></span>
-          </label>
-          <span id="theme-label">🌞</span>
+function saveFrames(tab) {
+  const docRef = doc(db, "tabFrames", tab);
+  const dataToSave = { frames: framesData[tab] || [] };
+  setDoc(docRef, dataToSave).catch(err => console.error("Error saving frames:", err));
+}
+
+function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
+  const frame = document.createElement("div");
+  frame.className = "frame-component";
+  frame.dataset.id = id;
+  frame.style.left = `${x}px`;
+  frame.style.top = `${y}px`;
+  frame.style.width = `${width}px`;
+  frame.style.height = `${height}px`;
+  frame.style.position = "absolute";
+
+  const header = document.createElement("div");
+  header.className = "frame-header";
+  header.textContent = `${type.toUpperCase()} (${id})`;
+  frame.appendChild(header);
+
+  const content = document.createElement("div");
+  content.className = "frame-content";
+  content.innerHTML = renderContent(type, data, id, tab);
+  frame.appendChild(content);
+
+  const deleteBtn = document.createElement("button");
+  deleteBtn.className = "delete-frame";
+  deleteBtn.textContent = "×";
+  deleteBtn.onclick = () => {
+    frame.remove();
+    framesData[tab] = framesData[tab].filter(f => f.id !== id);
+    saveFrames(tab);
+  };
+  frame.appendChild(deleteBtn);
+
+  makeResizableDraggable(frame, tab);
+
+  const frameContainer = document.getElementById(tab);
+  if (frameContainer) {
+    frameContainer.appendChild(frame);
+  }
+
+  if (type === "bookmark") {
+    const container = content.querySelector(".bookmark-frame");
+
+    container.querySelector(".add-bookmark").addEventListener("click", () => {
+      const input = container.querySelector(".bookmark-input");
+      const url = input.value.trim();
+      if (!url) return;
+
+      try {
+        new URL(url);
+      } catch {
+        alert("Invalid URL");
+        return;
+      }
+
+      const list = container.querySelector(".bookmark-list");
+      const encoded = encodeURIComponent(url);
+
+      list.insertAdjacentHTML("beforeend", `
+        <div class="bookmark-item">
+          <a href="${url}" target="_blank" rel="noopener">${url}</a>
+          <button data-url="${encoded}" class="remove-bookmark">×</button>
         </div>
+      `);
 
-        <div id="world-clocks-wrapper" class="hero-clocks">
-          <div id="world-clocks" class="clock-grid"></div>
+      input.value = "";
+
+      const frameData = framesData[tab].find(f => f.id === id);
+      if (!frameData.data.urls) frameData.data.urls = [];
+      frameData.data.urls.push(url);
+      saveFrames(tab);
+    });
+
+    container.querySelector(".bookmark-list").addEventListener("click", (e) => {
+      if (e.target.classList.contains("remove-bookmark")) {
+        const url = decodeURIComponent(e.target.dataset.url);
+        const frameData = framesData[tab].find(f => f.id === id);
+        frameData.data.urls = frameData.data.urls.filter(u => u !== url);
+        e.target.parentElement.remove();
+        saveFrames(tab);
+      }
+    });
+  }
+}
+
+function renderContent(type, data, id, tab) {
+  if (type === "note") {
+    return `<textarea id="note-${id}" class="note-box">${data.content || ""}</textarea>`;
+  }
+  if (type === "quick") {
+    return `<p>Quick Comment block (TBD)</p>`;
+  }
+  if (type === "bookmark") {
+    const links = (data.urls || []).map(url => {
+      const safeUrl = encodeURIComponent(url);
+      return `
+        <div class="bookmark-item">
+          <a href="${url}" target="_blank" rel="noopener">${url}</a>
+          <button data-url="${safeUrl}" class="remove-bookmark">×</button>
         </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="bookmark-frame" data-frame-id="${id}">
+        <input type="url" class="bookmark-input" placeholder="https://example.com" />
+        <button class="add-bookmark">Add</button>
+        <div class="bookmark-list">${links}</div>
       </div>
-    </div>
-    <div class="dashboard-title">Woody</div>
-  </div>
+    `;
+  }
+  if (type === "timer") {
+    return `<p>Countdown timer (TBD)</p>`;
+  }
+  return `<p>Unknown frame type</p>`;
+}
 
-  <!-- Frame Controls -->
-  <div class="frame-controls">
-    <select id="frameType">
-      <option value="note">Note</option>
-      <option value="quick">Quick Comment</option>
-      <option value="bookmark">Bookmark</option>
-      <option value="timer">Timer</option>
-    </select>
-    <button id="addFrameBtn">➕ Add Frame</button>
-  </div>
+function makeResizableDraggable(el, tab) {
+  el.onmousedown = function (e) {
+    if (!e.target.classList.contains("frame-header")) return;
+    const offsetX = e.clientX - el.offsetLeft;
+    const offsetY = e.clientY - el.offsetTop;
 
-  <!-- Dynamic Tab Content -->
-  <div id="tabs-container"></div>
+    function moveAt(e) {
+      el.style.left = `${e.clientX - offsetX}px`;
+      el.style.top = `${e.clientY - offsetY}px`;
+    }
 
-  <!-- Bookmark Context Menu -->
-  <div id="bookmark-context-menu" class="context-menu">
-    <ul>
-      <li data-action="open">Open in New Tab</li>
-      <li data-action="copy">Copy URL</li>
-      <li data-action="edit">Edit Bookmark</li>
-      <li data-action="remove">Remove Bookmark</li>
-      <li data-action="change-favicon">Change Favicon</li>
-    </ul>
-  </div>
+    function onMouseUp() {
+      updateFrameData(el, tab);
+      document.removeEventListener("mousemove", moveAt);
+      document.removeEventListener("mouseup", onMouseUp);
+    }
 
-  <input type="file" id="favicon-upload" style="display:none" accept="image/*" />
+    document.addEventListener("mousemove", moveAt);
+    document.addEventListener("mouseup", onMouseUp);
+  };
 
-  <!-- Scripts -->
-  <script type="module" src="js/firebase.js"></script>
-  <script type="module" src="js/script.js"></script>
-  <script type="module" src="js/frames.js"></script>
-  <script type="module" src="js/darkmode.js"></script>
-  <script type="module" src="js/tabs.js"></script>
-  <script type="module" src="js/hero.js"></script>
-</body>
-</html>
+  const resizeObserver = new ResizeObserver(() => updateFrameData(el, tab));
+  resizeObserver.observe(el);
+}
+
+function updateFrameData(el, tab) {
+  const id = el.dataset.id;
+  const frame = framesData[tab].find(f => f.id === id);
+  if (frame) {
+    frame.x = parseInt(el.style.left);
+    frame.y = parseInt(el.style.top);
+    frame.width = parseInt(el.style.width);
+    frame.height = parseInt(el.style.height);
+    const textarea = el.querySelector("textarea");
+    if (textarea) {
+      frame.data.content = textarea.value;
+    }
+    saveFrames(tab);
+  }
+}
+
+// --- Public Functions ---
+
+export async function loadFramesForTab(tab) {
+  currentTab = tab;
+
+  const container = document.getElementById(tab);
+  if (container) {
+    container.innerHTML = ""; // Clear old frames
+  }
+
+  const snap = await getDoc(doc(db, "tabFrames", tab));
+  framesData[tab] = snap.exists() ? snap.data().frames || [] : [];
+  framesData[tab].forEach(frame => createFrame(frame, tab));
+}
+
+export function addNewFrame(type, tab) {
+  const id = generateFrameId(type);
+  const newFrame = {
+    id,
+    type,
+    x: 100,
+    y: 100,
+    width: 300,
+    height: 200,
+    data: {}
+  };
+  framesData[tab].push(newFrame);
+  createFrame(newFrame, tab);
+  saveFrames(tab);
+}
+
+// --- Add Frame Button Handler ---
+document.getElementById("addFrameBtn").addEventListener("click", () => {
+  const type = document.getElementById("frameType").value;
+  addNewFrame(type, currentTab);
+});
