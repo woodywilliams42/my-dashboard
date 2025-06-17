@@ -1,38 +1,59 @@
-const heroArea = document.querySelector('.hero-background');
-const clockWrapper = document.getElementById("world-clocks-wrapper");
+// hero.js
+console.log("Hero.js loaded");
 
+let heroImages = [];
+
+// Load hero image list from JSON
 async function fetchHeroImages() {
   try {
-    const response = await fetch('https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/images/hero-images.json');
-    const imageFilenames = await response.json();
-
-    return imageFilenames.map(name => `https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/images/${name}`);
-  } catch (error) {
-    console.error("Failed to fetch hero images:", error);
-    return [];
+    const res = await fetch("hero-images.json");
+    if (!res.ok) throw new Error("Failed to fetch hero-images.json");
+    heroImages = await res.json();
+    console.log("Fetched hero images:", heroImages);
+  } catch (err) {
+    console.error("Failed to fetch hero images:", err);
+    heroImages = [];
   }
 }
 
-function setRandomHeroImage(imageUrls) {
-  if (!imageUrls.length) return;
-  const randomUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)];
-  heroArea.style.backgroundImage = `url('${randomUrl}')`;
+// Set a random hero background image
+function setRandomHeroImage() {
+  if (heroImages.length === 0) return;
+
+  const random = heroImages[Math.floor(Math.random() * heroImages.length)];
+  const heroArea = document.querySelector(".hero-background");
+  heroArea.style.backgroundImage = `url('images/${random}')`;
 }
 
-function setupTabImageRefresh(imageUrls) {
-  document.querySelectorAll("nav button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.tab;
-      setRandomHeroImage(imageUrls);
-      clockWrapper.style.display = target === "work" ? "block" : "none";
-    });
+// Update clock visibility for "work" tab
+function toggleClocks(tabId) {
+  const clockWrapper = document.getElementById("world-clocks-wrapper");
+  if (clockWrapper) {
+    clockWrapper.style.display = tabId === "work" ? "block" : "none";
+  }
+}
+
+// Hook into tab switching
+function listenForTabChanges() {
+  const observer = new MutationObserver(() => {
+    const active = document.querySelector(".tab.active");
+    if (active) {
+      const tabId = active.id;
+      setRandomHeroImage();
+      toggleClocks(tabId);
+    }
+  });
+
+  observer.observe(document.getElementById("tabs-container"), {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class"]
   });
 }
 
+// === Init ===
 (async function initHero() {
-  console.log("Hero.js loaded");
-  const heroImages = await fetchHeroImages();
-  console.log("Fetched hero images:", heroImages);
-  setRandomHeroImage(heroImages);
-  setupTabImageRefresh(heroImages);
+  await fetchHeroImages();
+  setRandomHeroImage();
+  listenForTabChanges();
 })();
