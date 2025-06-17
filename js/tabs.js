@@ -4,7 +4,8 @@ import { loadFramesForTab } from './frames.js';
 
 // === DOM Elements ===
 const navContainer = document.querySelector("nav");
-const mainContainer = document.body;
+const mainContainer = document.getElementById("tabs-container");
+
 
 // === Load Tabs from Firestore ===
 async function loadTabs() {
