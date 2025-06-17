@@ -1,1 +1,35 @@
+.quick-comments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.quick-comment-button {
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+#quickCommentContextMenu {
+  position: absolute;
+  display: none;
+  background: white;
+  border: 1px solid #ccc;
+  z-index: 1000;
+}
+
+#quickCommentContextMenu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#quickCommentContextMenu li {
+  padding: 4px 8px;
+  cursor: pointer;
+}
 
