@@ -4,3 +4,7 @@
 // You can use this for global app-wide utilities or debugging.
 
 console.log("Main script.js loaded. All features are modularized.");
+
+import { initClocks } from './clocks.js';
+initClocks();
+
