@@ -55,7 +55,7 @@ function switchToTab(tabId) {
   document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
 
   const tabDiv = document.getElementById(tabId);
-  const btn = document.querySelector(`button[data-tab="${tabId}"]`);
+  const btn = document.querySelector(`button[data-tab="${tabId.trim()}"]`);
   if (tabDiv) tabDiv.classList.add("active");
   if (btn) btn.classList.add("active");
 
