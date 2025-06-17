@@ -1,11 +1,8 @@
 import { db } from './firebase.js';
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const mainContainer = document.getElementById("tabs-container");
-const frameContainer = document.getElementById("tabs-container");
- // or a more specific container if needed
 let currentTab = 'work';
-let framesData = {}; // { work: [...], personal: [...] }
+let framesData = {}; // { tabName: [ { frameData } ] }
 
 function generateFrameId(type) {
   return `${type}-${Math.random().toString(36).substr(2, 6)}`;
@@ -48,86 +45,91 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   frame.appendChild(deleteBtn);
 
   makeResizableDraggable(frame, tab);
-  frameContainer.appendChild(frame);
-if (type === "bookmark") {
-  const container = content.querySelector(".bookmark-frame");
 
-  container.querySelector(".add-bookmark").addEventListener("click", () => {
-    const input = container.querySelector(".bookmark-input");
-    const url = input.value.trim();
-    if (!url) return;
+  // Append to the specific tab container
+  const tabEl = document.getElementById(tab);
+  if (tabEl) {
+    tabEl.appendChild(frame);
+  }
 
-    try {
-      new URL(url);
-    } catch {
-      alert("Invalid URL");
-      return;
-    }
+  if (type === "bookmark") {
+    const container = content.querySelector(".bookmark-frame");
 
-    const list = container.querySelector(".bookmark-list");
-    const encoded = encodeURIComponent(url);
+    container.querySelector(".add-bookmark").addEventListener("click", () => {
+      const input = container.querySelector(".bookmark-input");
+      const url = input.value.trim();
+      if (!url) return;
 
-    list.insertAdjacentHTML("beforeend", `
-      <div class="bookmark-item">
-        <a href="${url}" target="_blank" rel="noopener">${url}</a>
-        <button data-url="${encoded}" class="remove-bookmark">×</button>
-      </div>
-    `);
+      try {
+        new URL(url);
+      } catch {
+        alert("Invalid URL");
+        return;
+      }
 
-    input.value = "";
+      const list = container.querySelector(".bookmark-list");
+      const encoded = encodeURIComponent(url);
 
-    const frameData = framesData[tab].find(f => f.id === id);
-    if (!frameData.data.urls) frameData.data.urls = [];
-    frameData.data.urls.push(url);
-    saveFrames(tab);
-  });
+      list.insertAdjacentHTML("beforeend", `
+        <div class="bookmark-item">
+          <a href="${url}" target="_blank" rel="noopener">${url}</a>
+          <button data-url="${encoded}" class="remove-bookmark">×</button>
+        </div>
+      `);
 
-  container.querySelector(".bookmark-list").addEventListener("click", (e) => {
-    if (e.target.classList.contains("remove-bookmark")) {
-      const url = decodeURIComponent(e.target.dataset.url);
+      input.value = "";
+
       const frameData = framesData[tab].find(f => f.id === id);
-      frameData.data.urls = frameData.data.urls.filter(u => u !== url);
-      e.target.parentElement.remove();
+      if (!frameData.data.urls) frameData.data.urls = [];
+      frameData.data.urls.push(url);
       saveFrames(tab);
-    }
-  });
+    });
+
+    container.querySelector(".bookmark-list").addEventListener("click", (e) => {
+      if (e.target.classList.contains("remove-bookmark")) {
+        const url = decodeURIComponent(e.target.dataset.url);
+        const frameData = framesData[tab].find(f => f.id === id);
+        frameData.data.urls = frameData.data.urls.filter(u => u !== url);
+        e.target.parentElement.remove();
+        saveFrames(tab);
+      }
+    });
+  }
 }
 
-
-
-}
-
-// Placeholder render logic
 function renderContent(type, data, id, tab) {
   if (type === "note") {
     return `<textarea id="note-${id}" class="note-box">${data.content || ""}</textarea>`;
   }
+
   if (type === "quick") {
     return `<p>Quick Comment block (TBD)</p>`;
   }
+
   if (type === "bookmark") {
-  const links = (data.urls || []).map(url => {
-    const safeUrl = encodeURIComponent(url);
+    const links = (data.urls || []).map(url => {
+      const safeUrl = encodeURIComponent(url);
+      return `
+        <div class="bookmark-item">
+          <a href="${url}" target="_blank" rel="noopener">${url}</a>
+          <button data-url="${safeUrl}" class="remove-bookmark">×</button>
+        </div>
+      `;
+    }).join("");
+
     return `
-      <div class="bookmark-item">
-        <a href="${url}" target="_blank" rel="noopener">${url}</a>
-        <button data-url="${safeUrl}" class="remove-bookmark">×</button>
+      <div class="bookmark-frame" data-frame-id="${id}">
+        <input type="url" class="bookmark-input" placeholder="https://example.com" />
+        <button class="add-bookmark">Add</button>
+        <div class="bookmark-list">${links}</div>
       </div>
     `;
-  }).join("");
-
-  return `
-    <div class="bookmark-frame" data-frame-id="${id}">
-      <input type="url" class="bookmark-input" placeholder="https://example.com" />
-      <button class="add-bookmark">Add</button>
-      <div class="bookmark-list">${links}</div>
-    </div>
-  `;
-}
+  }
 
   if (type === "timer") {
     return `<p>Countdown timer (TBD)</p>`;
   }
+
   return `<p>Unknown frame type</p>`;
 }
 
@@ -164,7 +166,6 @@ function updateFrameData(el, tab) {
     frame.y = parseInt(el.style.top);
     frame.width = parseInt(el.style.width);
     frame.height = parseInt(el.style.height);
-    // Additional updates for type-specific content can be done here
     const textarea = el.querySelector("textarea");
     if (textarea) {
       frame.data.content = textarea.value;
@@ -198,7 +199,7 @@ export function addNewFrame(type, tab) {
   saveFrames(tab);
 }
 
-// --- Frame Add UI Controls ---
+// Frame Add UI
 document.getElementById("addFrameBtn").addEventListener("click", () => {
   const type = document.getElementById("frameType").value;
   addNewFrame(type, currentTab);
