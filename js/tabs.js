@@ -42,12 +42,14 @@ async function loadTabs() {
 // === Tab Switching Logic ===
 function setupTabSwitching() {
   document.querySelectorAll("nav button").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault(); // just in case
       const target = btn.dataset.tab;
       switchToTab(target);
     });
   });
 }
+
 
 // === Switch Tabs ===
 function switchToTab(tabId) {
