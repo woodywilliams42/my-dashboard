@@ -31,6 +31,8 @@ nav button.active {
 .tab {
   display: none;
   margin-top: 20px;
+  min-height: 400px;
+  padding: 1rem;
 }
 
 .tab.active {
