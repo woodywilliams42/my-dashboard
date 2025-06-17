@@ -554,11 +554,11 @@ setupDarkModeToggle();
 initClocks();
 
 /* === Ensure tab panels don't overlap hero === */
-#tabs-container {
+/*  #tabs-container {
   position: relative;
   padding: 1rem;
   margin-top: 20px;
-  z-index: 2;
+  z-index: 2;  */
 }
 
 /* === Frame layout and interaction === */
