@@ -2,8 +2,7 @@ import { db } from './firebase.js';
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 let currentTab = 'work';
-let framesData = {}; // { work: [...], personal: [...] }
-let frameContainer = null;
+let framesData = {}; // { work: [...], personal: [...], etc. }
 
 function generateFrameId(type) {
   return `${type}-${Math.random().toString(36).substr(2, 6)}`;
@@ -47,6 +46,7 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
 
   makeResizableDraggable(frame, tab);
 
+  const frameContainer = document.getElementById(tab);
   if (frameContainer) {
     frameContainer.appendChild(frame);
   }
@@ -169,11 +169,14 @@ function updateFrameData(el, tab) {
   }
 }
 
+// --- Public Functions ---
+
 export async function loadFramesForTab(tab) {
   currentTab = tab;
-  frameContainer = document.getElementById(tab);
-  if (frameContainer) {
-    frameContainer.innerHTML = ""; // Clear previous frames
+
+  const container = document.getElementById(tab);
+  if (container) {
+    container.innerHTML = ""; // Clear old frames
   }
 
   const snap = await getDoc(doc(db, "tabFrames", tab));
@@ -197,6 +200,7 @@ export function addNewFrame(type, tab) {
   saveFrames(tab);
 }
 
+// --- Add Frame Button Handler ---
 document.getElementById("addFrameBtn").addEventListener("click", () => {
   const type = document.getElementById("frameType").value;
   addNewFrame(type, currentTab);
