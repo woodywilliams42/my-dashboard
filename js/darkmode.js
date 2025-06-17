@@ -1,6 +1,7 @@
-export function setupDarkModeToggle() {
+document.addEventListener("DOMContentLoaded", () => {
   const darkToggle = document.getElementById("darkModeToggle");
   const themeLabel = document.getElementById("theme-label");
+  if (!darkToggle || !themeLabel) return;
 
   function applyDarkMode(isDark) {
     document.body.classList.toggle("dark", isDark);
@@ -18,4 +19,4 @@ export function setupDarkModeToggle() {
     applyDarkMode(isDark);
     localStorage.setItem("theme", isDark ? "dark" : "light");
   });
-}
+});
