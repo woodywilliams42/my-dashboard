@@ -1,7 +1,9 @@
 import { db } from './firebase.js';
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const frameContainer = document.body; // or a more specific container if needed
+const mainContainer = document.getElementById("tabs-container");
+const frameContainer = document.getElementById("tabs-container");
+ // or a more specific container if needed
 let currentTab = 'work';
 let framesData = {}; // { work: [...], personal: [...] }
 
