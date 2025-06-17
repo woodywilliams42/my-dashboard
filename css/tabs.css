@@ -38,3 +38,9 @@ nav button.active {
 .tab.active {
   display: block;
 }
+
+.tab-button.active {
+  background-color: #444;
+  color: #fff;
+  font-weight: bold;
+}
