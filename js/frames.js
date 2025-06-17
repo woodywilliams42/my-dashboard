@@ -2,7 +2,8 @@ import { db } from './firebase.js';
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 let currentTab = 'work';
-let framesData = {}; // { tabName: [ { frameData } ] }
+let framesData = {}; // { work: [...], personal: [...] }
+let frameContainer = null; // Set per tab
 
 function generateFrameId(type) {
   return `${type}-${Math.random().toString(36).substr(2, 6)}`;
@@ -45,12 +46,7 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   frame.appendChild(deleteBtn);
 
   makeResizableDraggable(frame, tab);
-
-  // Append to the specific tab container
-  const tabEl = document.getElementById(tab);
-  if (tabEl) {
-    tabEl.appendChild(frame);
-  }
+  frameContainer.appendChild(frame);
 
   if (type === "bookmark") {
     const container = content.querySelector(".bookmark-frame");
@@ -97,15 +93,14 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   }
 }
 
+// Frame content
 function renderContent(type, data, id, tab) {
   if (type === "note") {
     return `<textarea id="note-${id}" class="note-box">${data.content || ""}</textarea>`;
   }
-
   if (type === "quick") {
     return `<p>Quick Comment block (TBD)</p>`;
   }
-
   if (type === "bookmark") {
     const links = (data.urls || []).map(url => {
       const safeUrl = encodeURIComponent(url);
@@ -174,33 +169,12 @@ function updateFrameData(el, tab) {
   }
 }
 
-// --- Public Functions ---
+// --- Public API ---
 
 export async function loadFramesForTab(tab) {
   currentTab = tab;
+  frameContainer = document.getElementById(tab);
+  frameContainer.innerHTML = ""; // Clear previous frames
   const snap = await getDoc(doc(db, "tabFrames", tab));
   framesData[tab] = snap.exists() ? snap.data().frames || [] : [];
-  framesData[tab].forEach(frame => createFrame(frame, tab));
-}
-
-export function addNewFrame(type, tab) {
-  const id = generateFrameId(type);
-  const newFrame = {
-    id,
-    type,
-    x: 100,
-    y: 100,
-    width: 300,
-    height: 200,
-    data: {}
-  };
-  framesData[tab].push(newFrame);
-  createFrame(newFrame, tab);
-  saveFrames(tab);
-}
-
-// Frame Add UI
-document.getElementById("addFrameBtn").addEventListener("click", () => {
-  const type = document.getElementById("frameType").value;
-  addNewFrame(type, currentTab);
-});
+  framesData[tab
