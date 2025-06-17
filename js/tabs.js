@@ -31,9 +31,11 @@ async function loadTabs() {
 
   setupTabSwitching();
 
+setTimeout(() => {
   if (tabsArray.length > 0) {
     switchToTab(tabsArray[0].id);
   }
+}, 50);
 }
 
 function setupTabSwitching() {
