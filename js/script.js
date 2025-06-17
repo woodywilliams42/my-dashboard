@@ -552,3 +552,56 @@ loadAlarmSettings();
 setupTabSwitching();
 setupDarkModeToggle();
 initClocks();
+
+/* === Ensure tab panels don't overlap hero === */
+#tabs-container {
+  position: relative;
+  padding: 1rem;
+  margin-top: 20px;
+  z-index: 2;
+}
+
+/* === Frame layout and interaction === */
+.frame-component {
+  position: absolute;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  resize: both;
+  overflow: auto;
+  z-index: 5;
+}
+
+.frame-header {
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  cursor: move;
+}
+
+.delete-frame {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* === Ensure only active tab is visible === */
+.tab {
+  display: none;
+  position: relative;
+  min-height: 400px;
+}
+
+.tab.active {
+  display: block;
+}
+
