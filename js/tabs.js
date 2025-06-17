@@ -1,74 +1,59 @@
+// tabs.js
 import { db } from './firebase.js';
 import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { loadFramesForTab } from './frames.js';
 
 const navContainer = document.getElementById("tab-nav");
-const mainContainer = document.getElementById("tabs-container");
+const tabsContainer = document.getElementById("tabs-container");
 
-let currentTabId = null;
+let activeTab = null;
 
 async function loadTabs() {
   const tabQuery = query(collection(db, "dashboardTabs"), orderBy("order"));
   const snap = await getDocs(tabQuery);
 
-  const tabsArray = [];
-
   snap.forEach(docSnap => {
     const { id, label } = docSnap.data();
-    tabsArray.push({ id, label });
 
-    // Create Tab Button
+    // Create nav button
     const btn = document.createElement("button");
     btn.textContent = label;
     btn.dataset.tab = id;
     btn.classList.add("tab-button");
+    btn.addEventListener("click", () => switchToTab(id));
     navContainer.appendChild(btn);
 
-    // Create Tab Content Container
+    // Create tab container
     const tabDiv = document.createElement("div");
     tabDiv.id = id;
     tabDiv.className = "tab";
-    mainContainer.appendChild(tabDiv);
+    tabsContainer.appendChild(tabDiv);
   });
 
-  setupTabSwitching();
-
-  // Automatically select the first tab
-  if (tabsArray.length > 0) {
-    switchToTab(tabsArray[0].id);
+  // Auto-select first tab
+  const firstTabButton = navContainer.querySelector("button");
+  if (firstTabButton) {
+    firstTabButton.click();
   }
-}
-
-function setupTabSwitching() {
-  document.querySelectorAll("#tab-nav button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const tabId = btn.dataset.tab;
-      switchToTab(tabId);
-    });
-  });
 }
 
 function switchToTab(tabId) {
-  currentTabId = tabId;
+  // Deactivate all tabs
+  document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+  document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
 
-  // Hide/show tab content
-  document.querySelectorAll(".tab").forEach(t => {
-    t.style.display = t.id === tabId ? "block" : "none";
-  });
+  // Activate current
+  const tabDiv = document.getElementById(tabId);
+  const btn = document.querySelector(`.tab-button[data-tab="${tabId}"]`);
 
-  // Update button active states
-  document.querySelectorAll("#tab-nav button").forEach(b => {
-    b.classList.toggle("active", b.dataset.tab === tabId);
-  });
-
-  // Show/hide clocks
-  const clockWrapper = document.getElementById("world-clocks-wrapper");
-  if (clockWrapper) {
-    clockWrapper.style.display = tabId === "work" ? "block" : "none";
+  if (tabDiv && btn) {
+    tabDiv.classList.add("active");
+    btn.classList.add("active");
+    activeTab = tabId;
+    loadFramesForTab(tabId);
   }
-
-  // Load frames
-  loadFramesForTab(tabId);
 }
+
+export { activeTab };
 
 document.addEventListener("DOMContentLoaded", loadTabs);
