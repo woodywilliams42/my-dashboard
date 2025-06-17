@@ -147,4 +147,6 @@ function setupTabSwitching() {
 }
 
 // === Init Tabs ===
-loadTabs();
+document.addEventListener("DOMContentLoaded", () => {
+  loadTabs();
+});
