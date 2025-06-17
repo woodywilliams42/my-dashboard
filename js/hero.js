@@ -4,7 +4,7 @@ let heroImages = [];
 
 export async function fetchHeroImages() {
   try {
-    const res = await fetch("hero-images.json");
+    const res = await fetch("images/hero-images.json");
     if (!res.ok) throw new Error("Failed to fetch hero-images.json");
     heroImages = await res.json();
     console.log("Fetched hero images:", heroImages);
