@@ -53,4 +53,7 @@
   color: #777;
   font-style: italic;
   text-align: center;
+  color: var(--text-color);
+  opacity: 0.8;
+  margin: 1rem;
 }
