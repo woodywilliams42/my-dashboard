@@ -51,26 +51,16 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   frame.appendChild(menu);
 
   // Show/hide menu on button click
-  menuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isVisible = menu.style.display === "block";
-    document.querySelectorAll(".frame-context-menu").forEach(m => m.style.display = "none");
-    menu.style.display = isVisible ? "none" : "block";
-  });
-
-  // Handle menu actions
 menu.addEventListener("click", (e) => {
   const action = e.target.dataset.action;
   const frameData = framesData[tab].find(f => f.id === id);
 
   switch (action) {
     case "rename":
-      const newTitle = prompt("Enter new title:", frameData.data.title || type.toUpperCase());
-      if (newTitle) {
-        frameData.data.title = newTitle;
-        header.childNodes[0].nodeValue = `${newTitle} (${id})`; // update visible label
-        saveFrames(tab);
-      }
+      const newTitle = prompt("Enter new title (leave blank to hide):", frameData.data.title || "");
+      frameData.data.title = newTitle || "";
+      header.childNodes[0].nodeValue = newTitle ? `${newTitle} (${id})` : `(${id})`;
+      saveFrames(tab);
       break;
 
     case "export":
@@ -82,6 +72,10 @@ menu.addEventListener("click", (e) => {
       a.download = `${type}-${id}.json`;
       a.click();
       URL.revokeObjectURL(url);
+      break;
+
+    case "info":
+      alert(`Frame Type: ${frameData.type}\nUID: ${id}`);
       break;
 
     case "delete":
