@@ -242,7 +242,7 @@ if (!container) return;
 if (frames.length === 0) {
   container.innerHTML = `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`;
 } else {
-  container.innerHTML = ""; // clear any previous placeholder
+  container.innerHTML = ""; //  clear any previous placeholder
   frames.forEach(frame => createFrame(frame, tab));
 }
 
