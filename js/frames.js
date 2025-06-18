@@ -41,12 +41,13 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   menu.className = "frame-context-menu";
   menu.style.display = "none";
   menu.innerHTML = `
-    <ul>
-      <li data-action="rename">📝 Rename Frame</li>
+   <ul>
+    <li data-action="rename">📝 Rename Frame</li>
     <li data-action="export">💾 Export Frame Data</li>
+    <li data-action="info">ℹ️ Frame Info</li>
     <li data-action="delete">🗑️ Delete Frame</li>
-    </ul>
-  `;
+  </ul>
+`;
   frame.appendChild(menu);
 
   // Show/hide menu on button click
