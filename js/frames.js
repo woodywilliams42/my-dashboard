@@ -36,6 +36,13 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   menuBtn.innerText = "⋮";
   header.appendChild(menuBtn);
 
+menuBtn.addEventListener("click", (e) => {
+  e.stopPropagation(); // prevents the document click handler from hiding the menu immediately
+  const rect = menuBtn.getBoundingClientRect();
+  showFrameContextMenu(rect.left, rect.bottom, tab, id, header);
+});
+
+
   // === Context Menu (Initially hidden) ===
 const menu = document.createElement("div");
 menu.id = "frame-context-menu";
