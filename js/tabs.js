@@ -32,11 +32,10 @@ async function loadTabs() {
 
   setupTabSwitching();
 
-setTimeout(() => {
-  if (tabsArray.length > 0) {
-    switchToTab(tabsArray[0].id);
-  }
-}, 50);
+if (tabsArray.length > 0) {
+  // Defer to next tick to allow DOM to fully render
+  setTimeout(() => switchToTab(tabsArray[0].id), 0);
+}
 }
 
 function setupTabSwitching() {
@@ -49,22 +48,22 @@ function setupTabSwitching() {
 }
 
 function switchToTab(tabId) {
-  if (tabId === currentTabId) return;
-  currentTabId = tabId;
+  if (!tabId) return;
 
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
 
   const tabDiv = document.getElementById(tabId);
-  const btn = document.querySelector(`button[data-tab="${tabId.trim()}"]`);
+  const btn = document.querySelector(`button[data-tab="${tabId}"]`);
   if (tabDiv) tabDiv.classList.add("active");
   if (btn) btn.classList.add("active");
 
-  setRandomHeroImage();
-  toggleClocks(tabId);
-  loadFramesForTab(tabId);
+  setRandomHeroImage?.();  // only if imported from hero.js
+  toggleClocks?.(tabId);   // only if imported from hero.js
+  loadFramesForTab?.(tabId);
 
   console.log("Switched to tab:", tabId);
 }
+
 
 document.addEventListener("DOMContentLoaded", loadTabs);
