@@ -26,9 +26,9 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
 
   // === Header ===
   const header = document.createElement("div");
-  header.className = "frame-header";
-  header.textContent = `${type.toUpperCase()} (${id})`;
-  frame.appendChild(header);
+header.className = "frame-header";
+header.textContent = type.charAt(0).toUpperCase() + type.slice(1); // Capitalize type only
+frame.appendChild(header);
 
   // === Frame Menu Button ===
   const menuBtn = document.createElement("button");
