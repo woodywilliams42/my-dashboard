@@ -50,30 +50,34 @@ body.dark-mode {
 }
 
 .frame-context-menu {
+  display: none;
   position: absolute;
-  top: 28px;
-  right: 6px;
-  background: white;
-  border: 1px solid #ccc;
+  z-index: 999;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  width: max-content;
+  max-width: 200px;
 }
 
 .frame-context-menu ul {
   list-style: none;
   margin: 0;
-  padding: 6px 0;
+  padding: 0;
 }
 
 .frame-context-menu li {
-  padding: 6px 16px;
+  padding: 8px 12px;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .frame-context-menu li:hover {
-  background-color: #f0f0f0;
+  background-color: #eee;
+}
+
 }
 .frame-context-menu li + li {
   border-top: 1px solid #eee;
