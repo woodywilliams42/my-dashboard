@@ -54,7 +54,7 @@ menu.innerHTML = `
 document.body.appendChild(menu);
 
 function showFrameContextMenu(x, y, tab, id, header) {
-  const menu = document.getElementById("frame-context-Menu");
+  const menu = document.getElementById("frame-context-menu"); // ✅ correct lowercase ID
   if (!menu) return;
 
   menu.style.top = `${y}px`;
@@ -63,6 +63,7 @@ function showFrameContextMenu(x, y, tab, id, header) {
   menu.dataset.tab = tab;
   menu.dataset.id = id;
 }
+
 
   // Show/hide menu on button click
 menu.addEventListener("click", (e) => {
