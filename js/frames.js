@@ -37,18 +37,22 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   header.appendChild(menuBtn);
 
   // === Context Menu (Initially hidden) ===
-  const menu = document.createElement("div");
-  menu.className = "frame-context-menu";
-  menu.style.display = "none";
-  menu.innerHTML = `
-   <ul>
-    <li data-action="rename">📝 Rename Frame</li>
-    <li data-action="export">💾 Export Frame Data</li>
-    <li data-action="info">ℹ️ Frame Info</li>
-    <li data-action="delete">🗑️ Delete Frame</li>
-  </ul>
+const menu = document.createElement("div");
+menu.id = "frame-context-menu";
+menu.className = "frame-context-menu";
+menu.style.display = "none";
+menu.style.position = "absolute";
+menu.style.zIndex = 999;
+menu.innerHTML = `
+ <ul>
+  <li data-action="rename">📝 Rename Frame</li>
+  <li data-action="export">💾 Export Frame Data</li>
+  <li data-action="info">ℹ️ Frame Info</li>
+  <li data-action="delete">🗑️ Delete Frame</li>
+</ul>
 `;
-  frame.appendChild(menu);
+document.body.appendChild(menu);
+
 function showFrameContextMenu(x, y, tab, id, header) {
   const menu = document.getElementById("frameContextMenu");
   if (!menu) return;
