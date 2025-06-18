@@ -79,11 +79,14 @@ menu.addEventListener("click", (e) => {
 
   switch (action) {
     case "rename":
-      const newTitle = prompt("Enter new title (leave blank to hide):", frameData.data.title || "");
-      frameData.data.title = newTitle || "";
-      header.childNodes[0].nodeValue = newTitle ? `${newTitle} (${id})` : `(${id})`;
-      saveFrames(tab);
-      break;
+  const newTitle = prompt("Enter new title (leave blank to hide):", frameData.data.title || "");
+  frameData.data.title = newTitle ?? "";
+
+  // Update only the title text (not UID)
+  header.childNodes[0].nodeValue = newTitle.trim();
+
+  saveFrames(tab);
+  break;
 
     case "export":
       const dataToExport = JSON.stringify(frameData, null, 2);
