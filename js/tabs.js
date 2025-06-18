@@ -14,8 +14,10 @@ async function loadTabs() {
   const tabsArray = [];
 
   snap.forEach(docSnap => {
-    const { id, label } = docSnap.data();
-    tabsArray.push({ id, label });
+  let { id, label } = docSnap.data();
+  id = id.trim(); // Trim whitespace to avoid selector issues
+  tabsArray.push({ id, label });
+
 
     const btn = document.createElement("button");
     btn.textContent = label;
