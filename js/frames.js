@@ -182,11 +182,15 @@ export async function loadFramesForTab(tab) {
   const frames = snap.exists() ? snap.data().frames || [] : [];
   framesData[tab] = frames;
 
-  if (frames.length === 0) {
-    container.innerHTML = `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`;
-  } else {
-    frames.forEach(frame => createFrame(frame, tab));
-  }
+if (!container) return;
+
+if (frames.length === 0) {
+  container.innerHTML = `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`;
+} else {
+  container.innerHTML = ""; // clear any previous placeholder
+  frames.forEach(frame => createFrame(frame, tab));
+}
+
 }
 
 
