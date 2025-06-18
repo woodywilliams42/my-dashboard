@@ -54,7 +54,7 @@ menu.innerHTML = `
 document.body.appendChild(menu);
 
 function showFrameContextMenu(x, y, tab, id, header) {
-  const menu = document.getElementById("frameContextMenu");
+  const menu = document.getElementById("frame-Context-Menu");
   if (!menu) return;
 
   menu.style.top = `${y}px`;
@@ -102,10 +102,10 @@ menu.addEventListener("click", (e) => {
   menu.style.display = "none";
 });
 
-  // Close menu when clicking elsewhere
-  document.addEventListener("click", () => {
-    menu.style.display = "none";
-  });
+document.addEventListener("click", () => {
+  const menu = document.getElementById("frame-context-menu");
+  if (menu) menu.style.display = "none";
+});
 
   // === Content ===
   const content = document.createElement("div");
