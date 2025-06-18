@@ -1,87 +1,54 @@
-/* === NAVIGATION BAR === */
-nav {
-  margin-top: 20px;
+/* === Tab Navigation Bar === */
+#tab-nav {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-nav button {
+  gap: 8px;
   padding: 10px 16px;
+  background: var(--nav-bg, #f9f9f9);
+  border-bottom: 1px solid #ddd;
+  position: relative;
+  z-index: 10;
+}
+
+/* === Tab Buttons === */
+#tab-nav button {
+  padding: 8px 16px;
   border: none;
-  border-radius: 5px;
-  background-color: var(--button-bg);
-  color: var(--button-text);
+  background: transparent;
+  color: var(--text-color, #333);
+  font-size: 1rem;
   cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+#tab-nav button:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+#tab-nav button.active {
   font-weight: bold;
-  transition: background-color 0.3s ease;
+  border-bottom: 2px solid var(--accent-color, #007bff);
+  background-color: rgba(0, 0, 0, 0.08);
 }
 
-nav button:hover {
-  background-color: var(--accent);
-  color: var(--bg-color);
-}
-
-nav button.active {
-  background-color: var(--accent);
-  color: var(--bg-color);
-}
-
-/* === TAB PANELS === */
+/* === Tab Panels === */
 .tab {
   display: none;
-  margin-top: 20px;
+  position: relative;
   min-height: 400px;
   padding: 1rem;
+  z-index: 2;
 }
 
 .tab.active {
   display: block;
 }
 
-/* === NAVIGATION BAR === */
-nav {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-nav button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 5px;
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
-nav button:hover {
-  background-color: var(--accent);
-  color: var(--bg-color);
-}
-
-nav button.active {
-  background-color: var(--accent);
-  color: var(--bg-color);
-}
-
-/* === TAB PANELS === */
-.tab {
-  display: none;
-  margin-top: 20px;
-  min-height: 400px;
-  padding: 1rem;
-}
-
-.tab.active {
-  display: block;
-}
-
-.tab-button.active {
-  background-color: #444;
-  color: #fff;
-  font-weight: bold;
+/* === Message shown when no frames exist === */
+.empty-tab-message {
+  padding: 2rem;
+  font-size: 1.1rem;
+  color: #777;
+  font-style: italic;
+  text-align: center;
 }
