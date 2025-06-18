@@ -38,3 +38,40 @@
 body.dark-mode {
   --card-bg: #1f1f1f;
 }
+.frame-menu-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--text-color);
+}
+
+.frame-context-menu {
+  position: absolute;
+  top: 28px;
+  right: 6px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.frame-context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
+
+.frame-context-menu li {
+  padding: 6px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.frame-context-menu li:hover {
+  background-color: #f0f0f0;
+}
