@@ -49,6 +49,16 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   </ul>
 `;
   frame.appendChild(menu);
+function showFrameContextMenu(x, y, tab, id, header) {
+  const menu = document.getElementById("frameContextMenu");
+  if (!menu) return;
+
+  menu.style.top = `${y}px`;
+  menu.style.left = `${x}px`;
+  menu.style.display = "block";
+  menu.dataset.tab = tab;
+  menu.dataset.id = id;
+}
 
   // Show/hide menu on button click
 menu.addEventListener("click", (e) => {
