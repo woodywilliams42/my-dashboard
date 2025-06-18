@@ -42,7 +42,9 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   menu.style.display = "none";
   menu.innerHTML = `
     <ul>
-      <li data-action="delete">🗑️ Delete Frame</li>
+      <li data-action="rename">📝 Rename Frame</li>
+    <li data-action="export">💾 Export Frame Data</li>
+    <li data-action="delete">🗑️ Delete Frame</li>
     </ul>
   `;
   frame.appendChild(menu);
@@ -56,15 +58,40 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   });
 
   // Handle menu actions
-  menu.addEventListener("click", (e) => {
-    const action = e.target.dataset.action;
-    if (action === "delete") {
+menu.addEventListener("click", (e) => {
+  const action = e.target.dataset.action;
+  const frameData = framesData[tab].find(f => f.id === id);
+
+  switch (action) {
+    case "rename":
+      const newTitle = prompt("Enter new title:", frameData.data.title || type.toUpperCase());
+      if (newTitle) {
+        frameData.data.title = newTitle;
+        header.childNodes[0].nodeValue = `${newTitle} (${id})`; // update visible label
+        saveFrames(tab);
+      }
+      break;
+
+    case "export":
+      const dataToExport = JSON.stringify(frameData, null, 2);
+      const blob = new Blob([dataToExport], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${type}-${id}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      break;
+
+    case "delete":
       frame.remove();
       framesData[tab] = framesData[tab].filter(f => f.id !== id);
       saveFrames(tab);
-    }
-    menu.style.display = "none";
-  });
+      break;
+  }
+
+  menu.style.display = "none";
+});
 
   // Close menu when clicking elsewhere
   document.addEventListener("click", () => {
