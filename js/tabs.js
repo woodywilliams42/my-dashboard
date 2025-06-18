@@ -48,22 +48,24 @@ function setupTabSwitching() {
 }
 
 function switchToTab(tabId) {
-  if (!tabId) return;
+  if (!tabId || typeof tabId !== "string") return;
 
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
 
-  const tabDiv = document.getElementById(tabId);
-  const btn = document.querySelector(`button[data-tab="${tabId}"]`);
+  const tabDiv = document.getElementById(tabId.trim());
+  const btn = document.querySelector(`button[data-tab="${tabId.trim()}"]`);
+
   if (tabDiv) tabDiv.classList.add("active");
   if (btn) btn.classList.add("active");
 
-  setRandomHeroImage?.();  // only if imported from hero.js
-  toggleClocks?.(tabId);   // only if imported from hero.js
+  setRandomHeroImage?.();
+  toggleClocks?.(tabId);
   loadFramesForTab?.(tabId);
 
   console.log("Switched to tab:", tabId);
 }
+
 
 
 document.addEventListener("DOMContentLoaded", loadTabs);
