@@ -26,6 +26,7 @@ async function loadTabs() {
     const tabDiv = document.createElement("div");
     tabDiv.id = id;
     tabDiv.className = "tab";
+    tabDiv.innerHTML = `<p class="empty-tab-message">No frames yet on the "${id}" tab.</p>`;
     tabsContainer.appendChild(tabDiv);
   });
 
