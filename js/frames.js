@@ -94,22 +94,29 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
 
   // === Frame Menu Button ===
   const menuBtn = document.createElement("button");
-  menuBtn.className = "frame-menu-button";
-  menuBtn.innerText = "⋮";
-  header.appendChild(menuBtn);
+menuBtn.className = "frame-menu-button";
+menuBtn.innerText = "⋮";
+header.appendChild(menuBtn);
 
-  menuBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const rect = menuBtn.getBoundingClientRect();
-    showFrameContextMenu(rect.left, rect.bottom, tab, id, header);
-  });
-
-  // === Content ===
-  const content = document.createElement("div");
-  content.className = "frame-content";
-  content.innerHTML = renderContent(type, data, id, tab);
-  frame.appendChild(content);
-
+// === Context Menu (Initially hidden) ===
+let menu = document.getElementById("frame-context-menu");
+if (!menu) {
+  menu = document.createElement("div");
+  menu.id = "frame-context-menu";
+  menu.className = "frame-context-menu";  // ✅ Ensures CSS applies
+  menu.style.display = "none";
+  menu.style.position = "absolute";
+  menu.style.zIndex = 999;
+  menu.innerHTML = `
+    <ul>
+      <li data-action="rename">📝 Rename Frame</li>
+      <li data-action="export">💾 Export Frame Data</li>
+      <li data-action="info">ℹ️ Frame Info</li>
+      <li data-action="delete">🗑️ Delete Frame</li>
+    </ul>
+  `;
+  document.body.appendChild(menu);
+}
   makeResizableDraggable(frame, tab);
 
   const container = document.getElementById(tab);
