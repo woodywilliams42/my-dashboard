@@ -3,9 +3,16 @@
   --border-color: #ccc;
   --text-color: #333;
   --input-bg: #f9f9f9;
+
+  --accent-color: #1abc9c;       /* Nice teal */
+  --accent-hover: #16a085;       /* Slightly darker teal for hover */
+  --button-bg: #f0f0f0;
+  --hover-bg: #e0e0e0;
+
   --background-dark: #1a1a1a;
   --text-dark: #f1f1f1;
 }
+
 
 body {
   margin: 0;
