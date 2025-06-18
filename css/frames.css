@@ -75,3 +75,6 @@ body.dark-mode {
 .frame-context-menu li:hover {
   background-color: #f0f0f0;
 }
+.frame-context-menu li + li {
+  border-top: 1px solid #eee;
+}
