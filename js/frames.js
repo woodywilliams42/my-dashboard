@@ -24,31 +24,64 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   frame.style.height = `${height}px`;
   frame.style.position = "absolute";
 
+  // === Header ===
   const header = document.createElement("div");
   header.className = "frame-header";
   header.textContent = `${type.toUpperCase()} (${id})`;
   frame.appendChild(header);
 
+  // === Frame Menu Button ===
+  const menuBtn = document.createElement("button");
+  menuBtn.className = "frame-menu-button";
+  menuBtn.innerText = "⋮";
+  header.appendChild(menuBtn);
+
+  // === Context Menu (Initially hidden) ===
+  const menu = document.createElement("div");
+  menu.className = "frame-context-menu";
+  menu.style.display = "none";
+  menu.innerHTML = `
+    <ul>
+      <li data-action="delete">🗑️ Delete Frame</li>
+    </ul>
+  `;
+  frame.appendChild(menu);
+
+  // Show/hide menu on button click
+  menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isVisible = menu.style.display === "block";
+    document.querySelectorAll(".frame-context-menu").forEach(m => m.style.display = "none");
+    menu.style.display = isVisible ? "none" : "block";
+  });
+
+  // Handle menu actions
+  menu.addEventListener("click", (e) => {
+    const action = e.target.dataset.action;
+    if (action === "delete") {
+      frame.remove();
+      framesData[tab] = framesData[tab].filter(f => f.id !== id);
+      saveFrames(tab);
+    }
+    menu.style.display = "none";
+  });
+
+  // Close menu when clicking elsewhere
+  document.addEventListener("click", () => {
+    menu.style.display = "none";
+  });
+
+  // === Content ===
   const content = document.createElement("div");
   content.className = "frame-content";
   content.innerHTML = renderContent(type, data, id, tab);
   frame.appendChild(content);
 
-  const deleteBtn = document.createElement("button");
-  deleteBtn.className = "delete-frame";
-  deleteBtn.textContent = "×";
-  deleteBtn.onclick = () => {
-    frame.remove();
-    framesData[tab] = framesData[tab].filter(f => f.id !== id);
-    saveFrames(tab);
-  };
-  frame.appendChild(deleteBtn);
-
   makeResizableDraggable(frame, tab);
 
-  const frameContainer = document.getElementById(tab);
-  if (frameContainer) {
-    frameContainer.appendChild(frame);
+  const container = document.getElementById(tab);
+  if (container) {
+    container.appendChild(frame);
   }
 
   if (type === "bookmark") {
