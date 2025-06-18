@@ -54,7 +54,7 @@ menu.innerHTML = `
 document.body.appendChild(menu);
 
 function showFrameContextMenu(x, y, tab, id, header) {
-  const menu = document.getElementById("frame-Context-Menu");
+  const menu = document.getElementById("frame-context-Menu");
   if (!menu) return;
 
   menu.style.top = `${y}px`;
