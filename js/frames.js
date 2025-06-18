@@ -173,16 +173,22 @@ function updateFrameData(el, tab) {
 
 export async function loadFramesForTab(tab) {
   currentTab = tab;
-
   const container = document.getElementById(tab);
-  if (container) {
-    container.innerHTML = ""; // Clear old frames
-  }
+  if (!container) return;
+
+  container.innerHTML = ""; // clear content
 
   const snap = await getDoc(doc(db, "tabFrames", tab));
-  framesData[tab] = snap.exists() ? snap.data().frames || [] : [];
-  framesData[tab].forEach(frame => createFrame(frame, tab));
+  const frames = snap.exists() ? snap.data().frames || [] : [];
+  framesData[tab] = frames;
+
+  if (frames.length === 0) {
+    container.innerHTML = `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`;
+  } else {
+    frames.forEach(frame => createFrame(frame, tab));
+  }
 }
+
 
 export function addNewFrame(type, tab) {
   const id = generateFrameId(type);
