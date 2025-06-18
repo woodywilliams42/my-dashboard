@@ -1,34 +1,35 @@
 /* === Tab Navigation Bar === */
 #tab-nav {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   padding: 10px 16px;
-  background: var(--nav-bg, #f9f9f9);
-  border-bottom: 1px solid #ddd;
+  background: var(--nav-bg, #f0f0f0);
+  border-bottom: 1px solid #ccc;
   position: relative;
   z-index: 10;
 }
 
-/* === Tab Buttons === */
+/* === Tab Buttons (Styled Like Buttons) === */
 #tab-nav button {
   padding: 8px 16px;
-  border: none;
-  background: transparent;
+  border: 1px solid var(--border-color, #ccc);
+  border-radius: 6px;
+  background: var(--button-bg, #fff);
   color: var(--text-color, #333);
   font-size: 1rem;
   cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s ease;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 
 #tab-nav button:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--hover-bg, #eaeaea);
 }
 
 #tab-nav button.active {
+  background: var(--accent-color, #007bff);
+  color: #fff;
+  border-color: var(--accent-color, #007bff);
   font-weight: bold;
-  border-bottom: 2px solid var(--accent-color, #007bff);
-  background-color: rgba(0, 0, 0, 0.08);
 }
 
 /* === Tab Panels === */
@@ -44,7 +45,7 @@
   display: block;
 }
 
-/* === Message shown when no frames exist === */
+/* === Empty State Message for Tabs with No Frames === */
 .empty-tab-message {
   padding: 2rem;
   font-size: 1.1rem;
@@ -52,3 +53,4 @@
   font-style: italic;
   text-align: center;
 }
+
