@@ -168,7 +168,7 @@ document.addEventListener("contextmenu", (e) => {
   e.preventDefault();
   currentContextUrl = link.href;
 
-  const bar = link.closest("[id^='bookmark-bar-']`);
+  const bar = link.closest("[id^='bookmark-bar-']");
   if (bar) {
     currentContextTab = bar.id.replace("bookmark-bar-", "");
   }
