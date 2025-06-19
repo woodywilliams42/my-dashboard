@@ -16,6 +16,10 @@
   font-weight: bold;
   margin-bottom: 0.5em;
   cursor: move;
+  min-height: 10px; /* ensures area to click even if no title */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .delete-frame {
