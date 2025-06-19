@@ -94,42 +94,95 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
 
   // === Frame Menu Button ===
   const menuBtn = document.createElement("button");
-menuBtn.className = "frame-menu-button";
-menuBtn.innerText = "⋮";
-header.appendChild(menuBtn);
+  menuBtn.className = "frame-menu-button";
+  menuBtn.innerText = "⋮";
+  header.appendChild(menuBtn);
 
-// === Context Menu (Initially hidden) ===
-let menu = document.getElementById("frame-context-menu");
-if (!menu) {
-  menu = document.createElement("div");
-  menu.id = "frame-context-menu";
-  menu.className = "frame-context-menu";  // ✅ Ensures CSS applies
-  menu.style.display = "none";
-  menu.style.position = "absolute";
-  menu.style.zIndex = 999;
-  menu.innerHTML = `
-    <ul>
-      <li data-action="rename">📝 Rename Frame</li>
-      <li data-action="export">💾 Export Frame Data</li>
-      <li data-action="info">ℹ️ Frame Info</li>
-      <li data-action="delete">🗑️ Delete Frame</li>
-    </ul>
-  `;
-  document.body.appendChild(menu);
-}
-  makeResizableDraggable(frame, tab);
+  menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const rect = menuBtn.getBoundingClientRect();
+    showFrameContextMenu(rect.left, rect.bottom, tab, id, header);
+  });
 
-  const container = document.getElementById(tab);
-  if (container) {
-    container.appendChild(frame);
+  // === Context Menu (only once) ===
+  let menu = document.getElementById("frame-context-menu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "frame-context-menu";
+    menu.className = "frame-context-menu";
+    menu.style.display = "none";
+    menu.style.position = "absolute";
+    menu.style.zIndex = 999;
+    menu.innerHTML = `
+      <ul>
+        <li data-action="rename">📝 Rename Frame</li>
+        <li data-action="export">💾 Export Frame Data</li>
+        <li data-action="info">ℹ️ Frame Info</li>
+        <li data-action="delete">🗑️ Delete Frame</li>
+      </ul>
+    `;
+    document.body.appendChild(menu);
+
+    // Add event handler ONCE
+    menu.addEventListener("click", (e) => {
+      const action = e.target.dataset.action;
+      const tab = menu.dataset.tab;
+      const id = menu.dataset.id;
+
+      const frameData = framesData[tab]?.find(f => f.id === id);
+      const frameEl = document.querySelector(`.frame-component[data-id="${id}"]`);
+      const header = frameEl?.querySelector(".frame-header");
+      if (!frameData || !header) return;
+
+      switch (action) {
+        case "rename":
+          const newTitle = prompt("Enter new title (leave blank to hide):", frameData.data.title || "");
+          frameData.data.title = newTitle ?? "";
+          header.childNodes[0].nodeValue = newTitle.trim();
+          saveFrames(tab);
+          break;
+
+        case "export":
+          navigator.clipboard.writeText(JSON.stringify(frameData, null, 2));
+          alert("Frame data copied to clipboard.");
+          break;
+
+        case "info":
+          alert(`Frame Type: ${frameData.type}\nUID: ${id}`);
+          break;
+
+        case "delete":
+          frameEl?.remove();
+          framesData[tab] = framesData[tab].filter(f => f.id !== id);
+          saveFrames(tab);
+          break;
+      }
+
+      menu.style.display = "none";
+    });
+
+    // Global click hides menu
+    document.addEventListener("click", () => {
+      menu.style.display = "none";
+    });
   }
 
-  // === Bookmark Events ===
+  // === Content ===
+  const content = document.createElement("div");
+  content.className = "frame-content";
+  content.innerHTML = renderContent(type, data, id, tab);
+  frame.appendChild(content);
+
+  const container = document.getElementById(tab);
+  if (container) container.appendChild(frame);
+
+  // === Bookmark Logic ===
   if (type === "bookmark") {
     const container = content.querySelector(".bookmark-frame");
+    const input = container.querySelector(".bookmark-input");
+    const list = container.querySelector(".bookmark-list");
 
     container.querySelector(".add-bookmark").addEventListener("click", () => {
-      const input = container.querySelector(".bookmark-input");
       const url = input.value.trim();
       if (!url) return;
 
@@ -140,16 +193,13 @@ if (!menu) {
         return;
       }
 
-      const list = container.querySelector(".bookmark-list");
-      const encoded = encodeURIComponent(url);
-
+      const safeUrl = encodeURIComponent(url);
       list.insertAdjacentHTML("beforeend", `
         <div class="bookmark-item">
           <a href="${url}" target="_blank" rel="noopener">${url}</a>
-          <button data-url="${encoded}" class="remove-bookmark">×</button>
+          <button data-url="${safeUrl}" class="remove-bookmark">×</button>
         </div>
       `);
-
       input.value = "";
 
       const frameData = framesData[tab].find(f => f.id === id);
@@ -158,7 +208,7 @@ if (!menu) {
       saveFrames(tab);
     });
 
-    container.querySelector(".bookmark-list").addEventListener("click", (e) => {
+    list.addEventListener("click", (e) => {
       if (e.target.classList.contains("remove-bookmark")) {
         const url = decodeURIComponent(e.target.dataset.url);
         const frameData = framesData[tab].find(f => f.id === id);
@@ -168,6 +218,8 @@ if (!menu) {
       }
     });
   }
+
+  makeResizableDraggable(frame, tab);
 }
 
 // === Render Frame Content ===
