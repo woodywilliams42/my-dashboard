@@ -1,39 +1,39 @@
 // bookmark.js
-
 import { db } from './firebase.js';
-import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const ICON_SIZE = 32;
 
-export async function setupBookmarkFrame(frameEl, data, tab, id) {
+export function setupBookmarkFrame(frameEl, data, tab, id) {
   const container = document.createElement("div");
   container.className = "bookmark-icon-frame";
   container.dataset.frameId = id;
   frameEl.querySelector(".frame-content").appendChild(container);
 
-  // Load bookmarks from frame data
   const bookmarks = data.urls || [];
-  const customIcons = data.favicons || {}; // { url: customIconUrl }
+  const favicons = data.favicons || {};
 
   bookmarks.forEach(url => {
-    const icon = createBookmarkIcon(url, customIcons[url], tab, id);
+    const icon = createBookmarkIcon(url, favicons[url], tab, id);
     container.appendChild(icon);
   });
 
-  // Right-click on frame background: add bookmark
+  // Right-click background to add new bookmark
   container.addEventListener("contextmenu", e => {
-    if (e.target === container) {
-      e.preventDefault();
-      const url = prompt("Enter bookmark URL:");
-      if (!url || !isValidUrl(url)) return;
+    if (e.target !== container) return;
+    e.preventDefault();
 
-      const icon = createBookmarkIcon(url, null, tab, id);
-      container.appendChild(icon);
-      saveBookmark(tab, id, url);
-    }
+    const url = prompt("Enter bookmark URL:");
+    if (!url || !isValidUrl(url)) return;
+
+    const icon = createBookmarkIcon(url, null, tab, id);
+    container.appendChild(icon);
+
+    const frame = findFrame(tab, id);
+    if (!frame.data.urls) frame.data.urls = [];
+    frame.data.urls.push(url);
+    saveFrameData(tab);
   });
-
-  // Enable drag-and-drop (optional: integrate Sortable.js here)
 }
 
 function createBookmarkIcon(url, customIcon, tab, id) {
@@ -46,28 +46,28 @@ function createBookmarkIcon(url, customIcon, tab, id) {
 
   const img = document.createElement("img");
   img.src = customIcon || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
-  img.alt = "bookmark icon";
+  img.alt = "Bookmark icon";
   img.width = ICON_SIZE;
   img.height = ICON_SIZE;
-
   link.appendChild(img);
 
-  // Context menu on icon
+  // Right-click icon menu
   link.addEventListener("contextmenu", e => {
     e.preventDefault();
-    const action = prompt("Edit, Delete or Change Icon? (e/d/c):");
-    if (action === "d") {
+    const choice = prompt("Edit (e), Delete (d), Change Icon (c):");
+
+    if (choice === "d") {
       link.remove();
       removeBookmark(tab, id, url);
-    } else if (action === "c") {
-      const newUrl = prompt("Enter new icon URL:");
-      if (newUrl) {
-        img.src = newUrl;
-        updateFavicon(tab, id, url, newUrl);
+    } else if (choice === "c") {
+      const newIconUrl = prompt("New icon URL:");
+      if (newIconUrl) {
+        img.src = newIconUrl;
+        updateFavicon(tab, id, url, newIconUrl);
       }
-    } else if (action === "e") {
+    } else if (choice === "e") {
       const newUrl = prompt("Edit URL:", url);
-      if (newUrl && newUrl !== url) {
+      if (newUrl && isValidUrl(newUrl)) {
         link.href = newUrl;
         link.title = getShortName(newUrl);
         img.src = `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
@@ -82,7 +82,7 @@ function createBookmarkIcon(url, customIcon, tab, id) {
 function getShortName(url) {
   try {
     const { hostname } = new URL(url);
-    return hostname.replace("www.", "");
+    return hostname.replace(/^www\./, '');
   } catch {
     return url;
   }
@@ -97,11 +97,13 @@ function isValidUrl(url) {
   }
 }
 
-function saveBookmark(tab, id, url) {
-  const frame = findFrame(tab, id);
-  if (!frame.data.urls) frame.data.urls = [];
-  frame.data.urls.push(url);
-  saveFrameData(tab);
+function findFrame(tab, id) {
+  return window.framesData?.[tab]?.find(f => f.id === id);
+}
+
+function saveFrameData(tab) {
+  const docRef = doc(db, "tabFrames", tab);
+  setDoc(docRef, { frames: window.framesData[tab] }).catch(console.error);
 }
 
 function removeBookmark(tab, id, url) {
@@ -125,13 +127,4 @@ function updateBookmark(tab, id, oldUrl, newUrl) {
     delete frame.data.favicons[oldUrl];
   }
   saveFrameData(tab);
-}
-
-function findFrame(tab, id) {
-  return window.framesData?.[tab]?.find(f => f.id === id);
-}
-
-function saveFrameData(tab) {
-  const docRef = doc(db, "tabFrames", tab);
-  setDoc(docRef, { frames: window.framesData[tab] });
 }
