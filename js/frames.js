@@ -3,7 +3,7 @@ import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/
 import { setupBookmarkFrame } from './bookmark.js';
 
 let currentTab = 'work';
-let framesData = {}; // { work: [...], personal: [...], etc. }
+export let framesData = {}; // Expose for bookmark.js access
 
 function generateFrameId(type) {
   return `${type}-${Math.random().toString(36).substr(2, 6)}`;
@@ -18,6 +18,7 @@ function saveFrames(tab) {
 function showFrameContextMenu(x, y, tab, id, header) {
   const menu = document.getElementById("frame-context-menu");
   if (!menu) return;
+
   menu.style.top = `${y}px`;
   menu.style.left = `${x}px`;
   menu.style.display = "block";
@@ -25,24 +26,24 @@ function showFrameContextMenu(x, y, tab, id, header) {
   menu.dataset.id = id;
 }
 
-// Context Menu Event (global)
 document.getElementById("frame-context-menu")?.addEventListener("click", (e) => {
   const action = e.target.dataset.action;
   const menu = e.currentTarget;
   const tab = menu.dataset.tab;
   const id = menu.dataset.id;
-  if (!tab || !id || !framesData[tab]) return;
 
+  if (!tab || !id || !framesData[tab]) return;
   const frameData = framesData[tab].find(f => f.id === id);
   const frameEl = document.querySelector(`.frame-component[data-id="${id}"]`);
   const header = frameEl?.querySelector(".frame-header");
-  if (!frameData || !header) return;
+
+  if (!frameData) return;
 
   switch (action) {
     case "rename":
       const newTitle = prompt("Enter new title (leave blank to hide):", frameData.data.title || "");
       frameData.data.title = newTitle ?? "";
-      header.childNodes[0].nodeValue = newTitle.trim();
+      if (header) header.childNodes[0].nodeValue = newTitle.trim();
       saveFrames(tab);
       break;
 
@@ -61,6 +62,7 @@ document.getElementById("frame-context-menu")?.addEventListener("click", (e) => 
       saveFrames(tab);
       break;
   }
+
   menu.style.display = "none";
 });
 
@@ -69,12 +71,17 @@ document.addEventListener("click", () => {
   if (menu) menu.style.display = "none";
 });
 
-// === Create Frame ===
 function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   const frame = document.createElement("div");
   frame.className = "frame-component";
   frame.dataset.id = id;
-  Object.assign(frame.style, { left: `${x}px`, top: `${y}px`, width: `${width}px`, height: `${height}px`, position: "absolute" });
+  Object.assign(frame.style, {
+    left: `${x}px`,
+    top: `${y}px`,
+    width: `${width}px`,
+    height: `${height}px`,
+    position: "absolute"
+  });
 
   const header = document.createElement("div");
   header.className = "frame-header";
@@ -99,7 +106,6 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   const container = document.getElementById(tab);
   if (container) container.appendChild(frame);
 
-  // Modular Bookmark Setup
   if (type === "bookmark") {
     setupBookmarkFrame(frame, data, tab, id);
   } else {
@@ -132,11 +138,13 @@ function makeResizableDraggable(el, tab) {
       el.style.left = `${e.clientX - offsetX}px`;
       el.style.top = `${e.clientY - offsetY}px`;
     }
+
     function onMouseUp() {
       updateFrameData(el, tab);
       document.removeEventListener("mousemove", moveAt);
       document.removeEventListener("mouseup", onMouseUp);
     }
+
     document.addEventListener("mousemove", moveAt);
     document.addEventListener("mouseup", onMouseUp);
   };
@@ -147,19 +155,20 @@ function makeResizableDraggable(el, tab) {
 
 function updateFrameData(el, tab) {
   const id = el.dataset.id;
-  const frame = framesData[tab]?.find(f => f.id === id);
+  const frame = framesData[tab].find(f => f.id === id);
   if (frame) {
     frame.x = parseInt(el.style.left);
     frame.y = parseInt(el.style.top);
     frame.width = parseInt(el.style.width);
     frame.height = parseInt(el.style.height);
     const textarea = el.querySelector("textarea");
-    if (textarea) frame.data.content = textarea.value;
+    if (textarea) {
+      frame.data.content = textarea.value;
+    }
     saveFrames(tab);
   }
 }
 
-// === Public API ===
 export async function loadFramesForTab(tab) {
   currentTab = tab;
   const container = document.getElementById(tab);
@@ -169,16 +178,25 @@ export async function loadFramesForTab(tab) {
   const frames = snap.exists() ? snap.data().frames || [] : [];
   framesData[tab] = frames;
 
-  container.innerHTML = frames.length === 0
-    ? `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`
-    : "";
-
-  frames.forEach(frame => createFrame(frame, tab));
+  if (frames.length === 0) {
+    container.innerHTML = `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`;
+  } else {
+    container.innerHTML = "";
+    frames.forEach(frame => createFrame(frame, tab));
+  }
 }
 
 export function addNewFrame(type, tab) {
   const id = generateFrameId(type);
-  const newFrame = { id, type, x: 100, y: 100, width: 300, height: 200, data: {} };
+  const newFrame = {
+    id,
+    type,
+    x: 100,
+    y: 100,
+    width: 300,
+    height: 200,
+    data: {}
+  };
   framesData[tab].push(newFrame);
   createFrame(newFrame, tab);
   saveFrames(tab);
