@@ -6,6 +6,8 @@ import { framesData } from './frames.js';
 const ICON_SIZE = 32;
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
+  console.log(`Setting up bookmark frame for tab=${tab} id=${id}`, data);
+
   const frameContent = frameEl.querySelector(".frame-content");
   if (!frameContent) {
     console.warn(`Frame content area not found for frame ${id}`);
@@ -19,16 +21,17 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
 
   const bookmarks = data.urls || [];
   const favicons = data.favicons || {};
+  console.log(`Bookmarks found:`, bookmarks);
 
   bookmarks.forEach(url => {
     const icon = createBookmarkIcon(url, favicons[url], tab, id);
     container.appendChild(icon);
   });
 
-  // Right-click background to add new bookmark
   container.addEventListener("contextmenu", e => {
     if (e.target !== container) return;
     e.preventDefault();
+    console.log("Background right-click detected");
 
     const url = prompt("Enter bookmark URL:");
     if (!url || !isValidUrl(url)) return;
@@ -42,6 +45,7 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     saveFrameData(tab);
   });
 }
+
 
 function createBookmarkIcon(url, customIcon, tab, id) {
   const link = document.createElement("a");
