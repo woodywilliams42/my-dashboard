@@ -98,13 +98,17 @@ function isValidUrl(url) {
 }
 
 function findFrame(tab, id) {
-  return window.framesData?.[tab]?.find(f => f.id === id);
+  if (!window.framesData || !window.framesData[tab]) return null;
+  return window.framesData[tab].find(f => f.id === id);
 }
 
+
 function saveFrameData(tab) {
+  if (!window.framesData || !window.framesData[tab]) return;
   const docRef = doc(db, "tabFrames", tab);
   setDoc(docRef, { frames: window.framesData[tab] }).catch(console.error);
 }
+
 
 function removeBookmark(tab, id, url) {
   const frame = findFrame(tab, id);
