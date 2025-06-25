@@ -5,10 +5,17 @@ import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase
 const ICON_SIZE = 32;
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
+  const frameContent = frameEl.querySelector(".frame-content");
+  if (!frameContent) {
+    console.warn("Frame content not found for bookmark frame:", id);
+    return;
+  }
+
   const container = document.createElement("div");
   container.className = "bookmark-icon-frame";
   container.dataset.frameId = id;
-  frameEl.querySelector(".frame-content").appendChild(container);
+  frameContent.appendChild(container);
+
 
   const bookmarks = data.urls || [];
   const favicons = data.favicons || {};
