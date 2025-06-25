@@ -1,13 +1,14 @@
 // bookmark.js
 import { db } from './firebase.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
   const frameContent = frameEl.querySelector(".frame-content");
   if (!frameContent) {
-    console.warn("Frame content not found for bookmark frame:", id);
+    console.warn(`Frame content area not found for frame ${id}`);
     return;
   }
 
@@ -15,7 +16,6 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   container.className = "bookmark-icon-frame";
   container.dataset.frameId = id;
   frameContent.appendChild(container);
-
 
   const bookmarks = data.urls || [];
   const favicons = data.favicons || {};
@@ -105,17 +105,13 @@ function isValidUrl(url) {
 }
 
 function findFrame(tab, id) {
-  if (!window.framesData || !window.framesData[tab]) return null;
-  return window.framesData[tab].find(f => f.id === id);
+  return framesData?.[tab]?.find(f => f.id === id);
 }
-
 
 function saveFrameData(tab) {
-  if (!window.framesData || !window.framesData[tab]) return;
   const docRef = doc(db, "tabFrames", tab);
-  setDoc(docRef, { frames: window.framesData[tab] }).catch(console.error);
+  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
 }
-
 
 function removeBookmark(tab, id, url) {
   const frame = findFrame(tab, id);
