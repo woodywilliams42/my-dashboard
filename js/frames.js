@@ -106,11 +106,12 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   const container = document.getElementById(tab);
   if (container) container.appendChild(frame);
 
-  if (type === "bookmark") {
-    setupBookmarkFrame(frame, data, tab, id);
-  } else {
-    content.innerHTML = renderContent(type, data, id, tab);
-  }
+ if (type === "bookmark") {
+  console.log(`Calling setupBookmarkFrame for id=${id}, tab=${tab}`);
+  setupBookmarkFrame(frame, data, tab, id);
+} else {
+  content.innerHTML = renderContent(type, data, id, tab);
+}
 
   makeResizableDraggable(frame, tab);
 }
