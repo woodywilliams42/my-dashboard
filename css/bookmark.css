@@ -13,7 +13,10 @@
   min-height: 50px;
   align-items: center;
   padding: 4px;
+  justify-content: start;
+  background: var(--card-bg);
 }
+
 
 /* Individual icon buttons */
 .bookmark-icon-button {
