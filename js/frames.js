@@ -129,11 +129,18 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
 }
 
 function renderContent(type, data, id, tab) {
-  if (type === "note") return `<textarea id="note-${id}" class="note-box">${data.content || ""}</textarea>`;
-  if (type === "quick") return `<p>Quick Comment block (TBD)</p>`;
-  if (type === "timer") return `<p>Countdown timer (TBD)</p>`;
-  return `<p>Unknown frame type</p>`;
+  if (type === "note") {
+    return `<textarea id="note-${id}" class="note-box">${data.content || ""}</textarea>`;
+  }
+  if (type === "quick") {
+    return `<p>Quick Comment block (TBD)</p>`;
+  }
+  if (type === "timer") {
+    return `<p>Countdown timer (TBD)</p>`;
+  }
+  return "";  // Return empty string instead of undefined for unknown types
 }
+
 
 function makeResizableDraggable(el, tab) {
   el.onmousedown = function (e) {
