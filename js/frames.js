@@ -90,6 +90,7 @@ document.addEventListener("click", () => {
 });
 
 function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
+  console.log(`Creating frame of type: ${type}, id: ${id}, tab: ${tab}`);
   const frame = document.createElement("div");
   frame.className = "frame-component";
   frame.dataset.id = id;
@@ -138,7 +139,7 @@ function renderContent(type, data, id, tab) {
   if (type === "timer") {
     return `<p>Countdown timer (TBD)</p>`;
   }
-  return "";  // Return empty string instead of undefined for unknown types
+  return "";  // Prevents "undefined" text for unhandled types
 }
 
 
@@ -190,9 +191,12 @@ export async function loadFramesForTab(tab) {
   const frames = snap.exists() ? snap.data().frames || [] : [];
   framesData[tab] = frames;
 
-  container.innerHTML = frames.length === 0
-    ? `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`
-    : frames.forEach(frame => createFrame(frame, tab));
+  if (frames.length === 0) {
+    container.innerHTML = `<p class="empty-tab-message">No frames yet on the "${tab}" tab.</p>`;
+  } else {
+    container.innerHTML = ""; // Clear previous content
+    frames.forEach(frame => createFrame(frame, tab));
+  }
 }
 
 export function addNewFrame(type, tab) {
