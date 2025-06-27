@@ -21,7 +21,9 @@
   border-radius: 6px;
   padding: 10px 20px;
   min-width: 120px;
+  background: #888;
 }
+
 
 .timer-display.red {
   color: red;
