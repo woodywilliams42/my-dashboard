@@ -1,86 +1,56 @@
 // notes.js
 import { db } from './firebase.js';
-import {
-  doc,
-  getDoc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { framesData } from './frames.js';
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const lastSavedContent = {};
+// Save notes for a specific frame
+function saveNoteForFrame(tab, id, content) {
+  const frame = framesData[tab]?.find(f => f.id === id);
+  if (!frame) return;
 
-// === Save Notes ===
-async function saveNotes(tab) {
-  const contentEl = document.getElementById(`notes-${tab}`);
-  const statusEl = document.getElementById(`saveStatus-${tab}`);
-
-  if (!contentEl || !statusEl) return;
-
-  const content = contentEl.value;
-  statusEl.textContent = "Saving...";
-  statusEl.style.opacity = 1;
-
-  try {
-    await setDoc(doc(db, "dashboardNotes", tab), { content });
-    statusEl.textContent = "✔ Saved!";
-    lastSavedContent[tab] = content;
-  } catch (err) {
-    console.error("Error saving notes:", err);
-    statusEl.textContent = "❌ Save failed!";
-  }
-
-  setTimeout(() => {
-    statusEl.style.opacity = 0;
-  }, 2000);
+  frame.data.content = content;
+  const docRef = doc(db, "tabFrames", tab);
+  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
 }
 
-// === Load Notes ===
-async function loadNotes(tab) {
-  const contentEl = document.getElementById(`notes-${tab}`);
-  if (!contentEl) return;
+// Setup note autosave inside a frame
+export function setupNoteFrame(frameEl, data, tab, id) {
+  const container = document.createElement("div");
+  container.className = "note-frame-container";
 
-  try {
-    const snap = await getDoc(doc(db, "dashboardNotes", tab));
-    if (snap.exists()) {
-      const data = snap.data();
-      contentEl.value = data.content || "";
-      lastSavedContent[tab] = data.content || "";
-    }
-  } catch (err) {
-    console.error(`Error loading notes for ${tab}:`, err);
-  }
-}
+  container.innerHTML = `
+    <textarea class="note-box" placeholder="Type your notes...">${data.content || ""}</textarea>
+    <div class="note-save-status" style="opacity:0;">✔ Saved!</div>
+  `;
 
-// === Autosave Setup ===
-function setupAutosave(tab) {
-  const textarea = document.getElementById(`notes-${tab}`);
-  if (!textarea) return;
+  const textarea = container.querySelector(".note-box");
+  const status = container.querySelector(".note-save-status");
 
+  let lastSaved = data.content || "";
   let debounceTimer;
 
   textarea.addEventListener("input", () => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-      const currentContent = textarea.value;
-      if (lastSavedContent[tab] !== currentContent) {
-        saveNotes(tab);
+      if (textarea.value !== lastSaved) {
+        saveNoteForFrame(tab, id, textarea.value);
+        lastSaved = textarea.value;
+        status.textContent = "✔ Saved!";
+        status.style.opacity = 1;
+        setTimeout(() => status.style.opacity = 0, 1500);
       }
-    }, 2000);
+    }, 1000);
   });
 
   textarea.addEventListener("blur", () => {
-    const currentContent = textarea.value;
-    if (lastSavedContent[tab] !== currentContent) {
-      saveNotes(tab);
+    if (textarea.value !== lastSaved) {
+      saveNoteForFrame(tab, id, textarea.value);
+      lastSaved = textarea.value;
+      status.textContent = "✔ Saved!";
+      status.style.opacity = 1;
+      setTimeout(() => status.style.opacity = 0, 1500);
     }
   });
+
+  frameEl.querySelector(".frame-content").appendChild(container);
 }
-
-// === Initialize Notes on All Tabs ===
-["work", "personal", "secondjob", "charity"].forEach(tab => {
-  loadNotes(tab);
-  setupAutosave(tab);
-});
-
-// Expose save function for manual calls
-window.saveNotes = saveNotes;
-
