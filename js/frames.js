@@ -3,7 +3,8 @@ import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/
 import { setupBookmarkFrame } from './bookmark.js';
 
 let currentTab = 'work';
-export let framesData = {};
+export let framesData = window.framesData = {}; 
+
 
 // Inject Frame Context Menu if missing
 if (!document.getElementById("frame-context-menu")) {
