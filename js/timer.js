@@ -1,5 +1,7 @@
 // timer.js
 import { framesData } from './frames.js';
+import { db } from './firebase.js';
+import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const SOUNDS = [
   'sounds/Alarm1.mp3',
@@ -13,7 +15,6 @@ export function setupTimerFrame(frameEl, data, tab, id) {
   frameEl.querySelector(".frame-content").appendChild(container);
 
   container.innerHTML = `
-  <div class="timer-frame-content">
     <div class="timer-display">00:00</div>
     <div class="timer-controls">
       <input type="number" class="timer-length-input" min="1" max="4800" value="${data.baseTime || 10}">
@@ -23,13 +24,11 @@ export function setupTimerFrame(frameEl, data, tab, id) {
       </select>
       <button class="timer-start-btn start">Start</button>
     </div>
-  </div>
-`;
+  `;
 
-
-  const input = container.querySelector(".timer-input");
-  const unit = container.querySelector(".time-unit");
-  const toggleBtn = container.querySelector(".timer-toggle");
+  const input = container.querySelector(".timer-length-input");
+  const unit = container.querySelector(".timer-unit");
+  const toggleBtn = container.querySelector(".timer-start-btn");
   const display = container.querySelector(".timer-display");
 
   let timer = null;
@@ -58,7 +57,7 @@ export function setupTimerFrame(frameEl, data, tab, id) {
     if (isNaN(value) || value <= 0) return;
 
     let baseSec = unit.value === 'minutes' ? value * 60 : value;
-    baseSec = Math.min(baseSec, 4800); // Cap at 80 min
+    baseSec = Math.min(baseSec, 4800);
 
     const randomizedMs = randomizeTime(baseSec * 1000);
     remaining = randomizedMs;
@@ -73,19 +72,21 @@ export function setupTimerFrame(frameEl, data, tab, id) {
       if (timeLeft <= 0) {
         clearInterval(timer);
         playAlarm();
-        startTimer(); // Auto-restart
+        startTimer();
       }
     }, 100);
 
-    toggleBtn.textContent = 'Stop';
-    toggleBtn.style.color = 'red';
+    toggleBtn.classList.remove("start");
+    toggleBtn.classList.add("stop");
+    toggleBtn.textContent = "Stop";
   }
 
   function stopTimer() {
     clearInterval(timer);
     timer = null;
-    toggleBtn.textContent = 'Start';
-    toggleBtn.style.color = 'limegreen';
+    toggleBtn.classList.remove("stop");
+    toggleBtn.classList.add("start");
+    toggleBtn.textContent = "Start";
   }
 
   toggleBtn.addEventListener("click", () => {
@@ -97,19 +98,20 @@ export function setupTimerFrame(frameEl, data, tab, id) {
   });
 
   unit.addEventListener("change", () => {
-    const value = parseFloat(input.value);
-    if (unit.value === 'minutes') {
-      input.value = Math.min(value / 60, 80);
+    let val = parseFloat(input.value) || 0;
+    if (unit.value === "minutes") {
+      val = Math.min(val / 60, 80);
     } else {
-      input.value = Math.min(value * 60, 4800);
+      val = Math.min(val * 60, 4800);
     }
+    input.value = Math.max(1, Math.round(val));
     saveSettings();
   });
 
   input.addEventListener("input", () => {
     let val = parseFloat(input.value);
-    if (unit.value === 'minutes' && val > 80) val = 80;
-    if (unit.value === 'seconds' && val > 4800) val = 4800;
+    if (unit.value === "minutes" && val > 80) val = 80;
+    if (unit.value === "seconds" && val > 4800) val = 4800;
     input.value = val;
     saveSettings();
   });
@@ -125,6 +127,5 @@ export function setupTimerFrame(frameEl, data, tab, id) {
   }
 
   updateDisplay(0);
-  toggleBtn.style.color = 'limegreen';
+  toggleBtn.classList.add("start");
 }
-
