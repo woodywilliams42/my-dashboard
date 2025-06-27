@@ -2,6 +2,7 @@ import { db } from './firebase.js';
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { setupBookmarkFrame } from './bookmark.js';
 import { setupTimerFrame } from './timer.js';
+import { setupNoteFrame } from './notes.js';
 
 let currentTab = 'work';
 export let framesData = window.framesData = {}; 
