@@ -3,12 +3,24 @@
   src: url('../fonts/E1234.ttf') format('truetype');
 }
 
+.timer-frame-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
 .timer-display {
   font-family: 'E1234', sans-serif;
-  font-size: 2rem;
+  font-size: 4rem; /* Twice as large */
   color: limegreen;
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 20px;
+  min-width: 120px;
 }
 
 .timer-display.red {
@@ -20,18 +32,17 @@
   gap: 6px;
   align-items: center;
   justify-content: center;
+  margin-top: 10px;
 }
 
-.timer-controls input {
-  width: 60px;
-  padding: 4px;
-}
-
+.timer-controls input,
+.timer-controls select,
 .timer-controls button {
-  padding: 4px 10px;
-  border: none;
-  cursor: pointer;
+  height: 36px;
+  padding: 0 8px;
   border-radius: 4px;
+  border: 1px solid var(--border-color);
+  font-size: 1rem;
 }
 
 .timer-controls button.start {
@@ -43,4 +54,3 @@
   background-color: red;
   color: white;
 }
-
