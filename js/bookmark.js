@@ -40,9 +40,10 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     container.appendChild(icon);
 
     const frame = findFrame(tab, id);
+    if (!frame.data) frame.data = {};
     if (!frame.data.urls) frame.data.urls = [];
     frame.data.urls.push(url);
-    saveFrameData(tab);
+   saveFrameData(tab);
   });
 }
 
