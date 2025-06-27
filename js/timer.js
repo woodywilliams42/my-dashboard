@@ -13,16 +13,19 @@ export function setupTimerFrame(frameEl, data, tab, id) {
   frameEl.querySelector(".frame-content").appendChild(container);
 
   container.innerHTML = `
+  <div class="timer-frame-content">
+    <div class="timer-display">00:00</div>
     <div class="timer-controls">
-      <input type="number" class="timer-input" min="1" max="4800" value="${data.baseTime || 10}">
-      <select class="time-unit">
+      <input type="number" class="timer-length-input" min="1" max="4800" value="${data.baseTime || 10}">
+      <select class="timer-unit">
         <option value="seconds" ${data.unit === 'seconds' ? 'selected' : ''}>Seconds</option>
         <option value="minutes" ${data.unit === 'minutes' ? 'selected' : ''}>Minutes</option>
       </select>
-      <button class="timer-toggle">Start</button>
+      <button class="timer-start-btn start">Start</button>
     </div>
-    <div class="timer-display">00:00</div>
-  `;
+  </div>
+`;
+
 
   const input = container.querySelector(".timer-input");
   const unit = container.querySelector(".time-unit");
