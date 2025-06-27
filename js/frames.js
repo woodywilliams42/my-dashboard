@@ -121,10 +121,12 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   const container = document.getElementById(tab);
   if (container) container.appendChild(frame);
 
-  if (type === "timer") {
+if (type === "timer") {
   setupTimerFrame(frame, data, tab, id);
 } else if (type === "bookmark") {
   setupBookmarkFrame(frame, data, tab, id);
+} else if (type === "note") {
+  setupNoteFrame(frame, data, tab, id);
 } else {
   content.innerHTML = renderContent(type, data, id, tab);
 }
@@ -133,15 +135,9 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
 }
 
 function renderContent(type, data, id, tab) {
-  if (type === "note") {
-    return `<textarea id="note-${id}" class="note-box">${data.content || ""}</textarea>`;
-  }
   if (type === "quick") {
     return `<p>Quick Comment block (TBD)</p>`;
   }
-//  if (type === "timer") {
-//    return `<p>Countdown timer (TBD)</p>`;
-//  }
   return "";  // Prevents "undefined" text for unhandled types
 }
 
