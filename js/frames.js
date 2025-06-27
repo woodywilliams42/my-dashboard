@@ -1,6 +1,7 @@
 import { db } from './firebase.js';
 import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { setupBookmarkFrame } from './bookmark.js';
+import { setupTimerFrame } from './timer.js';
 
 let currentTab = 'work';
 export let framesData = window.framesData = {}; 
@@ -120,12 +121,13 @@ function createFrame({ id, type, x, y, width, height, data = {} }, tab) {
   const container = document.getElementById(tab);
   if (container) container.appendChild(frame);
 
-  if (type === "bookmark") {
-    console.log(`Calling setupBookmarkFrame for id=${id}, tab=${tab}`);
-    setupBookmarkFrame(frame, data, tab, id);
-  } else {
-    content.innerHTML = renderContent(type, data, id, tab);
-  }
+  if (type === "timer") {
+  setupTimerFrame(frame, data, tab, id);
+} else if (type === "bookmark") {
+  setupBookmarkFrame(frame, data, tab, id);
+} else {
+  content.innerHTML = renderContent(type, data, id, tab);
+}
 
   makeResizableDraggable(frame, tab);
 }
@@ -137,9 +139,9 @@ function renderContent(type, data, id, tab) {
   if (type === "quick") {
     return `<p>Quick Comment block (TBD)</p>`;
   }
-  if (type === "timer") {
-    return `<p>Countdown timer (TBD)</p>`;
-  }
+//  if (type === "timer") {
+//    return `<p>Countdown timer (TBD)</p>`;
+//  }
   return "";  // Prevents "undefined" text for unhandled types
 }
 
