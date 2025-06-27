@@ -46,11 +46,16 @@
 }
 
 .timer-controls button.start {
-  background-color: green;
-  color: white;
+  background: transparent;
+  color: green;
+  border: 1px solid green;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 4px;
 }
 
 .timer-controls button.stop {
-  background-color: red;
-  color: white;
+background: transparent;
+  color: red;
+  border: 1px solid red;
 }
