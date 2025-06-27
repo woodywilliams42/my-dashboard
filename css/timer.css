@@ -1,1 +1,46 @@
+@font-face {
+  font-family: 'E1234';
+  src: url('../fonts/E1234.ttf') format('truetype');
+}
+
+.timer-display {
+  font-family: 'E1234', sans-serif;
+  font-size: 2rem;
+  color: limegreen;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.timer-display.red {
+  color: red;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.timer-controls input {
+  width: 60px;
+  padding: 4px;
+}
+
+.timer-controls button {
+  padding: 4px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.timer-controls button.start {
+  background-color: green;
+  color: white;
+}
+
+.timer-controls button.stop {
+  background-color: red;
+  color: white;
+}
 
