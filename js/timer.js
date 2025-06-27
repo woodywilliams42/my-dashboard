@@ -6,7 +6,9 @@ import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase
 const SOUNDS = [
   'sounds/Alarm1.mp3',
   'sounds/Alarm2.mp3',
-  'sounds/Alarm3.mp3'
+  'sounds/Alarm3.mp3',
+  'sounds/Alarm4.mp3',
+  'sounds/Alarm5.mp3'
 ];
 
 export function setupTimerFrame(frameEl, data, tab, id) {
