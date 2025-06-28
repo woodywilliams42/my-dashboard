@@ -8,16 +8,11 @@
   box-sizing: border-box;
 }
 
-/* Textarea fills its container, reserving space at bottom */
 .note-box {
-  flex: 1 1 auto;       /* grow & shrink with its parent */
+  flex: 1 1 auto;      /* fill full height of its parent .frame-content */
   width: 100%;
-  /* allow scrolling inside the textarea if content is long: */
-  overflow: auto;
-  /* remove that bottom margin since the content container now scrolls: */
-  margin-bottom: 0;
-  /* keep the rest of your styling: */
-  resize: none;
+  resize: none;         /* textarea itself not resizable (the frame is) */
+  overflow: auto;       /* scroll within textarea if needed */
   font-family: sans-serif;
   font-size: 0.95rem;
   padding: 0.5rem;
