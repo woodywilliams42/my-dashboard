@@ -1,6 +1,6 @@
 .frame-content {
+  flex: 1;               /* <-- new */
   display: flex;
-  flex: 1;
   flex-direction: column;
   position: relative;
   padding: 5px;
@@ -8,7 +8,7 @@
 }
 
 .note-box {
-  flex: 1;
+  flex: 1;               /* <-- new */
   width: 100%;
   resize: none;
   font-family: sans-serif;
@@ -20,7 +20,7 @@
   color: var(--text-color);
   box-sizing: border-box;
   overflow: auto;
-  margin-bottom: 22px; /* Reserve space for status message */
+  margin-bottom: 22px;    /* reserve space for save-status */
 }
 
 .note-save-status {
