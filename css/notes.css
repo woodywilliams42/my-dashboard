@@ -10,8 +10,13 @@
 
 /* Textarea fills its container, reserving space at bottom */
 .note-box {
-  flex: 1 1 auto;        /* grow & shrink with parent */
+  flex: 1 1 auto;       /* grow & shrink with its parent */
   width: 100%;
+  /* allow scrolling inside the textarea if content is long: */
+  overflow: auto;
+  /* remove that bottom margin since the content container now scrolls: */
+  margin-bottom: 0;
+  /* keep the rest of your styling: */
   resize: none;
   font-family: sans-serif;
   font-size: 0.95rem;
@@ -21,9 +26,8 @@
   background-color: var(--input-bg);
   color: var(--text-color);
   box-sizing: border-box;
-  overflow: auto;
-  margin-bottom: 22px;    /* leaves room for status bar */
 }
+
 
 /* Absolutely‐position the save status, so it never pushes the textarea */
 .note-save-status {
