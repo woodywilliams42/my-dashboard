@@ -1,5 +1,6 @@
+/* Fill all the space under the header */
 .frame-content {
-  flex: 1;               /* <-- new */
+  flex: 1 1 0;           /* grow & shrink, base 0 */
   display: flex;
   flex-direction: column;
   position: relative;
@@ -7,8 +8,9 @@
   box-sizing: border-box;
 }
 
+/* Textarea fills its container, reserving space at bottom */
 .note-box {
-  flex: 1;               /* <-- new */
+  flex: 1 1 auto;        /* grow & shrink with parent */
   width: 100%;
   resize: none;
   font-family: sans-serif;
@@ -20,9 +22,10 @@
   color: var(--text-color);
   box-sizing: border-box;
   overflow: auto;
-  margin-bottom: 22px;    /* reserve space for save-status */
+  margin-bottom: 22px;    /* leaves room for status bar */
 }
 
+/* Absolutely‐position the save status, so it never pushes the textarea */
 .note-save-status {
   position: absolute;
   bottom: 8px;
