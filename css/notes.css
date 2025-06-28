@@ -1,16 +1,14 @@
 .frame-content {
-  height: 100%;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  position: relative;
   padding: 5px;
   box-sizing: border-box;
-  position: relative;
 }
 
 .note-box {
-  flex-grow: 1;
-  flex-shrink: 0;
-  flex-basis: 0;
+  flex: 1 1 auto;
   width: 100%;
   resize: none;
   font-family: sans-serif;
@@ -22,6 +20,7 @@
   color: var(--text-color);
   box-sizing: border-box;
   overflow: auto;
+  margin-bottom: 22px; /* Reserve space for status message */
 }
 
 .note-save-status {
@@ -35,6 +34,6 @@
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
-  background: var(--card-bg); /* Optional: background behind status */
+  background: var(--card-bg);
   padding: 0 4px;
 }
