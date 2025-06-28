@@ -13,7 +13,7 @@
 }
 
 .note-box {
-  flex: 1;
+  flex: 1 1 auto;
   width: 100%;
   resize: none;
   font-family: sans-serif;
@@ -24,13 +24,19 @@
   background-color: var(--input-bg);
   color: var(--text-color);
   box-sizing: border-box;
+  margin-bottom: 22px; /* Reserve space for status message */
 }
 
 .note-save-status {
-  height: 18px;  
+  height: 18px;
   text-align: right;
   font-size: 0.8rem;
-  margin-top: 4px;
-  transition: opacity 0.3s ease;
+  line-height: 18px;
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
   color: limegreen;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
