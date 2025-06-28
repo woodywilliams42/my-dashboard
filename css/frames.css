@@ -23,7 +23,7 @@
 }
 
 .frame-content {
-  height: 80%;
+  height: 60%;
   display: flex;
   flex-direction: column;
 }
