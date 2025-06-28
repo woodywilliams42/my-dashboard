@@ -1,14 +1,14 @@
 .frame-content {
   display: flex;
+  flex: 1;
   flex-direction: column;
-  height: 100%;
   position: relative;
   padding: 5px;
   box-sizing: border-box;
 }
 
 .note-box {
-  flex: 1 1 auto;
+  flex: 1;
   width: 100%;
   resize: none;
   font-family: sans-serif;
