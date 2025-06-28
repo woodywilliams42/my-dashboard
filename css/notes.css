@@ -1,18 +1,23 @@
-/* Fill all the space under the header */
-.frame-content {
-  flex: 1 1 0;           /* grow & shrink, base 0 */
+/* ================================================
+   Notes frame styling
+   ================================================ */
+
+/* Container inside .frame-content */
+.note-frame-container {
+  flex: 1;                    /* fill all available space */
   display: flex;
   flex-direction: column;
-  position: relative;
   padding: 5px;
   box-sizing: border-box;
+  position: relative;         /* for absolutely‑positioned status */
 }
 
+/* The textarea itself */
 .note-box {
-  flex: 1 1 auto;      /* fill full height of its parent .frame-content */
+  flex: 1;                    /* grow to fill vertical space */
   width: 100%;
-  resize: none;         /* textarea itself not resizable (the frame is) */
-  overflow: auto;       /* scroll within textarea if needed */
+  resize: none;               /* frame is resizable, not the textarea */
+  overflow: auto;             /* scroll internally if needed */
   font-family: sans-serif;
   font-size: 0.95rem;
   padding: 0.5rem;
@@ -21,17 +26,16 @@
   background-color: var(--input-bg);
   color: var(--text-color);
   box-sizing: border-box;
+  margin: 0;                  /* reset default */
 }
 
-
-/* Absolutely‐position the save status, so it never pushes the textarea */
+/* The “✔ Saved!” / “❌ Save failed!” line */
 .note-save-status {
   position: absolute;
   bottom: 8px;
   right: 12px;
-  height: 18px;
-  line-height: 18px;
   font-size: 0.8rem;
+  line-height: 1;
   color: limegreen;
   opacity: 0;
   transition: opacity 0.3s ease;
