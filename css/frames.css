@@ -15,10 +15,11 @@
 }
 /* The area under the header takes all remaining space */
 .frame-content {
-  flex: 1 1 auto;      /* grow/shrink to fill the frame */
+  flex: 1;               /* take up all remaining space under the header */
   display: flex;
   flex-direction: column;
-  overflow: auto;       /* scroll if contents overflow */
+  box-sizing: border-box;
+  padding: 0;            /* padding lives in the note container */
 }
 
 
