@@ -1,16 +1,10 @@
-.note-frame-container {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 5px;
-  box-sizing: border-box;
-}
-
 .frame-content {
   height: 100%;
   display: flex;
   flex-direction: column;
+  padding: 5px;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .note-box {
@@ -25,7 +19,7 @@
   background-color: var(--input-bg);
   color: var(--text-color);
   box-sizing: border-box;
-  margin-bottom: 22px; /* Reserve space for status message */
+  /* Remove margin-bottom */
 }
 
 .note-save-status {
