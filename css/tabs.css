@@ -32,7 +32,7 @@
 #tab-nav button.active {
   background: var(--accent-color);
   /* switch text to theme color, not hard‑coded white */
-  color: var(--text-color);
+   color: var(--button-text);
   font-weight: bold;
 }
 
