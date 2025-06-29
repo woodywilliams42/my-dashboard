@@ -4,8 +4,8 @@
   gap: 10px;
   padding: 10px 16px;
   background: transparent;
-  /* border-bottom: 1px solid var(--border-color);  */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* ✅ soft shadow */
+  /* border-bottom: 1px solid var(--border-color); */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   z-index: 10;
 }
@@ -25,11 +25,14 @@
 
 #tab-nav button:hover {
   background: var(--hover-bg);
+  /* ensure text stays legible */
+  color: var(--text-color);
 }
 
 #tab-nav button.active {
   background: var(--accent-color);
-  color: #fff;
+  /* switch text to theme color, not hard‑coded white */
+  color: var(--text-color);
   font-weight: bold;
 }
 
@@ -50,7 +53,6 @@
 .empty-tab-message {
   padding: 2rem;
   font-size: 1.1rem;
-  color: #777;
   font-style: italic;
   text-align: center;
   color: var(--text-color);
