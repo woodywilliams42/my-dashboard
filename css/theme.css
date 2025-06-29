@@ -12,6 +12,8 @@
   --border-color: #cccccc;
 }
 
+/* apply when body has either class.dark OR class.dark-mode */
+body.dark,
 body.dark-mode {
   --bg-color: #121212;
   --text-color: #f1f1f1;
@@ -24,7 +26,7 @@ body.dark-mode {
   --border-color: #555555;
 }
 
-/* Apply theming to the page */
+/* Apply theming to the page elements */
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
@@ -33,4 +35,12 @@ body {
 button {
   background-color: var(--button-bg);
   color: var(--button-text);
+}
+
+/* You can also style inputs and textareas if needed */
+input,
+textarea {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
 }
