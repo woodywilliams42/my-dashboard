@@ -1,66 +1,56 @@
-/* === DARK MODE TOGGLE STYLES === */
-.dark-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 10px;
-  z-index: 10;
+/* darkmode.css — Light & Dark mode variables & base theming */
+
+/* Light‐mode defaults */
+:root {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --card-bg: #f0f0f0;
+  --input-bg: #ffffff;
+  --button-bg: #444444;
+  --button-text: #ffffff;
+  --accent: #2a9d8f;
+  --hover-bg: rgba(0, 0, 0, 0.05);
+  --border-color: #cccccc;
 }
 
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider {
-  position: absolute !important;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc !important;
-  border-radius: 24px !important;
-  transition: background-color 0.4s ease !important;
-  z-index: 0;
-  display: block !important;
-}
-
-.slider::before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: transform 0.4s ease;
-  border-radius: 50%;
-  z-index: 1;
-}
-
-input:checked + .slider {
-  background-color: #2a9d8f !important;
-}
-
-input:checked + .slider::before {
-  transform: translateX(26px);
-}
-
-#theme-label {
-  font-size: 20px;
-  line-height: 24px;
-}
-
+/* Dark‐mode override when <body class="dark-mode"> */
 body.dark-mode {
-  background-color: #121212;
-  color: #eee;
+  --bg-color: #121212;
+  --text-color: #f1f1f1;
+  --card-bg: #1e1e1e;
+  --input-bg: #2e2e2e;
+  --button-bg: #333333;
+  --button-text: #ffffff;
+  --accent: #90caf9;
+  --hover-bg: rgba(255, 255, 255, 0.1);
+  --border-color: #555555;
+}
+
+/* Apply to elements */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+}
+
+input,
+textarea {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+/* Example: tab buttons (they use var(--text-color)) */
+#tab-nav button {
+  color: var(--text-color);
+}
+
+/* And frames (.frame-component) */
+.frame-component {
+  background: var(--card-bg);
+  color: var(--text-color);
 }
