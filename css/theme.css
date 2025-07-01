@@ -38,15 +38,14 @@ button {
   cursor: pointer;
 }
 
-/* Consistent text visibility for tab buttons across modes */
 #tab-nav button {
-  color: var(--text-color);
+  color: var(--button-text); /* Keep tab button text readable always */
 }
 
-/* Input fields */
+/* Inputs & textareas */
 input,
 textarea {
   background-color: var(--input-bg);
-  color: var(--text-color);
+  color: #222; /* Lock to dark text for consistent visibility */
   border: 1px solid var(--border-color);
 }
