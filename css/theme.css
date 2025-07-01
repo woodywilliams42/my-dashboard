@@ -20,7 +20,7 @@ body.dark-mode {
   --input-bg: #ffffff; /* Notes boxes stay light in dark mode */
   --button-bg: #333333;
   --button-text: #ffffff;
-  --accent: #90caf9;
+  --accent: #2a9d8f;
   --hover-bg: rgba(255, 255, 255, 0.1);
   --border-color: #555555;
 }
