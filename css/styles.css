@@ -15,11 +15,13 @@
   position: absolute;
   inset: 0;
   cursor: pointer;
-  background-color: var(--accent-color); /* Teal track always visible */
+  background-color: var(--accent-color);
   border-radius: 24px;
   transition: background-color 0.4s, box-shadow 0.4s;
   box-sizing: border-box;
+  border: 2px solid red;  /* TEMP DEBUG BORDER */
 }
+
 
 .slider::before {
   position: absolute;
