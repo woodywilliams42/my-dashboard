@@ -38,14 +38,15 @@ button {
   cursor: pointer;
 }
 
+/* Ensure tab button text always visible (inherit dark mode text, override light mode issue) */
 #tab-nav button {
-  color: var(--button-text); /* Keep tab button text readable always */
+  color: inherit;
 }
 
-/* Inputs & textareas */
+/* Inputs & textareas: Notes boxes stay light, text always dark */
 input,
 textarea {
   background-color: var(--input-bg);
-  color: #222; /* Lock to dark text for consistent visibility */
+  color: #222;
   border: 1px solid var(--border-color);
 }
