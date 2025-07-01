@@ -43,6 +43,19 @@ button {
   color: inherit;
 }
 
+/* Improve tab button hover & active visibility */
+#tab-nav button:hover {
+  background-color: var(--hover-bg);
+  opacity: 1;
+}
+
+#tab-nav button.active {
+  background-color: var(--accent);
+  color: #fff;
+  font-weight: bold;
+}
+
+
 /* Inputs & textareas: Notes boxes stay light, text always dark */
 input,
 textarea {
