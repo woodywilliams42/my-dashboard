@@ -13,17 +13,17 @@
 
 .slider {
   position: absolute;
-  cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--accent-color);
+  background-color: var(--accent-color); /* Always visible teal pill track */
   border-radius: 24px;
-  transition: background-color 0.4s;
+  transition: background-color 0.4s, box-shadow 0.4s;
+  box-sizing: border-box;
 }
 
-.slider:before {
+.slider::before {
   position: absolute;
   content: "";
   height: 18px;
@@ -31,10 +31,14 @@
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: transform 0.4s;
   border-radius: 50%;
+  transition: transform 0.4s;
 }
 
-.switch input:checked + .slider:before {
+input:checked + .slider::before {
   transform: translateX(20px);
+}
+
+.slider:hover {
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
