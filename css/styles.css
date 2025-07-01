@@ -17,7 +17,7 @@
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc;
+  background-color: var(--border-color);
   transition: 0.4s;
   border-radius: 20px;
 }
