@@ -50,3 +50,8 @@ textarea {
   color: #222;
   border: 1px solid var(--border-color);
 }
+
+/* Extra guarantee for notes boxes visibility */
+textarea.note-box {
+  color: #222;
+}
