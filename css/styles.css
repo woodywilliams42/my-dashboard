@@ -1,5 +1,3 @@
-/* Existing styles stay unchanged... */
-
 .switch {
   position: relative;
   display: inline-block;
@@ -17,9 +15,11 @@
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: var(--border-color);
+  background-color: #ccc; /* Neutral grey track by default */
   transition: 0.4s;
   border-radius: 20px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-color);
 }
 
 .slider:before {
@@ -35,15 +35,20 @@
 }
 
 input:checked + .slider {
-  background-color: var(--accent-color);  /* Ensures it matches your accent color */
+  background-color: var(--accent-color); /* Teal track when active */
 }
 
 input:checked + .slider:before {
   transform: translateX(20px);
 }
 
-/* ✅ Force note textareas to stay readable regardless of dark/light mode */
+/* Hover enhancement so slider track changes slightly on hover */
+.slider:hover {
+  background-color: var(--hover-bg);
+}
+
+/* ✅ Notes stay light background with dark readable text always */
 .note-box {
-  background-color: var(--input-bg); /* stays light */
-  color: #222; /* dark text always */
+  background-color: var(--input-bg);
+  color: #222;
 }
