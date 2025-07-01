@@ -21,6 +21,7 @@
   border-radius: 24px;
   transition: background-color 0.4s, box-shadow 0.4s;
   box-sizing: border-box;
+border: 2px solid red;  /* TEMP DEBUG BORDER */
 }
 
 
