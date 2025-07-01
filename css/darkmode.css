@@ -1,56 +1,21 @@
-/* darkmode.css — Light & Dark mode variables & base theming */
+export function setupDarkModeToggle() {
+  const toggle = document.getElementById("darkModeToggle");
+  const themeLabel = document.getElementById("theme-label");
 
-/* Light‐mode defaults */
-:root {
-  --bg-color: #ffffff;
-  --text-color: #333333;
-  --card-bg: #f0f0f0;
-  --input-bg: #ffffff;
-  --button-bg: #444444;
-  --button-text: #ffffff;
-  --accent: #2a9d8f;
-  --hover-bg: rgba(0, 0, 0, 0.05);
-  --border-color: #cccccc;
+  function applyTheme(isDark) {
+    document.body.classList.toggle("dark-mode", isDark);
+    themeLabel.textContent = isDark ? "🌙" : "🌞";
+    localStorage.setItem("darkMode", isDark);
+  }
+
+  toggle.addEventListener("change", () => {
+    applyTheme(toggle.checked);
+  });
+
+  // Init
+  const saved = localStorage.getItem("darkMode") === "true";
+  toggle.checked = saved;
+  applyTheme(saved);
 }
 
-/* Dark‐mode override when <body class="dark-mode"> */
-body.dark-mode {
-  --bg-color: #121212;
-  --text-color: #f1f1f1;
-  --card-bg: #1e1e1e;
-  --input-bg: #2e2e2e;
-  --button-bg: #333333;
-  --button-text: #ffffff;
-  --accent: #90caf9;
-  --hover-bg: rgba(255, 255, 255, 0.1);
-  --border-color: #555555;
-}
-
-/* Apply to elements */
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
-
-button {
-  background-color: var(--button-bg);
-  color: var(--button-text);
-}
-
-input,
-textarea {
-  background-color: var(--input-bg);
-  color: var(--text-color);
-  border-color: var(--border-color);
-}
-
-/* Example: tab buttons (they use var(--text-color)) */
-#tab-nav button {
-  color: var(--text-color);
-}
-
-/* And frames (.frame-component) */
-.frame-component {
-  background: var(--card-bg);
-  color: var(--text-color);
-}
+document.addEventListener("DOMContentLoaded", setupDarkModeToggle);
