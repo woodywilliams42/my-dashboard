@@ -10,20 +10,20 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   const frameContent = frameEl.querySelector(".frame-content");
   if (!frameContent) return;
 
-  // Bookmark icon container with white background
   const container = document.createElement("div");
   container.className = "bookmark-icon-frame";
   container.dataset.frameId = id;
   frameContent.appendChild(container);
 
-  const bookmarks = data.urls || [];
+  const bookmarks = normalizeBookmarks(data.urls || []);
+  data.urls = bookmarks;  // Ensure consistent format
   const favicons = data.favicons || {};
-  bookmarks.forEach(url => {
-    const icon = createBookmarkIcon(url, favicons[url], tab, id);
+
+  bookmarks.forEach(entry => {
+    const icon = createBookmarkIcon(entry, tab, id);
     container.appendChild(icon);
   });
 
-  // Frame header: add "+" button before menu
   const header = frameEl.querySelector(".frame-header");
   if (header && !header.querySelector(".add-bookmark-btn")) {
     const addBtn = document.createElement("button");
@@ -32,54 +32,44 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     addBtn.title = "Add bookmark";
 
     const menuBtn = header.querySelector(".frame-menu-button");
-    if (menuBtn) {
-      header.insertBefore(addBtn, menuBtn);  // Place to the left of the 3-dot menu
-    } else {
-      header.appendChild(addBtn);  // Fallback, unlikely but safe
-    }
+    if (menuBtn) header.insertBefore(addBtn, menuBtn);
+    else header.appendChild(addBtn);
 
     addBtn.addEventListener("click", () => {
       const url = prompt("Enter bookmark URL:");
       if (!url || !isValidUrl(url)) return;
 
-      const icon = createBookmarkIcon(url, null, tab, id);
-      container.appendChild(icon);
-
-      const frame = findFrame(tab, id);
-      if (!frame.data) frame.data = {};
-      if (!frame.data.urls) frame.data.urls = [];
-      frame.data.urls.push(url);
+      const entry = { url, tooltip: getShortName(url), icon: "" };
+      data.urls.push(entry);
+      const iconEl = createBookmarkIcon(entry, tab, id);
+      container.appendChild(iconEl);
       saveFrameData(tab);
     });
   }
 
-  // Right-click background adds new bookmark
   container.addEventListener("contextmenu", e => {
     if (e.target !== container) return;
     e.preventDefault();
     const url = prompt("Enter bookmark URL:");
     if (!url || !isValidUrl(url)) return;
 
-    const icon = createBookmarkIcon(url, null, tab, id);
-    container.appendChild(icon);
-
-    const frame = findFrame(tab, id);
-    if (!frame.data) frame.data = {};
-    if (!frame.data.urls) frame.data.urls = [];
-    frame.data.urls.push(url);
+    const entry = { url, tooltip: getShortName(url), icon: "" };
+    data.urls.push(entry);
+    const iconEl = createBookmarkIcon(entry, tab, id);
+    container.appendChild(iconEl);
     saveFrameData(tab);
   });
 }
 
 function createBookmarkIcon(entry, tab, id) {
-  const { url, tooltip, icon } = typeof entry === 'string' ? { url: entry } : entry;
+  const { url, tooltip = getShortName(url), icon = "" } = entry;
 
   const link = document.createElement("a");
   link.href = url;
   link.target = "_blank";
   link.rel = "noopener";
   link.className = "bookmark-icon-button";
-  link.title = tooltip || getShortName(url);
+  link.title = tooltip;
 
   const img = document.createElement("img");
   img.src = icon || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
@@ -88,10 +78,8 @@ function createBookmarkIcon(entry, tab, id) {
   img.height = ICON_SIZE;
   link.appendChild(img);
 
-  // Right-click context menu
   link.addEventListener("contextmenu", e => {
     e.preventDefault();
-
     const menu = document.createElement("div");
     menu.className = "bookmark-context-menu";
     menu.style.top = `${e.clientY}px`;
@@ -102,7 +90,6 @@ function createBookmarkIcon(entry, tab, id) {
     `;
     document.body.appendChild(menu);
 
-    // Remove on click outside
     const removeMenu = () => menu.remove();
     setTimeout(() => document.addEventListener("click", removeMenu, { once: true }), 10);
 
@@ -115,14 +102,14 @@ function createBookmarkIcon(entry, tab, id) {
         const newUrl = prompt("Edit URL:", url);
         if (!newUrl || !isValidUrl(newUrl)) return;
 
-        const newTooltip = prompt("Optional tooltip:", tooltip || getShortName(newUrl)) || "";
-        const newIcon = prompt("Custom icon filename (leave blank to use favicon):", icon || "");
+        const newTooltip = prompt("Optional tooltip:", tooltip) || getShortName(newUrl);
+        const newIcon = prompt("Custom icon filename (leave blank to use favicon):", icon) || "";
 
         link.href = newUrl;
-        link.title = newTooltip || getShortName(newUrl);
+        link.title = newTooltip;
         img.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
 
-        updateBookmark(tab, id, url, newUrl, newTooltip, newIcon);
+        updateBookmark(tab, id, url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
       }
       menu.remove();
     });
@@ -131,14 +118,15 @@ function createBookmarkIcon(entry, tab, id) {
   return link;
 }
 
-
-function getShortName(url) {
-  try {
-    const { hostname } = new URL(url);
-    return hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
+function normalizeBookmarks(arr) {
+  return arr.map(b => {
+    if (typeof b === "string") return { url: b, tooltip: getShortName(b), icon: "" };
+    return {
+      url: b.url,
+      tooltip: b.tooltip || getShortName(b.url),
+      icon: b.icon || ""
+    };
+  });
 }
 
 function isValidUrl(url) {
@@ -150,6 +138,15 @@ function isValidUrl(url) {
   }
 }
 
+function getShortName(url) {
+  try {
+    const { hostname } = new URL(url);
+    return hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+}
+
 function findFrame(tab, id) {
   return framesData?.[tab]?.find(f => f.id === id);
 }
@@ -158,26 +155,18 @@ function saveFrameData(tab) {
   const docRef = doc(db, "tabFrames", tab);
   setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
 }
+
 function removeBookmark(tab, id, url) {
   const frame = findFrame(tab, id);
-  frame.data.urls = frame.data.urls.filter(b => (typeof b === 'string' ? b !== url : b.url !== url));
+  frame.data.urls = normalizeBookmarks(frame.data.urls).filter(b => b.url !== url);
   saveFrameData(tab);
 }
 
-function updateFavicon(tab, id, url, iconUrl) {
+function updateBookmark(tab, id, oldUrl, newEntry) {
   const frame = findFrame(tab, id);
-  if (!frame.data.favicons) frame.data.favicons = {};
-  frame.data.favicons[url] = iconUrl;
-  saveFrameData(tab);
-}
-
-function updateBookmark(tab, id, oldUrl, newUrl, tooltip, icon) {
-  const frame = findFrame(tab, id);
-  const bm = frame.data.urls.find(b => (typeof b === 'string' ? b === oldUrl : b.url === oldUrl));
-  if (bm) {
-    bm.url = newUrl;
-    bm.tooltip = tooltip;
-    bm.icon = icon;
-  }
+  frame.data.urls = normalizeBookmarks(frame.data.urls).map(b => {
+    if (b.url === oldUrl) return newEntry;
+    return b;
+  });
   saveFrameData(tab);
 }
