@@ -42,8 +42,9 @@ button {
 
 /* Ensure tab button text always visible (inherit dark mode text, override light mode issue) */
 #tab-nav button {
-  color: inherit;
+  color: var(--button-text); /* Ensures readable text on buttons in both modes */
 }
+
 
 /* Improve tab button hover & active visibility */
 #tab-nav button:hover {
