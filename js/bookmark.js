@@ -1,4 +1,3 @@
-// bookmark.js
 import { db } from './firebase.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { framesData } from './frames.js';
@@ -9,11 +8,33 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   console.log(`Setting up bookmark frame for tab=${tab} id=${id}`, data);
 
   const frameContent = frameEl.querySelector(".frame-content");
-  if (!frameContent) {
-    console.warn(`Frame content area not found for frame ${id}`);
-    return;
+  if (!frameContent) return;
+
+  // Frame header: add "+" button before menu
+  const header = frameEl.querySelector(".frame-header");
+  if (header && !header.querySelector(".add-bookmark-btn")) {
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "➕";
+    addBtn.className = "add-bookmark-btn";
+    addBtn.title = "Add bookmark";
+    header.insertBefore(addBtn, header.querySelector(".frame-menu-button"));
+
+    addBtn.addEventListener("click", () => {
+      const url = prompt("Enter bookmark URL:");
+      if (!url || !isValidUrl(url)) return;
+
+      const icon = createBookmarkIcon(url, null, tab, id);
+      container.appendChild(icon);
+
+      const frame = findFrame(tab, id);
+      if (!frame.data) frame.data = {};
+      if (!frame.data.urls) frame.data.urls = [];
+      frame.data.urls.push(url);
+      saveFrameData(tab);
+    });
   }
 
+  // Bookmark icon container with white background
   const container = document.createElement("div");
   container.className = "bookmark-icon-frame";
   container.dataset.frameId = id;
@@ -21,18 +42,15 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
 
   const bookmarks = data.urls || [];
   const favicons = data.favicons || {};
-  console.log(`Bookmarks found:`, bookmarks);
-
   bookmarks.forEach(url => {
     const icon = createBookmarkIcon(url, favicons[url], tab, id);
     container.appendChild(icon);
   });
 
+  // Right-click background adds new bookmark
   container.addEventListener("contextmenu", e => {
     if (e.target !== container) return;
     e.preventDefault();
-    console.log("Background right-click detected");
-
     const url = prompt("Enter bookmark URL:");
     if (!url || !isValidUrl(url)) return;
 
@@ -43,10 +61,9 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     if (!frame.data) frame.data = {};
     if (!frame.data.urls) frame.data.urls = [];
     frame.data.urls.push(url);
-   saveFrameData(tab);
+    saveFrameData(tab);
   });
 }
-
 
 function createBookmarkIcon(url, customIcon, tab, id) {
   const link = document.createElement("a");
@@ -63,11 +80,9 @@ function createBookmarkIcon(url, customIcon, tab, id) {
   img.height = ICON_SIZE;
   link.appendChild(img);
 
-  // Right-click icon menu
   link.addEventListener("contextmenu", e => {
     e.preventDefault();
     const choice = prompt("Edit (e), Delete (d), Change Icon (c):");
-
     if (choice === "d") {
       link.remove();
       removeBookmark(tab, id, url);
