@@ -48,7 +48,7 @@ input:checked + .slider::before {
 /* Consistent font for dashboard title, frame headers, and clock city names */
 .dashboard-title,
 .frame-header,
-.clock-label {
+.city-name {
   font-family: system-ui, sans-serif;
   font-weight: 600;
 }
