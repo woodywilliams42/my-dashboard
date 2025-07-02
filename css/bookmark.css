@@ -50,3 +50,21 @@
 .add-bookmark-btn:hover {
   color: var(--accent-color);
 }
+.bookmark-context-menu {
+  position: fixed;
+  background: white;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  z-index: 9999;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.bookmark-context-menu .menu-option {
+  padding: 6px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.bookmark-context-menu .menu-option:hover {
+  background-color: #eee;
+}
