@@ -8,11 +8,12 @@
   align-items: flex-start;
   padding: 6px;
   justify-content: flex-start;
-  background: #fff; /* Always white, independent of dark/light mode */
-  border: 1px solid var(--border-color);
-  overflow: auto;
+  background: #fff;
+  border: 1px solid var(--border-color); /* Full uniform border */
   border-radius: 6px;
+  overflow: auto;
 }
+
 
 /* Individual icon buttons */
 .bookmark-icon-button {
