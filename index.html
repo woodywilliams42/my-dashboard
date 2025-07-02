@@ -27,35 +27,35 @@
     <div class="top-row">
       <nav id="tab-nav"></nav>
 
-      <div class="top-right-clocks">
-        <div class="dark-toggle">
-          <label class="switch">
-            <input type="checkbox" id="darkModeToggle" />
-            <span class="slider"></span>
-          </label>
-          <span id="theme-label">🌞</span>
-        </div>
-
-        <div id="world-clocks-wrapper" class="hero-clocks">
-          <div id="world-clocks" class="clock-grid"></div>
-        </div>
+      <div id="world-clocks-wrapper" class="hero-clocks">
+        <div id="world-clocks" class="clock-grid"></div>
       </div>
     </div>
     <div class="dashboard-title">Woody</div>
   </div>
 
-  <!-- Frame Controls -->
-  <div class="frame-controls">
-    <select id="frameType">
-      <option value="note">Note</option>
-      <option value="quick">Quick Comment</option>
-      <option value="bookmark">Bookmark</option>
-      <option value="timer">Timer</option>
-    </select>
-    <button id="addFrameBtn">➕ Add Frame</button>
+  <!-- Frame Controls and Dark Mode Toggle Row -->
+  <div class="frame-controls-wrapper">
+    <div class="frame-controls">
+      <select id="frameType">
+        <option value="note">Note</option>
+        <option value="quick">Quick Comment</option>
+        <option value="bookmark">Bookmark</option>
+        <option value="timer">Timer</option>
+      </select>
+      <button id="addFrameBtn">➕ Add Frame</button>
+    </div>
+
+    <div class="dark-toggle-main">
+      <label class="switch">
+        <input type="checkbox" id="darkModeToggle" />
+        <span class="slider"></span>
+      </label>
+      <span id="theme-label">🌞</span>
+    </div>
   </div>
 
-  <!-- Dynamic Tab Content  -->
+  <!-- Dynamic Tab Content -->
   <div id="tabs-container"></div>
 
   <!-- Bookmark Context Menu -->
