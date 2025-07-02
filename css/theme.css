@@ -8,6 +8,7 @@
   --button-bg: #444444;
   --button-text: #ffffff;
   --accent: #2a9d8f;
+  --accent-color: #2a9d8f; /* NEW: Ensures slider & buttons use consistent accent */
   --hover-bg: rgba(0, 0, 0, 0.05);
   --border-color: #cccccc;
 }
@@ -21,6 +22,7 @@ body.dark-mode {
   --button-bg: #333333;
   --button-text: #ffffff;
   --accent: #2a9d8f;
+  --accent-color: #2a9d8f; /* Keep teal accent consistent across modes */
   --hover-bg: rgba(255, 255, 255, 0.1);
   --border-color: #555555;
 }
@@ -54,7 +56,6 @@ button {
   color: #fff;
   font-weight: bold;
 }
-
 
 /* Inputs & textareas: Notes boxes stay light, text always dark */
 input,
