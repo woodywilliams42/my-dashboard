@@ -43,19 +43,19 @@ button {
 /* === Tab Button Styling for Readability Across Modes === */
 #tab-nav button {
   background-color: var(--button-bg);
-  color: #fff; /* Force consistent white text */
+  color: #fff !important; /* Force consistent white text */
 }
 
 /* Hover State for Tabs */
 #tab-nav button:hover {
   background-color: var(--hover-bg);
-  color: #fff;
+  color: #fff !important;
 }
 
 /* Active Tab Styling */
 #tab-nav button.active {
   background-color: var(--accent);
-  color: #fff;
+  color: #fff !important;
   font-weight: bold;
 }
 
