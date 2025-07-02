@@ -158,10 +158,9 @@ function saveFrameData(tab) {
   const docRef = doc(db, "tabFrames", tab);
   setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
 }
-
 function removeBookmark(tab, id, url) {
   const frame = findFrame(tab, id);
-  frame.data.urls = frame.data.urls.filter(u => u !== url);
+  frame.data.urls = frame.data.urls.filter(b => (typeof b === 'string' ? b !== url : b.url !== url));
   saveFrameData(tab);
 }
 
@@ -172,12 +171,13 @@ function updateFavicon(tab, id, url, iconUrl) {
   saveFrameData(tab);
 }
 
-function updateBookmark(tab, id, oldUrl, newUrl) {
+function updateBookmark(tab, id, oldUrl, newUrl, tooltip, icon) {
   const frame = findFrame(tab, id);
-  frame.data.urls = frame.data.urls.map(u => u === oldUrl ? newUrl : u);
-  if (frame.data.favicons?.[oldUrl]) {
-    frame.data.favicons[newUrl] = frame.data.favicons[oldUrl];
-    delete frame.data.favicons[oldUrl];
+  const bm = frame.data.urls.find(b => (typeof b === 'string' ? b === oldUrl : b.url === oldUrl));
+  if (bm) {
+    bm.url = newUrl;
+    bm.tooltip = tooltip;
+    bm.icon = icon;
   }
   saveFrameData(tab);
 }
