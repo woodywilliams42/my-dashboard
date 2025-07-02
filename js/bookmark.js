@@ -13,26 +13,28 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   // Frame header: add "+" button before menu
   const header = frameEl.querySelector(".frame-header");
   if (header && !header.querySelector(".add-bookmark-btn")) {
-    const addBtn = document.createElement("button");
-    addBtn.textContent = "➕";
-    addBtn.className = "add-bookmark-btn";
-    addBtn.title = "Add bookmark";
-    header.insertBefore(addBtn, header.querySelector(".frame-menu-button"));
+  const addBtn = document.createElement("button");
+  addBtn.textContent = "➕";
+  addBtn.className = "add-bookmark-btn";
+  addBtn.title = "Add bookmark";
 
-    addBtn.addEventListener("click", () => {
-      const url = prompt("Enter bookmark URL:");
-      if (!url || !isValidUrl(url)) return;
+  const menuBtn = header.querySelector(".frame-menu-button");
+  header.insertBefore(addBtn, menuBtn); // Ensures right alignment beside menu
 
-      const icon = createBookmarkIcon(url, null, tab, id);
-      container.appendChild(icon);
+  addBtn.addEventListener("click", () => {
+    const url = prompt("Enter bookmark URL:");
+    if (!url || !isValidUrl(url)) return;
 
-      const frame = findFrame(tab, id);
-      if (!frame.data) frame.data = {};
-      if (!frame.data.urls) frame.data.urls = [];
-      frame.data.urls.push(url);
-      saveFrameData(tab);
-    });
-  }
+    const icon = createBookmarkIcon(url, null, tab, id);
+    container.appendChild(icon);
+
+    const frame = findFrame(tab, id);
+    if (!frame.data) frame.data = {};
+    if (!frame.data.urls) frame.data.urls = [];
+    frame.data.urls.push(url);
+    saveFrameData(tab);
+  });
+}
 
   // Bookmark icon container with white background
   const container = document.createElement("div");
