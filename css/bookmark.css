@@ -9,11 +9,11 @@
   padding: 6px;
   justify-content: flex-start;
   background: #fff;
-  border: 1px solid var(--border-color); /* Full uniform border */
-  border-radius: 6px;
+  border: 1px solid var(--border-color); /* Ensures border all sides */
   overflow: auto;
+  border-radius: 6px;
+  box-sizing: border-box;
 }
-
 
 /* Individual icon buttons */
 .bookmark-icon-button {
