@@ -71,46 +71,66 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   });
 }
 
-function createBookmarkIcon(url, customIcon, tab, id) {
+function createBookmarkIcon(entry, tab, id) {
+  const { url, tooltip, icon } = typeof entry === 'string' ? { url: entry } : entry;
+
   const link = document.createElement("a");
   link.href = url;
   link.target = "_blank";
   link.rel = "noopener";
   link.className = "bookmark-icon-button";
-  link.title = getShortName(url);
+  link.title = tooltip || getShortName(url);
 
   const img = document.createElement("img");
-  img.src = customIcon || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
+  img.src = icon || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
   img.alt = "Bookmark icon";
   img.width = ICON_SIZE;
   img.height = ICON_SIZE;
   link.appendChild(img);
 
+  // Right-click context menu
   link.addEventListener("contextmenu", e => {
     e.preventDefault();
-    const choice = prompt("Edit (e), Delete (d), Change Icon (c):");
-    if (choice === "d") {
-      link.remove();
-      removeBookmark(tab, id, url);
-    } else if (choice === "c") {
-      const newIconUrl = prompt("New icon URL:");
-      if (newIconUrl) {
-        img.src = newIconUrl;
-        updateFavicon(tab, id, url, newIconUrl);
-      }
-    } else if (choice === "e") {
-      const newUrl = prompt("Edit URL:", url);
-      if (newUrl && isValidUrl(newUrl)) {
+
+    const menu = document.createElement("div");
+    menu.className = "bookmark-context-menu";
+    menu.style.top = `${e.clientY}px`;
+    menu.style.left = `${e.clientX}px`;
+    menu.innerHTML = `
+      <div class="menu-option" data-action="edit">✏️ Edit Bookmark</div>
+      <div class="menu-option" data-action="delete">🗑️ Delete Bookmark</div>
+    `;
+    document.body.appendChild(menu);
+
+    // Remove on click outside
+    const removeMenu = () => menu.remove();
+    setTimeout(() => document.addEventListener("click", removeMenu, { once: true }), 10);
+
+    menu.addEventListener("click", ev => {
+      const action = ev.target.dataset.action;
+      if (action === "delete") {
+        link.remove();
+        removeBookmark(tab, id, url);
+      } else if (action === "edit") {
+        const newUrl = prompt("Edit URL:", url);
+        if (!newUrl || !isValidUrl(newUrl)) return;
+
+        const newTooltip = prompt("Optional tooltip:", tooltip || getShortName(newUrl)) || "";
+        const newIcon = prompt("Custom icon filename (leave blank to use favicon):", icon || "");
+
         link.href = newUrl;
-        link.title = getShortName(newUrl);
-        img.src = `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
-        updateBookmark(tab, id, url, newUrl);
+        link.title = newTooltip || getShortName(newUrl);
+        img.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
+
+        updateBookmark(tab, id, url, newUrl, newTooltip, newIcon);
       }
-    }
+      menu.remove();
+    });
   });
 
   return link;
 }
+
 
 function getShortName(url) {
   try {
