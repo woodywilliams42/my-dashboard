@@ -45,6 +45,15 @@ input:checked + .slider::before {
 .slider:hover {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
+/* Consistent font for dashboard title, frame headers, and clock city names */
+.dashboard-title,
+.frame-header,
+.clock-label {
+  font-family: system-ui, sans-serif;
+  font-weight: 600;
+}
+
+
 .frame-controls-wrapper {
   display: flex;
   justify-content: space-between;
