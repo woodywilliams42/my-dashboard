@@ -45,3 +45,18 @@ input:checked + .slider::before {
 .slider:hover {
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
 }
+.frame-controls-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f1f1f1;
+  border-bottom: 1px solid #ddd;
+}
+
+.dark-toggle-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
