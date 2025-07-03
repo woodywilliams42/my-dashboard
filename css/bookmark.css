@@ -69,7 +69,7 @@
 .bookmark-context-menu .menu-option:hover {
   background-color: #eee;
 }
-.bookmark-frame-container {
+/* .bookmark-frame-container {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -122,4 +122,4 @@
   border: 2px solid #38f;
   box-shadow: 0 2px 10px #99cfff99;
   z-index: 2;
-}
+}  */
