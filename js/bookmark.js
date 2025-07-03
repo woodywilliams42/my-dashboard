@@ -1,3 +1,5 @@
+// bookmark.js - Modular Edit Dialog Integrated
+
 import { db } from './firebase.js'; 
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { framesData } from './frames.js';
@@ -16,7 +18,7 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   frameContent.appendChild(container);
 
   const bookmarks = normalizeBookmarks(data.urls || []);
-  data.urls = bookmarks;  // Ensure consistent format
+  data.urls = bookmarks;
   const favicons = data.favicons || {};
 
   bookmarks.forEach(entry => {
@@ -38,7 +40,6 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     addBtn.addEventListener("click", () => {
       const url = prompt("Enter bookmark URL:");
       if (!url || !isValidUrl(url)) return;
-
       const entry = { url, tooltip: getShortName(url), icon: "" };
       data.urls.push(entry);
       const iconEl = createBookmarkIcon(entry, tab, id);
@@ -52,13 +53,14 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     e.preventDefault();
     const url = prompt("Enter bookmark URL:");
     if (!url || !isValidUrl(url)) return;
-
     const entry = { url, tooltip: getShortName(url), icon: "" };
     data.urls.push(entry);
     const iconEl = createBookmarkIcon(entry, tab, id);
     container.appendChild(iconEl);
     saveFrameData(tab);
   });
+
+  setupEditDialog();
 }
 
 function createBookmarkIcon(entry, tab, id) {
@@ -80,6 +82,7 @@ function createBookmarkIcon(entry, tab, id) {
 
   link.addEventListener("contextmenu", e => {
     e.preventDefault();
+
     const menu = document.createElement("div");
     menu.className = "bookmark-context-menu";
     menu.style.top = `${e.clientY}px`;
@@ -99,23 +102,72 @@ function createBookmarkIcon(entry, tab, id) {
         link.remove();
         removeBookmark(tab, id, url);
       } else if (action === "edit") {
-        const newUrl = prompt("Edit URL:", url);
-        if (!newUrl || !isValidUrl(newUrl)) return;
-
-        const newTooltip = prompt("Optional tooltip:", tooltip) || getShortName(newUrl);
-        const newIcon = prompt("Custom icon filename (leave blank to use favicon):", icon) || "";
-
-        link.href = newUrl;
-        link.title = newTooltip;
-        img.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
-
-        updateBookmark(tab, id, url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
+        openEditDialog(link, img, { url, tooltip, icon }, tab, id);
       }
       menu.remove();
     });
   });
 
   return link;
+}
+
+function setupEditDialog() {
+  if (document.getElementById("bookmarkEditDialog")) return;
+
+  const dialog = document.createElement("div");
+  dialog.id = "bookmarkEditDialog";
+  dialog.className = "bookmark-edit-dialog hidden";
+  dialog.innerHTML = `
+    <label>URL: <input type="text" id="editBookmarkUrl"></label>
+    <label>Tooltip: <input type="text" id="editBookmarkTooltip"></label>
+    <label>Icon: <input type="text" id="editBookmarkIcon"></label>
+  `;
+  document.body.appendChild(dialog);
+}
+
+function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
+  const dialog = document.getElementById("bookmarkEditDialog");
+  const urlInput = document.getElementById("editBookmarkUrl");
+  const tooltipInput = document.getElementById("editBookmarkTooltip");
+  const iconInput = document.getElementById("editBookmarkIcon");
+
+  urlInput.value = bookmark.url;
+  tooltipInput.value = bookmark.tooltip;
+  iconInput.value = bookmark.icon;
+
+  const rect = linkEl.getBoundingClientRect();
+  dialog.style.top = `${rect.bottom + window.scrollY}px`;
+  dialog.style.left = `${rect.left + window.scrollX}px`;
+  dialog.classList.remove("hidden");
+
+  let updated = false;
+  function applyChanges() {
+    if (updated) return;
+    updated = true;
+
+    const newUrl = urlInput.value.trim();
+    const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
+    const newIcon = iconInput.value.trim();
+
+    if (newUrl && isValidUrl(newUrl)) {
+      linkEl.href = newUrl;
+      linkEl.title = newTooltip;
+      imgEl.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
+      updateBookmark(tab, id, bookmark.url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
+    }
+    dialog.classList.add("hidden");
+  }
+
+  urlInput.onblur = tooltipInput.onblur = iconInput.onblur = () => setTimeout(() => {
+    if (!dialog.contains(document.activeElement)) applyChanges();
+  }, 50);
+
+  document.addEventListener("click", function outsideClick(e) {
+    if (!dialog.contains(e.target)) {
+      applyChanges();
+      document.removeEventListener("click", outsideClick);
+    }
+  }, { once: true });
 }
 
 function normalizeBookmarks(arr) {
@@ -130,21 +182,11 @@ function normalizeBookmarks(arr) {
 }
 
 function isValidUrl(url) {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+  try { new URL(url); return true; } catch { return false; }
 }
 
 function getShortName(url) {
-  try {
-    const { hostname } = new URL(url);
-    return hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
 }
 
 function findFrame(tab, id) {
@@ -166,7 +208,6 @@ function updateBookmark(tab, id, oldUrl, newEntry) {
   const frame = findFrame(tab, id);
   if (!frame?.data?.urls) return;
 
-  // Normalize data, replace full object for matching url
   frame.data.urls = normalizeBookmarks(frame.data.urls).map(b => {
     if (b.url === oldUrl) {
       return {
