@@ -97,7 +97,7 @@ body.dark-mode {
   border-top: 1px solid var(--border-color);
 }
 .frame-context-menu li:hover {
-  background-color: #eee;
+  background-color: #4a4949;
 }
 
 /* Delete‑button (if you still use it) */
