@@ -58,6 +58,7 @@
   z-index: 9999;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   font-family: system-ui, sans-serif;
+  color: black;
 }
 
 .bookmark-context-menu .menu-option {
