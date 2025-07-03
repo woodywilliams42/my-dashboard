@@ -164,9 +164,20 @@ function removeBookmark(tab, id, url) {
 
 function updateBookmark(tab, id, oldUrl, newEntry) {
   const frame = findFrame(tab, id);
+  if (!frame?.data?.urls) return;
+
+  // Normalize data, replace full object for matching url
   frame.data.urls = normalizeBookmarks(frame.data.urls).map(b => {
-    if (b.url === oldUrl) return newEntry;
+    if (b.url === oldUrl) {
+      return {
+        url: newEntry.url,
+        tooltip: newEntry.tooltip || getShortName(newEntry.url),
+        icon: newEntry.icon || ""
+      };
+    }
     return b;
   });
+
   saveFrameData(tab);
 }
+
