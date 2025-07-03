@@ -81,6 +81,7 @@ body.dark-mode {
   padding: 0;
   width: max-content;
   max-width: 200px;
+  font-family: system-ui, sans-serif; 
 }
 .frame-context-menu ul {
   list-style: none;
