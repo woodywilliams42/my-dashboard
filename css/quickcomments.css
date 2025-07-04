@@ -12,13 +12,13 @@
 
 /* Uniform buttons styled like inactive tabs */
 .quick-comment-btn {
-  background: #d0d0d0; /* Matches inactive tab button background */
+  background: #d0d0d0; 
   border: 1px solid #ccc;
   padding: 5px 12px;
   cursor: pointer;
   border-radius: 5px;
-  color: black; /* Button text now black */
-  min-width: 110px; /* Enough for "Closed Ticket" with padding */
+  color: black; 
+  min-width: 110px;
   text-align: center;
   font-family: system-ui, sans-serif;
 }
@@ -96,4 +96,40 @@
   border-radius: 4px;
   padding: 4px;
   font-family: system-ui, sans-serif;
+}
+
+/* Save & Cancel buttons styled consistently */
+.quick-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.quick-dialog-actions button {
+  background: #d0d0d0;
+  color: black;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-family: system-ui, sans-serif;
+}
+
+.quick-dialog-actions button:hover {
+  background: #c0c0c0;
+}
+
+/* Plus button - transparent, consistent with light mode */
+.add-quick-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 18px;
+}
+
+.add-quick-btn:hover {
+  background: #e0e0e0;
 }
