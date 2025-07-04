@@ -3,7 +3,7 @@ import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase
 import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
-const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/"; // Update with your actual path
+const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/";
 
 function normalizeBookmarks(arr) {
   return arr.map(b => {
@@ -67,6 +67,23 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     const iconEl = createBookmarkIcon(entry, tab, id);
     container.appendChild(iconEl);
     saveFrameData(tab);
+  });
+
+  // Sortable.js integration
+  new Sortable(container, {
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    onEnd: () => {
+      const newOrder = Array.from(container.children).map(a => ({
+        url: a.href,
+        tooltip: a.title,
+        icon: a.querySelector('img')?.src.includes(CUSTOM_ICON_BASE_URL)
+          ? a.querySelector('img').src.replace(CUSTOM_ICON_BASE_URL, "")
+          : ""
+      }));
+      data.urls = normalizeBookmarks(newOrder);
+      saveFrameData(tab);
+    }
   });
 }
 
