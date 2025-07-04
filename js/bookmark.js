@@ -108,7 +108,6 @@ function createBookmarkIcon(entry, tab, id) {
 }
 
 function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
-  // Remove existing dialog if present
   document.querySelector(".bookmark-edit-dialog")?.remove();
 
   const dialog = document.createElement("div");
@@ -133,16 +132,23 @@ function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
     const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
     const newIcon = iconInput.value.trim();
 
-    if (newUrl && isValidUrl(newUrl)) {
+    const hasChanges = newUrl !== bookmark.url || newTooltip !== bookmark.tooltip || newIcon !== bookmark.icon;
+
+    if (newUrl && isValidUrl(newUrl) && hasChanges) {
+      bookmark.url = newUrl;
+      bookmark.tooltip = newTooltip;
+      bookmark.icon = newIcon;
+
       linkEl.href = newUrl;
       linkEl.title = newTooltip;
       imgEl.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
+
       updateBookmark(tab, id, bookmark.url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
     }
   };
 
   [urlInput, tooltipInput, iconInput].forEach(input => {
-    input.addEventListener("blur", () => applyChanges());
+    input.addEventListener("blur", applyChanges);
   });
 
   const outsideClickHandler = (e) => {
