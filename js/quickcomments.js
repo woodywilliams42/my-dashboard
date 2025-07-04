@@ -8,7 +8,6 @@ export function setupQuickCommentsFrame(frameEl, data, tab, id) {
 
   let container = frameContent.querySelector(".quick-comments-container");
 
-  // Clear container if already exists, else create
   if (container) {
     container.innerHTML = '';
   } else {
@@ -46,7 +45,6 @@ export function setupQuickCommentsFrame(frameEl, data, tab, id) {
     openQuickDialog(container, tab, id);
   });
 
-  // Prevent re-initializing Sortable
   if (window.Sortable && !container.classList.contains("sortable-init")) {
     Sortable.create(container, {
       animation: 150,
@@ -107,6 +105,10 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
   dialog.innerHTML = `
     <label>Caption: <input type="text" class="quick-caption" value="${existing?.caption || ""}"></label>
     <label>Text to Copy: <input type="text" class="quick-text" value="${existing?.text || ""}"></label>
+    <div class="quick-dialog-actions">
+      <button class="quick-save-btn">✅ Save</button>
+      <button class="quick-cancel-btn">❌ Cancel</button>
+    </div>
   `;
   document.body.appendChild(dialog);
 
@@ -116,8 +118,10 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
 
   const captionInput = dialog.querySelector(".quick-caption");
   const textInput = dialog.querySelector(".quick-text");
+  const saveBtn = dialog.querySelector(".quick-save-btn");
+  const cancelBtn = dialog.querySelector(".quick-cancel-btn");
 
-  const applyChanges = () => {
+  saveBtn.addEventListener("click", () => {
     const caption = captionInput.value.trim();
     const text = textInput.value.trim();
     if (!caption || !text) return;
@@ -139,21 +143,12 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
       container.appendChild(newBtn);
     }
     saveFrameData(tab);
-  };
-
-  [captionInput, textInput].forEach(input => {
-    input.addEventListener("blur", applyChanges);
+    dialog.remove();
   });
 
-  const outsideClickHandler = (e) => {
-    if (!dialog.contains(e.target)) {
-      applyChanges();
-      dialog.remove();
-      document.removeEventListener("click", outsideClickHandler);
-    }
-  };
-
-  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
+  cancelBtn.addEventListener("click", () => {
+    dialog.remove();
+  });
 }
 
 function saveFrameData(tab) {
