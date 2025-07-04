@@ -1,3 +1,5 @@
+// bookmark.js - Modular Edit Dialog Integrated
+
 import { db } from './firebase.js'; 
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { framesData } from './frames.js';
@@ -57,6 +59,8 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     container.appendChild(iconEl);
     saveFrameData(tab);
   });
+
+  setupEditDialog();
 }
 
 function createBookmarkIcon(entry, tab, id) {
@@ -107,59 +111,63 @@ function createBookmarkIcon(entry, tab, id) {
   return link;
 }
 
-function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
-  document.querySelector(".bookmark-edit-dialog")?.remove();
+function setupEditDialog() {
+  if (document.getElementById("bookmarkEditDialog")) return;
 
   const dialog = document.createElement("div");
-  dialog.className = "bookmark-edit-dialog";
+  dialog.id = "bookmarkEditDialog";
+  dialog.className = "bookmark-edit-dialog hidden";
   dialog.innerHTML = `
-    <label>URL: <input type="text" class="edit-bookmark-url" value="${bookmark.url}"></label>
-    <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
-    <label>Icon: <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
+    <label>URL: <input type="text" id="editBookmarkUrl"></label>
+    <label>Tooltip: <input type="text" id="editBookmarkTooltip"></label>
+    <label>Icon: <input type="text" id="editBookmarkIcon"></label>
   `;
   document.body.appendChild(dialog);
+}
+
+function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
+  const dialog = document.getElementById("bookmarkEditDialog");
+  const urlInput = document.getElementById("editBookmarkUrl");
+  const tooltipInput = document.getElementById("editBookmarkTooltip");
+  const iconInput = document.getElementById("editBookmarkIcon");
+
+  urlInput.value = bookmark.url;
+  tooltipInput.value = bookmark.tooltip;
+  iconInput.value = bookmark.icon;
 
   const rect = linkEl.getBoundingClientRect();
   dialog.style.top = `${rect.bottom + window.scrollY}px`;
   dialog.style.left = `${rect.left + window.scrollX}px`;
+  dialog.classList.remove("hidden");
 
-  const urlInput = dialog.querySelector(".edit-bookmark-url");
-  const tooltipInput = dialog.querySelector(".edit-bookmark-tooltip");
-  const iconInput = dialog.querySelector(".edit-bookmark-icon");
+  let updated = false;
+  function applyChanges() {
+    if (updated) return;
+    updated = true;
 
-  const applyChanges = () => {
     const newUrl = urlInput.value.trim();
     const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
     const newIcon = iconInput.value.trim();
 
-    const hasChanges = newUrl !== bookmark.url || newTooltip !== bookmark.tooltip || newIcon !== bookmark.icon;
-
-    if (newUrl && isValidUrl(newUrl) && hasChanges) {
-      bookmark.url = newUrl;
-      bookmark.tooltip = newTooltip;
-      bookmark.icon = newIcon;
-
+    if (newUrl && isValidUrl(newUrl)) {
       linkEl.href = newUrl;
       linkEl.title = newTooltip;
       imgEl.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
-
       updateBookmark(tab, id, bookmark.url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
     }
-  };
+    dialog.classList.add("hidden");
+  }
 
-  [urlInput, tooltipInput, iconInput].forEach(input => {
-    input.addEventListener("blur", applyChanges);
-  });
+  urlInput.onblur = tooltipInput.onblur = iconInput.onblur = () => setTimeout(() => {
+    if (!dialog.contains(document.activeElement)) applyChanges();
+  }, 50);
 
-  const outsideClickHandler = (e) => {
+  document.addEventListener("click", function outsideClick(e) {
     if (!dialog.contains(e.target)) {
       applyChanges();
-      dialog.remove();
-      document.removeEventListener("click", outsideClickHandler);
+      document.removeEventListener("click", outsideClick);
     }
-  };
-
-  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
+  }, { once: true });
 }
 
 function normalizeBookmarks(arr) {
