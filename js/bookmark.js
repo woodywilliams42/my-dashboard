@@ -143,3 +143,4 @@ function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
   const originalUrl = bookmark.url;
 
   const dialog = doc
+}
