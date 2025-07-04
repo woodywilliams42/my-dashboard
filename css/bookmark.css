@@ -109,3 +109,7 @@
   border-color: var(--accent-color, #38f);
   box-shadow: 0 0 4px var(--accent-color, #38f44);
 }
+
+.bookmark-icon-button.dragging {
+  opacity: 0.5;
+}
