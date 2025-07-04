@@ -1,5 +1,3 @@
-// bookmark.js - Modular Edit Dialog Integrated
-
 import { db } from './firebase.js'; 
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { framesData } from './frames.js';
@@ -59,8 +57,6 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     container.appendChild(iconEl);
     saveFrameData(tab);
   });
-
-  setupEditDialog();
 }
 
 function createBookmarkIcon(entry, tab, id) {
@@ -111,40 +107,28 @@ function createBookmarkIcon(entry, tab, id) {
   return link;
 }
 
-function setupEditDialog() {
-  if (document.getElementById("bookmarkEditDialog")) return;
+function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
+  // Remove existing dialog if present
+  document.querySelector(".bookmark-edit-dialog")?.remove();
 
   const dialog = document.createElement("div");
-  dialog.id = "bookmarkEditDialog";
-  dialog.className = "bookmark-edit-dialog hidden";
+  dialog.className = "bookmark-edit-dialog";
   dialog.innerHTML = `
-    <label>URL: <input type="text" id="editBookmarkUrl"></label>
-    <label>Tooltip: <input type="text" id="editBookmarkTooltip"></label>
-    <label>Icon: <input type="text" id="editBookmarkIcon"></label>
+    <label>URL: <input type="text" class="edit-bookmark-url" value="${bookmark.url}"></label>
+    <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
+    <label>Icon: <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
   `;
   document.body.appendChild(dialog);
-}
-
-function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
-  const dialog = document.getElementById("bookmarkEditDialog");
-  const urlInput = document.getElementById("editBookmarkUrl");
-  const tooltipInput = document.getElementById("editBookmarkTooltip");
-  const iconInput = document.getElementById("editBookmarkIcon");
-
-  urlInput.value = bookmark.url;
-  tooltipInput.value = bookmark.tooltip;
-  iconInput.value = bookmark.icon;
 
   const rect = linkEl.getBoundingClientRect();
   dialog.style.top = `${rect.bottom + window.scrollY}px`;
   dialog.style.left = `${rect.left + window.scrollX}px`;
-  dialog.classList.remove("hidden");
 
-  let updated = false;
-  function applyChanges() {
-    if (updated) return;
-    updated = true;
+  const urlInput = dialog.querySelector(".edit-bookmark-url");
+  const tooltipInput = dialog.querySelector(".edit-bookmark-tooltip");
+  const iconInput = dialog.querySelector(".edit-bookmark-icon");
 
+  const applyChanges = () => {
     const newUrl = urlInput.value.trim();
     const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
     const newIcon = iconInput.value.trim();
@@ -155,19 +139,21 @@ function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
       imgEl.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
       updateBookmark(tab, id, bookmark.url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
     }
-    dialog.classList.add("hidden");
-  }
+  };
 
-  urlInput.onblur = tooltipInput.onblur = iconInput.onblur = () => setTimeout(() => {
-    if (!dialog.contains(document.activeElement)) applyChanges();
-  }, 50);
+  [urlInput, tooltipInput, iconInput].forEach(input => {
+    input.addEventListener("blur", () => applyChanges());
+  });
 
-  document.addEventListener("click", function outsideClick(e) {
+  const outsideClickHandler = (e) => {
     if (!dialog.contains(e.target)) {
       applyChanges();
-      document.removeEventListener("click", outsideClick);
+      dialog.remove();
+      document.removeEventListener("click", outsideClickHandler);
     }
-  }, { once: true });
+  };
+
+  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
 }
 
 function normalizeBookmarks(arr) {
