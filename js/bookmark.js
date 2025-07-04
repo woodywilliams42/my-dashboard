@@ -3,6 +3,7 @@ import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase
 import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
+const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/favicons/";
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
   console.log(`Setting up bookmark frame for tab=${tab} id=${id}`, data);
@@ -17,7 +18,6 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
 
   const bookmarks = normalizeBookmarks(data.urls || []);
   data.urls = bookmarks;
-  const favicons = data.favicons || {};
 
   bookmarks.forEach(entry => {
     const icon = createBookmarkIcon(entry, tab, id);
@@ -70,7 +70,9 @@ function createBookmarkIcon(entry, tab, id) {
   link.title = tooltip;
 
   const img = document.createElement("img");
-  img.src = icon || `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
+  img.src = icon 
+    ? `${CUSTOM_ICON_BASE_URL}${icon}` 
+    : `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
   img.alt = "Bookmark icon";
   img.width = ICON_SIZE;
   img.height = ICON_SIZE;
@@ -115,7 +117,7 @@ function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
   dialog.innerHTML = `
     <label>URL: <input type="text" class="edit-bookmark-url" value="${bookmark.url}"></label>
     <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
-    <label>Icon: <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
+    <label>Icon filename (e.g., myicon.png): <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
   `;
   document.body.appendChild(dialog);
 
@@ -141,7 +143,9 @@ function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
 
       linkEl.href = newUrl;
       linkEl.title = newTooltip;
-      imgEl.src = newIcon ? `favicons/${newIcon}` : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
+      imgEl.src = newIcon 
+        ? `${CUSTOM_ICON_BASE_URL}${newIcon}` 
+        : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
 
       updateBookmark(tab, id, bookmark.url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
     }
