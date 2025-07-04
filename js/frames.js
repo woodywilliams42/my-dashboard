@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/
 import { setupBookmarkFrame } from './bookmark.js';
 import { setupTimerFrame } from './timer.js';
 import { setupNoteFrame } from './notes.js';
+import { setupQuickCommentsFrame } from './quickcomments.js';
 
 let currentTab = 'work';
 export let framesData = window.framesData = {}; 
@@ -128,6 +129,8 @@ if (type === "timer") {
   setupBookmarkFrame(frame, data, tab, id);
 } else if (type === "note") {
   setupNoteFrame(frame, data, tab, id);
+} else if (type === "quick") {
+  setupQuickCommentsFrame(frame, data, tab, id);  // NEW CASE
 } else {
   content.innerHTML = renderContent(type, data, id, tab);
 }
