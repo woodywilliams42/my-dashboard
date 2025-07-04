@@ -63,6 +63,13 @@
   max-width: 90vw;
 }
 
+/* Group container for label + textarea to prevent label shifting */
+.quick-dialog .textarea-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
 /* Label styling */
 .quick-dialog label {
   display: block;
@@ -78,6 +85,7 @@
   border-radius: 4px;
   padding: 4px;
   resize: none;
+  font-family: system-ui, sans-serif;
 }
 
 /* Text to Copy - textarea, resizable both ways */
@@ -85,44 +93,7 @@
   width: 100%;
   min-height: 40px;
   resize: both;
-  margin-bottom: 10px;
   border-radius: 4px;
   padding: 4px;
   font-family: system-ui, sans-serif;
-}
-
-/* Save & Cancel buttons styled consistently */
-.quick-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 5px;
-}
-
-.quick-dialog-actions button {
-  background: #d0d0d0;
-  color: black;
-  border: 1px solid #ccc;
-  padding: 4px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-family: system-ui, sans-serif;
-}
-
-.quick-dialog-actions button:hover {
-  background: #c0c0c0;
-}
-
-/* Plus button adapts to frame background */
-.add-quick-btn {
-  background: inherit;
-  border: none;
-  color: inherit;
-  padding: 2px 6px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-size: 18px;
-}
-
-.add-quick-btn:hover {
-  background: #e0e0e0;
 }
