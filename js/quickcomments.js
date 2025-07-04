@@ -114,7 +114,7 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
   dialog.className = "quick-dialog";
   dialog.innerHTML = `
     <label>Caption: <input type="text" class="quick-caption" value="${existing?.caption || ""}"></label>
-    <label>Text to Copy: <input type="text" class="quick-text" value="${existing?.text || ""}"></label>
+    <label>Text to Copy: <textarea class="quick-text">${existing?.text || ""}</textarea></label>
     <div class="quick-dialog-actions">
       <button class="quick-save-btn">✅ Save</button>
       <button class="quick-cancel-btn">❌ Cancel</button>
