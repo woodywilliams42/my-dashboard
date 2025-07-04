@@ -48,7 +48,10 @@ export function setupQuickCommentsFrame(frameEl, data, tab, id) {
   if (window.Sortable && !container.classList.contains("sortable-init")) {
     Sortable.create(container, {
       animation: 150,
-      onEnd: () => saveFrameData(tab)
+      onEnd: () => {
+        updateOrderInData(container, tab, id);
+        saveFrameData(tab);
+      }
     });
     container.classList.add("sortable-init");
   }
@@ -121,6 +124,8 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
   const saveBtn = dialog.querySelector(".quick-save-btn");
   const cancelBtn = dialog.querySelector(".quick-cancel-btn");
 
+  const closeDialog = () => dialog.remove();
+
   saveBtn.addEventListener("click", () => {
     const caption = captionInput.value.trim();
     const text = textInput.value.trim();
@@ -143,12 +148,31 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
       container.appendChild(newBtn);
     }
     saveFrameData(tab);
-    dialog.remove();
+    closeDialog();
   });
 
-  cancelBtn.addEventListener("click", () => {
-    dialog.remove();
-  });
+  cancelBtn.addEventListener("click", () => closeDialog());
+
+  const outsideClickHandler = (e) => {
+    if (!dialog.contains(e.target)) {
+      closeDialog();
+      document.removeEventListener("click", outsideClickHandler);
+    }
+  };
+
+  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
+}
+
+function updateOrderInData(container, tab, id) {
+  const frame = framesData?.[tab]?.find(f => f.id === id);
+  if (!frame?.data?.comments) return;
+
+  const buttons = Array.from(container.querySelectorAll(".quick-comment-btn"));
+  const newOrder = buttons.map(btn => {
+    return frame.data.comments.find(c => c.caption === btn.textContent && c.text === btn.title);
+  }).filter(Boolean);
+
+  frame.data.comments = newOrder;
 }
 
 function saveFrameData(tab) {
