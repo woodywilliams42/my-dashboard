@@ -1,35 +1,55 @@
-.quick-comments {
+.quick-comments-container {
+  background: white;
+  padding: 10px;
+  height: 100%;
+  overflow-y: auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
 }
 
-.quick-comment-button {
-  padding: 6px 10px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
-  color: var(--text-color);
-  border-radius: 4px;
+.quick-comment-btn {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
   cursor: pointer;
-  font-size: 0.9rem;
 }
 
-#quickCommentContextMenu {
+.quick-comment-btn:hover {
+  background: #e0e0e0;
+}
+
+.quick-context-menu {
   position: absolute;
-  display: none;
   background: white;
   border: 1px solid #ccc;
   z-index: 1000;
 }
 
-#quickCommentContextMenu ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-#quickCommentContextMenu li {
-  padding: 4px 8px;
+.quick-context-menu .menu-option {
+  padding: 5px 10px;
   cursor: pointer;
 }
 
+.quick-context-menu .menu-option:hover {
+  background: #eee;
+}
+
+.quick-dialog {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 1000;
+}
+
+.quick-dialog label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.quick-dialog input,
+.quick-dialog textarea {
+  width: 100%;
+  margin-bottom: 10px;
+}
