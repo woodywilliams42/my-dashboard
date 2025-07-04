@@ -1,4 +1,4 @@
-/* Container - now with rounded corners like notes/bookmarks */
+/* Container - rounded corners like notes/bookmarks */
 .quick-comments-container {
   background: white;
   padding: 10px;
@@ -7,25 +7,24 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  border-radius: 8px; /* Rounded edges to match notes/bookmarks */
+  border-radius: 8px;
 }
 
 /* Uniform buttons styled like inactive tabs */
 .quick-comment-btn {
-  background: #f0f0f0;
+  background: #d0d0d0; /* Matches inactive tab button background */
   border: 1px solid #ccc;
-  padding: 5px 10px;
+  padding: 5px 12px;
   cursor: pointer;
   border-radius: 5px;
-  color: black;
+  color: white;
   min-width: 110px; /* Enough for "Closed Ticket" with padding */
   text-align: center;
-  background: #d0d0d0; /* Matches inactive tab button background */
-  color: white;
+  font-family: system-ui, sans-serif;
 }
 
 .quick-comment-btn:hover {
-  background: #e0e0e0; /* Light grey hover */
+  background: #e0e0e0;
   color: white;
 }
 
@@ -35,15 +34,15 @@
   background: white;
   border: 1px solid #ccc;
   z-index: 1000;
-  font-family: inherit;
+  font-family: system-ui, sans-serif;
   color: black;
 }
 
 .quick-context-menu .menu-option {
   padding: 5px 10px;
   cursor: pointer;
-  font-family: inherit;
   color: black;
+  font-family: system-ui, sans-serif;
 }
 
 .quick-context-menu .menu-option:hover {
@@ -58,19 +57,28 @@
   padding: 10px;
   z-index: 1000;
   border-radius: 8px;
-  font-family: inherit;
+  font-family: system-ui, sans-serif;
 }
 
 .quick-dialog label {
   display: block;
   margin-bottom: 5px;
   color: black;
-  font-family: inherit;
+  font-family: system-ui, sans-serif;
 }
 
-.quick-dialog input,
-.quick-dialog textarea {
+/* Caption input - full width */
+.quick-dialog input.quick-caption {
   width: 100%;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* Text to Copy input - double width, resizable */
+.quick-dialog input.quick-text {
+  width: 200%;
+  resize: horizontal;
   margin-bottom: 10px;
   border-radius: 4px;
   padding: 4px;
@@ -90,6 +98,7 @@
   padding: 4px 8px;
   cursor: pointer;
   border-radius: 4px;
+  font-family: system-ui, sans-serif;
 }
 
 .quick-dialog-actions button:hover {
@@ -99,11 +108,12 @@
 /* Plus button adapts to frame background */
 .add-quick-btn {
   background: inherit;
-  border: 1px solid #ccc;
+  border: none;
   color: inherit;
   padding: 2px 6px;
   cursor: pointer;
   border-radius: 4px;
+  font-size: 18px;
 }
 
 .add-quick-btn:hover {
