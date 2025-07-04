@@ -1,3 +1,4 @@
+/* Container - now with rounded corners like notes/bookmarks */
 .quick-comments-container {
   background: white;
   padding: 10px;
@@ -6,50 +7,105 @@
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-} 
+  border-radius: 8px; /* Rounded edges to match notes/bookmarks */
+}
 
+/* Uniform buttons styled like inactive tabs */
 .quick-comment-btn {
   background: #f0f0f0;
   border: 1px solid #ccc;
   padding: 5px 10px;
   cursor: pointer;
+  border-radius: 5px;
+  color: black;
+  min-width: 110px; /* Enough for "Closed Ticket" with padding */
+  text-align: center;
+  background: #d0d0d0; /* Matches inactive tab button background */
+  color: white;
 }
 
 .quick-comment-btn:hover {
-  background: #e0e0e0;
+  background: #e0e0e0; /* Light grey hover */
+  color: white;
 }
 
+/* Context Menu styled like bookmarks/frames menu */
 .quick-context-menu {
   position: absolute;
   background: white;
   border: 1px solid #ccc;
   z-index: 1000;
+  font-family: inherit;
+  color: black;
 }
 
 .quick-context-menu .menu-option {
   padding: 5px 10px;
   cursor: pointer;
+  font-family: inherit;
+  color: black;
 }
 
 .quick-context-menu .menu-option:hover {
   background: #eee;
 }
 
+/* Dialog with matching label styles */
 .quick-dialog {
   position: absolute;
   background: white;
   border: 1px solid #ccc;
   padding: 10px;
   z-index: 1000;
+  border-radius: 8px;
+  font-family: inherit;
 }
 
 .quick-dialog label {
   display: block;
   margin-bottom: 5px;
+  color: black;
+  font-family: inherit;
 }
 
 .quick-dialog input,
 .quick-dialog textarea {
   width: 100%;
   margin-bottom: 10px;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* Save & Cancel buttons styled consistently */
+.quick-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.quick-dialog-actions button {
+  background: #d0d0d0;
+  color: black;
+  border: 1px solid #ccc;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.quick-dialog-actions button:hover {
+  background: #c0c0c0;
+}
+
+/* Plus button adapts to frame background */
+.add-quick-btn {
+  background: inherit;
+  border: 1px solid #ccc;
+  color: inherit;
+  padding: 2px 6px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.add-quick-btn:hover {
+  background: #e0e0e0;
 }
