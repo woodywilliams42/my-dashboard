@@ -3,7 +3,18 @@ import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase
 import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
-const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/"; 
+const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/"; // Update with your actual path
+
+function normalizeBookmarks(arr) {
+  return arr.map(b => {
+    if (typeof b === "string") return { url: b, tooltip: getShortName(b), icon: "" };
+    return {
+      url: b.url,
+      tooltip: b.tooltip || getShortName(b.url),
+      icon: b.icon || ""
+    };
+  });
+}
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
   console.log(`Setting up bookmark frame for tab=${tab} id=${id}`, data);
@@ -57,23 +68,6 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     container.appendChild(iconEl);
     saveFrameData(tab);
   });
-
-  // Dragover for reordering
-  container.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    const afterElement = getDragAfterElement(container, e.clientX);
-    const dragging = container.querySelector(".dragging");
-    if (!dragging) return;
-    if (afterElement == null) {
-      container.appendChild(dragging);
-    } else {
-      container.insertBefore(dragging, afterElement);
-    }
-  });
-
-  container.addEventListener("drop", () => {
-    updateBookmarkOrder(tab, id, container);
-  });
 }
 
 function createBookmarkIcon(entry, tab, id) {
@@ -85,7 +79,6 @@ function createBookmarkIcon(entry, tab, id) {
   link.rel = "noopener";
   link.className = "bookmark-icon-button";
   link.title = tooltip;
-  link.draggable = true;
 
   const img = document.createElement("img");
   img.src = icon ? `${CUSTOM_ICON_BASE_URL}${icon}` : `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
@@ -94,18 +87,6 @@ function createBookmarkIcon(entry, tab, id) {
   img.height = ICON_SIZE;
   link.appendChild(img);
 
-  // Drag and Drop Events
-  link.addEventListener("dragstart", (e) => {
-    e.dataTransfer.setData("text/plain", url);
-    e.dataTransfer.effectAllowed = "move";
-    link.classList.add("dragging");
-  });
-
-  link.addEventListener("dragend", () => {
-    link.classList.remove("dragging");
-  });
-
-  // Context Menu
   link.addEventListener("contextmenu", e => {
     e.preventDefault();
 
@@ -142,5 +123,97 @@ function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
 
   const originalUrl = bookmark.url;
 
-  const dialog = doc
+  const dialog = document.createElement("div");
+  dialog.className = "bookmark-edit-dialog";
+  dialog.innerHTML = `
+    <label>URL: <input type="text" class="edit-bookmark-url" value="${bookmark.url}"></label>
+    <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
+    <label>Icon filename (e.g., myicon.png): <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
+  `;
+  document.body.appendChild(dialog);
+
+  const rect = linkEl.getBoundingClientRect();
+  dialog.style.top = `${rect.bottom + window.scrollY}px`;
+  dialog.style.left = `${rect.left + window.scrollX}px`;
+
+  const urlInput = dialog.querySelector(".edit-bookmark-url");
+  const tooltipInput = dialog.querySelector(".edit-bookmark-tooltip");
+  const iconInput = dialog.querySelector(".edit-bookmark-icon");
+
+  const applyChanges = () => {
+    const newUrl = urlInput.value.trim();
+    const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
+    const newIcon = iconInput.value.trim();
+
+    const hasChanges = newUrl !== bookmark.url || newTooltip !== bookmark.tooltip || newIcon !== bookmark.icon;
+
+    if (newUrl && isValidUrl(newUrl) && hasChanges) {
+      bookmark.url = newUrl;
+      bookmark.tooltip = newTooltip;
+      bookmark.icon = newIcon;
+
+      linkEl.href = newUrl;
+      linkEl.title = newTooltip;
+      imgEl.src = newIcon
+        ? `${CUSTOM_ICON_BASE_URL}${newIcon}`
+        : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
+
+      updateBookmark(tab, id, originalUrl, { url: newUrl, tooltip: newTooltip, icon: newIcon });
+    }
+  };
+
+  [urlInput, tooltipInput, iconInput].forEach(input => {
+    input.addEventListener("blur", applyChanges);
+  });
+
+  const outsideClickHandler = (e) => {
+    if (!dialog.contains(e.target)) {
+      applyChanges();
+      dialog.remove();
+      document.removeEventListener("click", outsideClickHandler);
+    }
+  };
+
+  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
+}
+
+function isValidUrl(url) {
+  try { new URL(url); return true; } catch { return false; }
+}
+
+function getShortName(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+}
+
+function findFrame(tab, id) {
+  return framesData?.[tab]?.find(f => f.id === id);
+}
+
+function saveFrameData(tab) {
+  const docRef = doc(db, "tabFrames", tab);
+  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
+}
+
+function removeBookmark(tab, id, url) {
+  const frame = findFrame(tab, id);
+  frame.data.urls = normalizeBookmarks(frame.data.urls).filter(b => b.url !== url);
+  saveFrameData(tab);
+}
+
+function updateBookmark(tab, id, oldUrl, newEntry) {
+  const frame = findFrame(tab, id);
+  if (!frame?.data?.urls) return;
+
+  frame.data.urls = normalizeBookmarks(frame.data.urls).map(b => {
+    if (b.url === oldUrl) {
+      return {
+        url: newEntry.url,
+        tooltip: newEntry.tooltip || getShortName(newEntry.url),
+        icon: newEntry.icon || ""
+      };
+    }
+    return b;
+  });
+
+  saveFrameData(tab);
 }
