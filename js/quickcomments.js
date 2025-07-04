@@ -73,7 +73,7 @@ function createCommentButton(entry, tab, id) {
 
     setTimeout(() => {
       btn.textContent = originalText;
-    }, 1000); // Show "Copied" for 1 second
+    }, 1000); 
   });
 
   btn.addEventListener("contextmenu", e => {
@@ -114,7 +114,10 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
   dialog.className = "quick-dialog";
   dialog.innerHTML = `
     <label>Caption: <input type="text" class="quick-caption" value="${existing?.caption || ""}"></label>
-    <label>Text to Copy: <textarea class="quick-text">${existing?.text || ""}</textarea></label>
+    <div class="textarea-group">
+      <label>Text to Copy:</label>
+      <textarea class="quick-text">${existing?.text || ""}</textarea>
+    </div>
     <div class="quick-dialog-actions">
       <button class="quick-save-btn">✅ Save</button>
       <button class="quick-cancel-btn">❌ Cancel</button>
