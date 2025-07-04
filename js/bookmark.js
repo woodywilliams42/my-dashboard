@@ -1,9 +1,9 @@
-import { db } from './firebase.js'; 
+import { db } from './firebase.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
-const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/";
+const CUSTOM_ICON_BASE_URL = "https://yourgithubrepo.github.io/icons/"; // Update with your actual path
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
   console.log(`Setting up bookmark frame for tab=${tab} id=${id}`, data);
@@ -70,9 +70,7 @@ function createBookmarkIcon(entry, tab, id) {
   link.title = tooltip;
 
   const img = document.createElement("img");
-  img.src = icon 
-    ? `${CUSTOM_ICON_BASE_URL}${icon}` 
-    : `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
+  img.src = icon ? `${CUSTOM_ICON_BASE_URL}${icon}` : `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
   img.alt = "Bookmark icon";
   img.width = ICON_SIZE;
   img.height = ICON_SIZE;
@@ -112,6 +110,8 @@ function createBookmarkIcon(entry, tab, id) {
 function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
   document.querySelector(".bookmark-edit-dialog")?.remove();
 
+  const originalUrl = bookmark.url;
+
   const dialog = document.createElement("div");
   dialog.className = "bookmark-edit-dialog";
   dialog.innerHTML = `
@@ -134,86 +134,4 @@ function openEditDialog(linkEl, imgEl, bookmark, tab, id) {
     const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
     const newIcon = iconInput.value.trim();
 
-    const hasChanges = newUrl !== bookmark.url || newTooltip !== bookmark.tooltip || newIcon !== bookmark.icon;
-
-    if (newUrl && isValidUrl(newUrl) && hasChanges) {
-      bookmark.url = newUrl;
-      bookmark.tooltip = newTooltip;
-      bookmark.icon = newIcon;
-
-      linkEl.href = newUrl;
-      linkEl.title = newTooltip;
-      imgEl.src = newIcon 
-        ? `${CUSTOM_ICON_BASE_URL}${newIcon}` 
-        : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
-
-      updateBookmark(tab, id, bookmark.url, { url: newUrl, tooltip: newTooltip, icon: newIcon });
-    }
-  };
-
-  [urlInput, tooltipInput, iconInput].forEach(input => {
-    input.addEventListener("blur", applyChanges);
-  });
-
-  const outsideClickHandler = (e) => {
-    if (!dialog.contains(e.target)) {
-      applyChanges();
-      dialog.remove();
-      document.removeEventListener("click", outsideClickHandler);
-    }
-  };
-
-  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
-}
-
-function normalizeBookmarks(arr) {
-  return arr.map(b => {
-    if (typeof b === "string") return { url: b, tooltip: getShortName(b), icon: "" };
-    return {
-      url: b.url,
-      tooltip: b.tooltip || getShortName(b.url),
-      icon: b.icon || ""
-    };
-  });
-}
-
-function isValidUrl(url) {
-  try { new URL(url); return true; } catch { return false; }
-}
-
-function getShortName(url) {
-  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
-}
-
-function findFrame(tab, id) {
-  return framesData?.[tab]?.find(f => f.id === id);
-}
-
-function saveFrameData(tab) {
-  const docRef = doc(db, "tabFrames", tab);
-  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
-}
-
-function removeBookmark(tab, id, url) {
-  const frame = findFrame(tab, id);
-  frame.data.urls = normalizeBookmarks(frame.data.urls).filter(b => b.url !== url);
-  saveFrameData(tab);
-}
-
-function updateBookmark(tab, id, oldUrl, newEntry) {
-  const frame = findFrame(tab, id);
-  if (!frame?.data?.urls) return;
-
-  frame.data.urls = normalizeBookmarks(frame.data.urls).map(b => {
-    if (b.url === oldUrl) {
-      return {
-        url: newEntry.url,
-        tooltip: newEntry.tooltip || getShortName(newEntry.url),
-        icon: newEntry.icon || ""
-      };
-    }
-    return b;
-  });
-
-  saveFrameData(tab);
-}
+    const hasChanges = newUrl !== bookmark.url || newT
