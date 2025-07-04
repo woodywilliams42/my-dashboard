@@ -1,149 +1,159 @@
-// quickcomments.js
+import { framesData } from './frames.js';
 import { db } from './firebase.js';
-import {
-  doc,
-  getDoc,
-  setDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const quickCommentsData = {}; // { tab: [ { label, text }, ... ] }
+export function setupQuickCommentsFrame(frameEl, data, tab, id) {
+  const frameContent = frameEl.querySelector(".frame-content");
+  if (!frameContent) return;
 
-// === Load Comments from Firestore ===
-export async function loadQuickComments(tab) {
-  const docRef = doc(db, "quickComments", tab);
-  const snap = await getDoc(docRef);
-  quickCommentsData[tab] = snap.exists() ? snap.data().comments || [] : [];
-  renderQuickComments(tab);
-}
+  const container = document.createElement("div");
+  container.className = "quick-comments-container";
+  container.dataset.frameId = id;
+  frameContent.appendChild(container);
 
-// === Save Comments to Firestore ===
-async function saveQuickComments(tab) {
-  await setDoc(doc(db, "quickComments", tab), { comments: quickCommentsData[tab] });
-}
+  const comments = Array.isArray(data.comments) ? data.comments : [];
+  data.comments = comments;
 
-// === Render Quick Comment Buttons ===
-function renderQuickComments(tab) {
-  const container = document.getElementById(`quick-comments-${tab}`);
-  if (!container) return;
-
-  container.innerHTML = "";
-  const comments = quickCommentsData[tab] || [];
-
-  comments.forEach((comment, index) => {
-    const button = document.createElement("button");
-    button.className = "quick-comment-button";
-    button.textContent = comment.label;
-    button.title = comment.text.slice(0, 100);
-    button.setAttribute("draggable", true);
-
-    button.addEventListener("click", () => {
-      navigator.clipboard.writeText(comment.text).then(() => {
-        const original = button.textContent;
-        button.textContent = "Copied";
-        setTimeout(() => {
-          button.textContent = original;
-        }, 1000);
-      });
-    });
-
-    button.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-      showQuickCommentContextMenu(e.pageX, e.pageY, tab, index);
-    });
-
-    button.addEventListener("dragstart", (e) => {
-      e.dataTransfer.setData("text/plain", index);
-      e.dataTransfer.effectAllowed = "move";
-    });
-
-    container.appendChild(button);
+  comments.forEach(entry => {
+    const btn = createCommentButton(entry, tab, id);
+    container.appendChild(btn);
   });
 
-  container.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  });
+  const header = frameEl.querySelector(".frame-header");
+  if (header && !header.querySelector(".add-quick-btn")) {
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "➕";
+    addBtn.className = "add-quick-btn";
+    addBtn.title = "Add Quick Comment";
 
-  container.addEventListener("drop", (e) => {
-    e.preventDefault();
-    const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
-    const toIndex = [...container.children].findIndex(child => child === e.target);
-    if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
-      const list = quickCommentsData[tab];
-      const moved = list.splice(fromIndex, 1)[0];
-      list.splice(toIndex, 0, moved);
-      saveQuickComments(tab);
-      renderQuickComments(tab);
-    }
-  });
-}
+    const menuBtn = header.querySelector(".frame-menu-button");
+    if (menuBtn) header.insertBefore(addBtn, menuBtn);
+    else header.appendChild(addBtn);
 
-// === Show Context Menu ===
-function showQuickCommentContextMenu(x, y, tab, index) {
-  const menu = document.getElementById("quickCommentContextMenu");
-  menu.style.top = `${y}px`;
-  menu.style.left = `${x}px`;
-  menu.style.display = "block";
-  menu.dataset.tab = tab;
-  menu.dataset.index = index;
-}
-
-// === Hide Menu on Click Outside ===
-document.addEventListener("click", () => {
-  const menu = document.getElementById("quickCommentContextMenu");
-  if (menu) menu.style.display = "none";
-});
-
-// === Handle Menu Actions ===
-document.getElementById("quickCommentContextMenu")?.addEventListener("click", async (e) => {
-  const action = e.target.dataset.action;
-  const menu = e.currentTarget;
-  const tab = menu.dataset.tab;
-  const index = parseInt(menu.dataset.index, 10);
-  const comment = quickCommentsData[tab][index];
-
-  if (action === "edit") {
-    const newText = prompt("Edit comment text:", comment.text);
-    if (newText !== null) {
-      quickCommentsData[tab][index].text = newText;
-      await saveQuickComments(tab);
-      renderQuickComments(tab);
-    }
-  } else if (action === "delete") {
-    if (confirm(`Delete comment "${comment.label}"?`)) {
-      quickCommentsData[tab].splice(index, 1);
-      await saveQuickComments(tab);
-      renderQuickComments(tab);
-    }
+    addBtn.addEventListener("click", () => openQuickDialog(container, tab, id));
   }
 
-  menu.style.display = "none";
-});
-
-// === Add New Comment Button ===
-document.querySelectorAll(".addCommentBtn").forEach((btn) => {
-  btn.addEventListener("click", async () => {
-    const tab = btn.dataset.tab;
-    const label = prompt("Enter a short label:");
-    if (!label) return;
-    const text = prompt("Enter the comment text:");
-    if (!text) return;
-
-    quickCommentsData[tab].push({ label, text });
-    await saveQuickComments(tab);
-    renderQuickComments(tab);
+  container.addEventListener("contextmenu", e => {
+    if (e.target !== container) return;
+    e.preventDefault();
+    openQuickDialog(container, tab, id);
   });
-});
 
-// === Insert Context Menu HTML (if not present) ===
-if (!document.getElementById("quickCommentContextMenu")) {
-  document.body.insertAdjacentHTML("beforeend", `
-    <div id="quickCommentContextMenu" style="position: absolute; display: none; background: white; border: 1px solid #ccc; z-index: 1000;">
-      <ul style="list-style: none; margin: 0; padding: 0;">
-        <li data-action="edit" style="padding: 4px 8px; cursor: pointer;">✏️ Edit</li>
-        <li data-action="delete" style="padding: 4px 8px; cursor: pointer;">🗑️ Delete</li>
-      </ul>
-    </div>
-  `);
+  // Make buttons sortable
+  if (window.Sortable) {
+    Sortable.create(container, {
+      animation: 150,
+      onEnd: () => saveFrameData(tab)
+    });
+  }
 }
 
+function createCommentButton(entry, tab, id) {
+  const { caption, text } = entry;
+
+  const btn = document.createElement("button");
+  btn.className = "quick-comment-btn";
+  btn.textContent = caption;
+
+  btn.addEventListener("click", () => {
+    navigator.clipboard.writeText(text);
+  });
+
+  btn.addEventListener("contextmenu", e => {
+    e.preventDefault();
+    const menu = document.createElement("div");
+    menu.className = "quick-context-menu";
+    menu.style.top = `${e.clientY}px`;
+    menu.style.left = `${e.clientX}px`;
+    menu.innerHTML = `
+      <div class="menu-option" data-action="edit">✏️ Edit</div>
+      <div class="menu-option" data-action="delete">🗑️ Delete</div>
+    `;
+    document.body.appendChild(menu);
+
+    const removeMenu = () => menu.remove();
+    setTimeout(() => document.addEventListener("click", removeMenu, { once: true }), 10);
+
+    menu.addEventListener("click", ev => {
+      const action = ev.target.dataset.action;
+      if (action === "delete") {
+        btn.remove();
+        removeComment(tab, id, entry);
+      } else if (action === "edit") {
+        openQuickDialog(btn.parentElement, tab, id, entry, btn);
+      }
+      menu.remove();
+    });
+  });
+
+  return btn;
+}
+
+function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
+  document.querySelector(".quick-dialog")?.remove();
+
+  const dialog = document.createElement("div");
+  dialog.className = "quick-dialog";
+  dialog.innerHTML = `
+    <label>Caption: <input type="text" class="quick-caption" value="${existing?.caption || ""}"></label>
+    <label>Text: <textarea class="quick-text">${existing?.text || ""}</textarea></label>
+  `;
+  document.body.appendChild(dialog);
+
+  const rect = container.getBoundingClientRect();
+  dialog.style.top = `${rect.top + window.scrollY + 20}px`;
+  dialog.style.left = `${rect.left + window.scrollX + 20}px`;
+
+  const captionInput = dialog.querySelector(".quick-caption");
+  const textInput = dialog.querySelector(".quick-text");
+
+  const apply = () => {
+    const caption = captionInput.value.trim();
+    const text = textInput.value.trim();
+    if (!caption || !text) return;
+
+    const frameData = findFrame(tab, id);
+    if (!frameData?.data?.comments) frameData.data.comments = [];
+
+    if (existing) {
+      existing.caption = caption;
+      existing.text = text;
+      if (btnEl) btnEl.textContent = caption;
+    } else {
+      const newEntry = { caption, text };
+      frameData.data.comments.push(newEntry);
+      container.appendChild(createCommentButton(newEntry, tab, id));
+    }
+    saveFrameData(tab);
+  };
+
+  [captionInput, textInput].forEach(input => {
+    input.addEventListener("blur", apply);
+  });
+
+  const outsideClick = (e) => {
+    if (!dialog.contains(e.target)) {
+      apply();
+      dialog.remove();
+      document.removeEventListener("click", outsideClick);
+    }
+  };
+
+  setTimeout(() => document.addEventListener("click", outsideClick), 10);
+}
+
+function removeComment(tab, id, entry) {
+  const frame = findFrame(tab, id);
+  if (!frame?.data?.comments) return;
+  frame.data.comments = frame.data.comments.filter(c => c !== entry);
+  saveFrameData(tab);
+}
+
+function saveFrameData(tab) {
+  const docRef = doc(db, "tabFrames", tab);
+  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
+}
+
+function findFrame(tab, id) {
+  return framesData?.[tab]?.find(f => f.id === id);
+}
