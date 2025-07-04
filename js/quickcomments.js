@@ -67,6 +67,13 @@ function createCommentButton(entry, tab, id) {
 
   btn.addEventListener("click", () => {
     navigator.clipboard.writeText(text).catch(console.error);
+
+    const originalText = btn.textContent;
+    btn.textContent = "Copied";
+
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 1000); // Show "Copied" for 1 second
   });
 
   btn.addEventListener("contextmenu", e => {
