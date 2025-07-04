@@ -3,7 +3,7 @@ import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase
 import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
-const CUSTOM_ICON_BASE_URL = "https://yourgithubrepo.github.io/icons/"; // Update with your actual path
+const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/"; // Update with your actual path
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
   console.log(`Setting up bookmark frame for tab=${tab} id=${id}`, data);
