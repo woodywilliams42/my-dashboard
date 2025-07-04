@@ -1,4 +1,4 @@
-import { framesData } from './frames.js';  
+import { framesData } from './frames.js';
 import { db } from './firebase.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
@@ -6,10 +6,17 @@ export function setupQuickCommentsFrame(frameEl, data, tab, id) {
   const frameContent = frameEl.querySelector(".frame-content");
   if (!frameContent) return;
 
-  const container = document.createElement("div");
-  container.className = "quick-comments-container";
-  container.dataset.frameId = id;
-  frameContent.appendChild(container);
+  let container = frameContent.querySelector(".quick-comments-container");
+
+  // Clear container if already exists, else create
+  if (container) {
+    container.innerHTML = '';
+  } else {
+    container = document.createElement("div");
+    container.className = "quick-comments-container";
+    container.dataset.frameId = id;
+    frameContent.appendChild(container);
+  }
 
   const comments = Array.isArray(data.comments) ? data.comments : [];
   data.comments = comments;
@@ -39,28 +46,31 @@ export function setupQuickCommentsFrame(frameEl, data, tab, id) {
     openQuickDialog(container, tab, id);
   });
 
-  // Make buttons sortable
-  if (window.Sortable) {
+  // Prevent re-initializing Sortable
+  if (window.Sortable && !container.classList.contains("sortable-init")) {
     Sortable.create(container, {
       animation: 150,
       onEnd: () => saveFrameData(tab)
     });
+    container.classList.add("sortable-init");
   }
 }
 
 function createCommentButton(entry, tab, id) {
-  const { caption, text } = entry;
+  const { caption = "Button", text = "" } = entry;
 
   const btn = document.createElement("button");
   btn.className = "quick-comment-btn";
   btn.textContent = caption;
+  btn.title = text;
 
   btn.addEventListener("click", () => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text).catch(console.error);
   });
 
   btn.addEventListener("contextmenu", e => {
     e.preventDefault();
+
     const menu = document.createElement("div");
     menu.className = "quick-context-menu";
     menu.style.top = `${e.clientY}px`;
@@ -96,57 +106,54 @@ function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
   dialog.className = "quick-dialog";
   dialog.innerHTML = `
     <label>Caption: <input type="text" class="quick-caption" value="${existing?.caption || ""}"></label>
-    <label>Text: <textarea class="quick-text">${existing?.text || ""}</textarea></label>
+    <label>Text to Copy: <input type="text" class="quick-text" value="${existing?.text || ""}"></label>
   `;
   document.body.appendChild(dialog);
 
   const rect = container.getBoundingClientRect();
-  dialog.style.top = `${rect.top + window.scrollY + 20}px`;
-  dialog.style.left = `${rect.left + window.scrollX + 20}px`;
+  dialog.style.top = `${rect.bottom + window.scrollY}px`;
+  dialog.style.left = `${rect.left + window.scrollX}px`;
 
   const captionInput = dialog.querySelector(".quick-caption");
   const textInput = dialog.querySelector(".quick-text");
 
-  const apply = () => {
+  const applyChanges = () => {
     const caption = captionInput.value.trim();
     const text = textInput.value.trim();
     if (!caption || !text) return;
 
-    const frameData = findFrame(tab, id);
-    if (!frameData?.data?.comments) frameData.data.comments = [];
+    const frame = framesData?.[tab]?.find(f => f.id === id);
+    if (!frame?.data?.comments) frame.data.comments = [];
 
     if (existing) {
       existing.caption = caption;
       existing.text = text;
-      if (btnEl) btnEl.textContent = caption;
+      if (btnEl) {
+        btnEl.textContent = caption;
+        btnEl.title = text;
+      }
     } else {
       const newEntry = { caption, text };
-      frameData.data.comments.push(newEntry);
-      container.appendChild(createCommentButton(newEntry, tab, id));
+      frame.data.comments.push(newEntry);
+      const newBtn = createCommentButton(newEntry, tab, id);
+      container.appendChild(newBtn);
     }
     saveFrameData(tab);
   };
 
   [captionInput, textInput].forEach(input => {
-    input.addEventListener("blur", apply);
+    input.addEventListener("blur", applyChanges);
   });
 
-  const outsideClick = (e) => {
+  const outsideClickHandler = (e) => {
     if (!dialog.contains(e.target)) {
-      apply();
+      applyChanges();
       dialog.remove();
-      document.removeEventListener("click", outsideClick);
+      document.removeEventListener("click", outsideClickHandler);
     }
   };
 
-  setTimeout(() => document.addEventListener("click", outsideClick), 10);
-}
-
-function removeComment(tab, id, entry) {
-  const frame = findFrame(tab, id);
-  if (!frame?.data?.comments) return;
-  frame.data.comments = frame.data.comments.filter(c => c !== entry);
-  saveFrameData(tab);
+  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
 }
 
 function saveFrameData(tab) {
@@ -154,6 +161,9 @@ function saveFrameData(tab) {
   setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
 }
 
-function findFrame(tab, id) {
-  return framesData?.[tab]?.find(f => f.id === id);
+function removeComment(tab, id, entry) {
+  const frame = framesData?.[tab]?.find(f => f.id === id);
+  if (!frame?.data?.comments) return;
+  frame.data.comments = frame.data.comments.filter(c => c !== entry);
+  saveFrameData(tab);
 }
