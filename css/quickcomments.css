@@ -10,19 +10,18 @@
   border-radius: 8px;
 }
 
-/* Uniform buttons styled like inactive tabs */
+/* Uniform comment buttons styled like inactive tabs */
 .quick-comment-btn {
-  background: #d0d0d0; 
+  background: #d0d0d0;
   border: 1px solid #ccc;
   padding: 5px 12px;
   cursor: pointer;
   border-radius: 5px;
-  color: black; 
+  color: black;
   min-width: 110px;
   text-align: center;
   font-family: system-ui, sans-serif;
 }
-
 .quick-comment-btn:hover {
   background: #e0e0e0;
   color: black;
@@ -37,19 +36,15 @@
   font-family: system-ui, sans-serif;
   color: black;
 }
-
 .quick-context-menu .menu-option {
   padding: 5px 10px;
   cursor: pointer;
-  color: black;
-  font-family: system-ui, sans-serif;
 }
-
 .quick-context-menu .menu-option:hover {
   background: #eee;
 }
 
-/* Dialog with matching label styles */
+/* Dialog window style */
 .quick-dialog {
   position: absolute;
   background: white;
@@ -63,48 +58,38 @@
   max-width: 90vw;
 }
 
-/* Group container for label + textarea to prevent label shifting */
+/* Group for textarea with fixed label */
 .quick-dialog .textarea-group {
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
 }
-
-/* Label styling */
 .quick-dialog label {
   display: block;
   margin-bottom: 5px;
   color: black;
-  font-family: system-ui, sans-serif;
 }
-
-/* Caption input - full width, fixed size */
 .quick-dialog input.quick-caption {
   width: 100%;
   margin-bottom: 10px;
   border-radius: 4px;
   padding: 4px;
   resize: none;
-  font-family: system-ui, sans-serif;
 }
-
-/* Text to Copy - textarea, resizable both ways */
 .quick-dialog textarea.quick-text {
   width: 100%;
   min-height: 40px;
   resize: both;
   border-radius: 4px;
   padding: 4px;
-  font-family: system-ui, sans-serif;
 }
 
-/* Save & Cancel buttons styled consistently */
+/* Buttons in dialog */
 .quick-dialog-actions {
   display: flex;
   justify-content: flex-end;
   gap: 5px;
 }
-
 .quick-dialog-actions button {
   background: #d0d0d0;
   color: black;
@@ -112,14 +97,12 @@
   padding: 4px 8px;
   cursor: pointer;
   border-radius: 4px;
-  font-family: system-ui, sans-serif;
 }
-
 .quick-dialog-actions button:hover {
   background: #c0c0c0;
 }
 
-/* Plus button - transparent, consistent with light mode */
+/* + button style */
 .add-quick-btn {
   background: none;
   border: none;
@@ -129,7 +112,56 @@
   border-radius: 4px;
   font-size: 18px;
 }
-
 .add-quick-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Bookmark icon picker grid */
+.icon-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 4px;
+  background: #fff;
+  margin-top: 6px;
+}
+.icon-picker-grid img {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding: 2px;
+  cursor: pointer;
+  object-fit: contain;
+  transition: transform 0.15s;
+}
+.icon-picker-grid img:hover {
+  transform: scale(1.1);
+  border-color: var(--accent-color, #38f);
+}
+
+/* Bookmark edit dialog Save/Cancel buttons */
+.bookmark-edit-dialog .dialog-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+.bookmark-edit-dialog .save-btn,
+.bookmark-edit-dialog .cancel-btn {
+  background: #d0d0d0;
+  border: 1px solid #aaa;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: black;
+  flex: 1;
+  margin: 0 2px;
+}
+.bookmark-edit-dialog .save-btn:hover,
+.bookmark-edit-dialog .cancel-btn:hover {
   background: #e0e0e0;
 }
