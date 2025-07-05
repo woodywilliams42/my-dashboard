@@ -1,6 +1,7 @@
 import { db } from './firebase.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { framesData } from './frames.js';
+import { openBookmarkEditDialog } from './quickcomments.js';
 
 const ICON_SIZE = 32;
 const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/";
@@ -125,9 +126,9 @@ function createBookmarkIcon(entry, tab, id) {
       if (action === "delete") {
         link.remove();
         removeBookmark(tab, id, url);
-      } else if (action === "edit") {
-        openEditDialog(link, img, { url, tooltip, icon }, tab, id);
-      }
+      else if (action === "edit") {
+  openBookmarkEditDialog(link, tab, id, entry);
+}
       menu.remove();
     });
   });
