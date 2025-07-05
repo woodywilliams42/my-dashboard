@@ -163,9 +163,9 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     </label>
     <label>Custom icon filename (optional): <input type="text" class="edit-bookmark-icon" value="${!AVAILABLE_ICONS.includes(bookmark.icon) ? bookmark.icon : ""}"></label>
     <div class="edit-dialog-actions">
-      <button class="edit-save-btn" disabled style="opacity:0.5;cursor:not-allowed;">✅ Save</button>
-      <button class="edit-cancel-btn">❌ Cancel</button>
-    </div>
+  <button class="start-button edit-save-btn" disabled style="opacity:0.5;cursor:not-allowed;">✅ Save</button>
+  <button class="start-button cancel-button edit-cancel-btn">❌ Cancel</button>
+</div>
   `;
   document.body.appendChild(dialog);
 
