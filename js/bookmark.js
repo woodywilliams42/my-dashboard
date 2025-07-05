@@ -60,7 +60,7 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   container.addEventListener("contextmenu", e => {
     if (e.target !== container) return;
     e.preventDefault();
-    const url = prompt("Enter bookmark URL:");
+    const url = prompt("Enter bookmark URL: ");
     if (!url || !isValidUrl(url)) return;
     const entry = { url, tooltip: getShortName(url), icon: "" };
     data.urls.push(entry);
