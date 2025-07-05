@@ -53,4 +53,126 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
       const entry = { url, tooltip: getShortName(url), icon: "" };
       data.urls.push(entry);
       const iconEl = createBookmarkIcon(entry, tab, id);
-      container.app
+      container.appendChild(iconEl);
+      saveFrameData(tab);
+    });
+  }
+
+  container.addEventListener("contextmenu", e => {
+    if (e.target !== container) return;
+    e.preventDefault();
+    const url = prompt("Enter bookmark URL:");
+    if (!url || !isValidUrl(url)) return;
+    const entry = { url, tooltip: getShortName(url), icon: "" };
+    data.urls.push(entry);
+    const iconEl = createBookmarkIcon(entry, tab, id);
+    container.appendChild(iconEl);
+    saveFrameData(tab);
+  });
+
+  // Sortable.js integration
+  new Sortable(container, {
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    onEnd: () => {
+      const newOrder = Array.from(container.children).map(a => ({
+        url: a.href,
+        tooltip: a.title,
+        icon: a.querySelector('img')?.src.includes(CUSTOM_ICON_BASE_URL)
+          ? a.querySelector('img').src.replace(CUSTOM_ICON_BASE_URL, "")
+          : ""
+      }));
+      data.urls = normalizeBookmarks(newOrder);
+      saveFrameData(tab);
+    }
+  });
+}
+
+function createBookmarkIcon(entry, tab, id) {
+  const { url, tooltip = getShortName(url), icon = "" } = entry;
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.className = "bookmark-icon-button";
+  link.title = tooltip;
+
+  const img = document.createElement("img");
+  img.src = icon ? `${CUSTOM_ICON_BASE_URL}${icon}` : `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
+  img.alt = "Bookmark icon";
+  img.width = ICON_SIZE;
+  img.height = ICON_SIZE;
+  link.appendChild(img);
+
+  link.addEventListener("contextmenu", e => {
+    e.preventDefault();
+
+    const menu = document.createElement("div");
+    menu.className = "bookmark-context-menu";
+    menu.style.top = `${e.clientY}px`;
+    menu.style.left = `${e.clientX}px`;
+    menu.innerHTML = `
+      <div class="menu-option" data-action="edit">✏️ Edit Bookmark</div>
+      <div class="menu-option" data-action="delete">🗑️ Delete Bookmark</div>
+    `;
+    document.body.appendChild(menu);
+
+    const removeMenu = () => menu.remove();
+    setTimeout(() => document.addEventListener("click", removeMenu, { once: true }), 10);
+
+    menu.addEventListener("click", ev => {
+      const action = ev.target.dataset.action;
+      if (action === "delete") {
+        link.remove();
+        removeBookmark(tab, id, url);
+      } else if (action === "edit") {
+        openBookmarkEditDialog(link, tab, id, entry);
+      }
+      menu.remove();
+    });
+  });
+
+  return link;
+}
+
+function isValidUrl(url) {
+  try { new URL(url); return true; } catch { return false; }
+}
+
+function getShortName(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+}
+
+function findFrame(tab, id) {
+  return framesData?.[tab]?.find(f => f.id === id);
+}
+
+function saveFrameData(tab) {
+  const docRef = doc(db, "tabFrames", tab);
+  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
+}
+
+function removeBookmark(tab, id, url) {
+  const frame = findFrame(tab, id);
+  frame.data.urls = normalizeBookmarks(frame.data.urls).filter(b => b.url !== url);
+  saveFrameData(tab);
+}
+
+function updateBookmark(tab, id, oldUrl, newEntry) {
+  const frame = findFrame(tab, id);
+  if (!frame?.data?.urls) return;
+
+  frame.data.urls = normalizeBookmarks(frame.data.urls).map(b => {
+    if (b.url === oldUrl) {
+      return {
+        url: newEntry.url,
+        tooltip: newEntry.tooltip || getShortName(newEntry.url),
+        icon: newEntry.icon || ""
+      };
+    }
+    return b;
+  });
+
+  saveFrameData(tab);
+}
