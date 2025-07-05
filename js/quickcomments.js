@@ -2,97 +2,197 @@ import { framesData } from './frames.js';
 import { db } from './firebase.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const GITHUB_USER = 'woodywilliams42';
-const GITHUB_REPO = 'my-dashboard';
-const ICONS_PATH = 'favicons';
+export function setupQuickCommentsFrame(frameEl, data, tab, id) {
+  const frameContent = frameEl.querySelector(".frame-content");
+  if (!frameContent) return;
 
-export async function fetchAvailableIcons() {
-  try {
-    const resp = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${ICONS_PATH}`);
-    if (!resp.ok) return [];
-    const files = await resp.json();
-    return files.filter(f => f.type === 'file').map(f => f.name);
-  } catch (e) { console.error(e); return []; }
+  let container = frameContent.querySelector(".quick-comments-container");
+
+  if (container) {
+    container.innerHTML = '';
+  } else {
+    container = document.createElement("div");
+    container.className = "quick-comments-container";
+    container.dataset.frameId = id;
+    frameContent.appendChild(container);
+  }
+
+  const comments = Array.isArray(data.comments) ? data.comments : [];
+  data.comments = comments;
+
+  comments.forEach(entry => {
+    const btn = createCommentButton(entry, tab, id);
+    container.appendChild(btn);
+  });
+
+  const header = frameEl.querySelector(".frame-header");
+  if (header && !header.querySelector(".add-quick-btn")) {
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "➕";
+    addBtn.className = "add-quick-btn";
+    addBtn.title = "Add Quick Comment";
+
+    const menuBtn = header.querySelector(".frame-menu-button");
+    if (menuBtn) header.insertBefore(addBtn, menuBtn);
+    else header.appendChild(addBtn);
+
+    addBtn.addEventListener("click", () => openQuickDialog(container, tab, id));
+  }
+
+  container.addEventListener("contextmenu", e => {
+    if (e.target !== container) return;
+    e.preventDefault();
+    openQuickDialog(container, tab, id);
+  });
+
+  if (window.Sortable && !container.classList.contains("sortable-init")) {
+    Sortable.create(container, {
+      animation: 150,
+      onEnd: () => {
+        updateOrderInData(container, tab, id);
+        saveFrameData(tab);
+      }
+    });
+    container.classList.add("sortable-init");
+  }
 }
 
-export async function openBookmarkEditDialog(targetBtn, tab, id, existing = null) {
-  document.querySelector(".bookmark-edit-dialog")?.remove();
-  const availableIcons = await fetchAvailableIcons();
+function createCommentButton(entry, tab, id) {
+  const { caption = "Button", text = "" } = entry;
+
+  const btn = document.createElement("button");
+  btn.className = "quick-comment-btn";
+  btn.textContent = caption;
+  btn.title = text;
+
+  btn.addEventListener("click", () => {
+    navigator.clipboard.writeText(text).catch(console.error);
+
+    const originalText = btn.textContent;
+    btn.textContent = "Copied";
+
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 1000); 
+  });
+
+  btn.addEventListener("contextmenu", e => {
+    e.preventDefault();
+
+    const menu = document.createElement("div");
+    menu.className = "quick-context-menu";
+    menu.style.top = `${e.clientY}px`;
+    menu.style.left = `${e.clientX}px`;
+    menu.innerHTML = `
+      <div class="menu-option" data-action="edit">✏️ Edit</div>
+      <div class="menu-option" data-action="delete">🗑️ Delete</div>
+    `;
+    document.body.appendChild(menu);
+
+    const removeMenu = () => menu.remove();
+    setTimeout(() => document.addEventListener("click", removeMenu, { once: true }), 10);
+
+    menu.addEventListener("click", ev => {
+      const action = ev.target.dataset.action;
+      if (action === "delete") {
+        btn.remove();
+        removeComment(tab, id, entry);
+      } else if (action === "edit") {
+        openQuickDialog(btn.parentElement, tab, id, entry, btn);
+      }
+      menu.remove();
+    });
+  });
+
+  return btn;
+}
+
+function openQuickDialog(container, tab, id, existing = null, btnEl = null) {
+  document.querySelector(".quick-dialog")?.remove();
 
   const dialog = document.createElement("div");
-  dialog.className = "bookmark-edit-dialog";
+  dialog.className = "quick-dialog";
   dialog.innerHTML = `
-    <label>Label: <input type="text" class="bookmark-label" value="${existing?.tooltip||''}"></label>
-    <label>URL: <input type="text" class="bookmark-url" value="${existing?.url||''}"></label>
-    <label>Icon Filename: <input type="text" class="bookmark-icon-filename" value="${existing?.icon||''}"></label>
-    <button class="show-icon-picker">🖼️ Pick Icon</button>
-    <div class="icon-picker-grid" style="display:none;"></div>
-    <div class="dialog-actions">
-      <button class="save-btn">✅ Save</button>
-      <button class="cancel-btn">❌ Cancel</button>
+    <label>Caption: <input type="text" class="quick-caption" value="${existing?.caption || ""}"></label>
+    <div class="textarea-group">
+      <label>Text to Copy:</label>
+      <textarea class="quick-text">${existing?.text || ""}</textarea>
+    </div>
+    <div class="quick-dialog-actions">
+      <button class="quick-save-btn">✅ Save</button>
+      <button class="quick-cancel-btn">❌ Cancel</button>
     </div>
   `;
   document.body.appendChild(dialog);
 
-  const rect = targetBtn.getBoundingClientRect();
+  const rect = container.getBoundingClientRect();
   dialog.style.top = `${rect.bottom + window.scrollY}px`;
   dialog.style.left = `${rect.left + window.scrollX}px`;
 
-  const labelInput = dialog.querySelector(".bookmark-label");
-  const urlInput = dialog.querySelector(".bookmark-url");
-  const iconInput = dialog.querySelector(".bookmark-icon-filename");
-  const pickerBtn = dialog.querySelector(".show-icon-picker");
-  const iconGrid = dialog.querySelector(".icon-picker-grid");
-  const saveBtn = dialog.querySelector(".save-btn");
-  const cancelBtn = dialog.querySelector(".cancel-btn");
+  const captionInput = dialog.querySelector(".quick-caption");
+  const textInput = dialog.querySelector(".quick-text");
+  const saveBtn = dialog.querySelector(".quick-save-btn");
+  const cancelBtn = dialog.querySelector(".quick-cancel-btn");
 
-  pickerBtn.addEventListener("click", () => {
-    iconGrid.style.display = iconGrid.style.display === 'none' ? 'flex' : 'none';
-    if (!iconGrid.childElementCount) {
-      availableIcons.forEach(fn => {
-        const img = document.createElement("img");
-        img.src = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${ICONS_PATH}/${fn}`;
-        img.title = fn;
-        img.addEventListener("click", () => {
-          iconInput.value = fn;
-          iconGrid.style.display = 'none';
-        });
-        iconGrid.appendChild(img);
-      });
-    }
-  });
+  const closeDialog = () => dialog.remove();
 
   saveBtn.addEventListener("click", () => {
-    const tooltip = labelInput.value.trim();
-    const url = urlInput.value.trim();
-    const icon = iconInput.value.trim();
+    const caption = captionInput.value.trim();
+    const text = textInput.value.trim();
+    if (!caption || !text) return;
 
-    if (!url) return;
-    if (icon && !availableIcons.includes(icon)) {
-      alert("Icon filename not found!");
-      return;
-    }
+    const frame = framesData?.[tab]?.find(f => f.id === id);
+    if (!frame?.data?.comments) frame.data.comments = [];
 
-    const frame = framesData[tab].find(f => f.id === id);
-    frame.data.urls = frame.data.urls || [];
     if (existing) {
-      existing.tooltip = tooltip;
-      existing.url = url;
-      existing.icon = icon;
+      existing.caption = caption;
+      existing.text = text;
+      if (btnEl) {
+        btnEl.textContent = caption;
+        btnEl.title = text;
+      }
     } else {
-      frame.data.urls.push({ tooltip, url, icon });
+      const newEntry = { caption, text };
+      frame.data.comments.push(newEntry);
+      const newBtn = createCommentButton(newEntry, tab, id);
+      container.appendChild(newBtn);
     }
-    const docRef = doc(db, "tabFrames", tab);
-    setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
-    dialog.remove();
+    saveFrameData(tab);
+    closeDialog();
   });
 
-  cancelBtn.addEventListener("click", () => dialog.remove());
-  const outsideClick = e => {
+  cancelBtn.addEventListener("click", () => closeDialog());
+
+  const outsideClickHandler = (e) => {
     if (!dialog.contains(e.target)) {
-      dialog.remove();
-      document.removeEventListener("click", outsideClick);
+      closeDialog();
+      document.removeEventListener("click", outsideClickHandler);
     }
   };
-  setTimeout(() => document.addEventListener("click", outsideClick), 10);
+
+  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
+}
+
+function updateOrderInData(container, tab, id) {
+  const frame = framesData?.[tab]?.find(f => f.id === id);
+  if (!frame?.data?.comments) return;
+
+  const buttons = Array.from(container.querySelectorAll(".quick-comment-btn"));
+  const newOrder = buttons.map(btn => {
+    return frame.data.comments.find(c => c.caption === btn.textContent && c.text === btn.title);
+  }).filter(Boolean);
+
+  frame.data.comments = newOrder;
+}
+
+function saveFrameData(tab) {
+  const docRef = doc(db, "tabFrames", tab);
+  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
+}
+
+function removeComment(tab, id, entry) {
+  const frame = framesData?.[tab]?.find(f => f.id === id);
+  if (!frame?.data?.comments) return;
+  frame.data.comments = frame.data.comments.filter(c => c !== entry);
+  saveFrameData(tab);
 }
