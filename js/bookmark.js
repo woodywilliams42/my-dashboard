@@ -69,7 +69,6 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     saveFrameData(tab);
   });
 
-  // Sortable.js integration
   new Sortable(container, {
     animation: 150,
     ghostClass: 'sortable-ghost',
@@ -148,7 +147,7 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
     <label>Icon filename (e.g., myicon.png): <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
     <div class="edit-dialog-actions">
-      <button class="edit-save-btn" disabled>✅ Save</button>
+      <button class="edit-save-btn" disabled style="opacity:0.5;cursor:not-allowed;">✅ Save</button>
       <button class="edit-cancel-btn">❌ Cancel</button>
     </div>
   `;
@@ -167,12 +166,14 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
   const validateInputs = () => {
     const urlValid = urlInput.value.trim() && isValidUrl(urlInput.value.trim());
     saveBtn.disabled = !urlValid;
+    saveBtn.style.opacity = urlValid ? "1" : "0.5";
+    saveBtn.style.cursor = urlValid ? "pointer" : "not-allowed";
   };
 
   urlInput.addEventListener("input", validateInputs);
   validateInputs();
 
-  saveBtn.addEventListener("click", () => {
+  saveBtn.addEventListener("click", async () => {
     const newUrl = urlInput.value.trim();
     const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
     const newIcon = iconInput.value.trim();
@@ -182,9 +183,16 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
       return;
     }
 
-    if (newIcon && !/^[\w,\s-]+\.(png|jpg|jpeg|ico)$/i.test(newIcon)) {
-      alert("Icon filename is invalid. Use png, jpg, jpeg, or ico formats.");
-      return;
+    if (newIcon) {
+      if (!/^[\w,\s-]+\.(png|jpg|jpeg|ico)$/i.test(newIcon)) {
+        alert("Icon filename is invalid. Use png, jpg, jpeg, or ico formats.");
+        return;
+      }
+      const exists = await iconExists(newIcon);
+      if (!exists) {
+        alert(`Icon file "${newIcon}" not found in GitHub storage.`);
+        return;
+      }
     }
 
     bookmark.url = newUrl;
@@ -211,6 +219,16 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
   };
 
   setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
+}
+
+async function iconExists(filename) {
+  const url = `${CUSTOM_ICON_BASE_URL}${filename}`;
+  try {
+    const res = await fetch(url, { method: "HEAD" });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function isValidUrl(url) {
