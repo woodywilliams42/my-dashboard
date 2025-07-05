@@ -69,3 +69,16 @@ input:checked + .slider::before {
   gap: 8px;
   margin-left: auto;
 }
+
+.start-button {
+  background-color: #ddd;
+  color: #000;
+  border-radius: 5px;
+  padding: 5px 10px;
+  border: 1px solid #aaa;
+  cursor: pointer;
+}
+
+.start-button:hover {
+  background-color: #ccc;
+}
