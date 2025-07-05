@@ -6,12 +6,11 @@ const ICON_SIZE = 32;
 const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/";
 
 const AVAILABLE_ICONS = [
-  "chrome.png",
-  "edge.png",
-  "firefox.png",
-  "github.png",
-  "google.png",
-  "youtube.png"
+  "Icon1.png",
+  "Icon2.png",
+  "StarIcon.jpg",
+  "StarIcon2.jpg",
+  "StarIcon3.jpg",
   // Add more filenames here
 ];
 
