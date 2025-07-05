@@ -5,6 +5,16 @@ import { framesData } from './frames.js';
 const ICON_SIZE = 32;
 const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/";
 
+const AVAILABLE_ICONS = [
+  "chrome.png",
+  "edge.png",
+  "firefox.png",
+  "github.png",
+  "google.png",
+  "youtube.png"
+  // Add more filenames here
+];
+
 function normalizeBookmarks(arr) {
   return arr.map(b => {
     if (typeof b === "string") return { url: b, tooltip: getShortName(b), icon: "" };
@@ -145,7 +155,14 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
   dialog.innerHTML = `
     <label>URL: <input type="text" class="edit-bookmark-url" value="${bookmark.url}"></label>
     <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
-    <label>Icon filename (e.g., myicon.png): <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
+    <label>
+      Icon:
+      <select class="icon-picker">
+        <option value="">Default (site favicon)</option>
+        ${AVAILABLE_ICONS.map(file => `<option value="${file}" ${bookmark.icon === file ? "selected" : ""}>${file}</option>`).join("")}
+      </select>
+    </label>
+    <label>Custom icon filename (optional): <input type="text" class="edit-bookmark-icon" value="${!AVAILABLE_ICONS.includes(bookmark.icon) ? bookmark.icon : ""}"></label>
     <div class="edit-dialog-actions">
       <button class="edit-save-btn" disabled style="opacity:0.5;cursor:not-allowed;">✅ Save</button>
       <button class="edit-cancel-btn">❌ Cancel</button>
@@ -160,6 +177,7 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
   const urlInput = dialog.querySelector(".edit-bookmark-url");
   const tooltipInput = dialog.querySelector(".edit-bookmark-tooltip");
   const iconInput = dialog.querySelector(".edit-bookmark-icon");
+  const iconPicker = dialog.querySelector(".icon-picker");
   const saveBtn = dialog.querySelector(".edit-save-btn");
   const cancelBtn = dialog.querySelector(".edit-cancel-btn");
 
@@ -170,20 +188,29 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     saveBtn.style.cursor = urlValid ? "pointer" : "not-allowed";
   };
 
+  iconPicker.addEventListener("change", () => {
+    if (iconPicker.value) {
+      iconInput.value = "";
+      iconInput.disabled = true;
+    } else {
+      iconInput.disabled = false;
+    }
+  });
+
   urlInput.addEventListener("input", validateInputs);
   validateInputs();
 
   saveBtn.addEventListener("click", async () => {
     const newUrl = urlInput.value.trim();
     const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
-    const newIcon = iconInput.value.trim();
+    const newIcon = iconPicker.value || iconInput.value.trim();
 
     if (!newUrl || !isValidUrl(newUrl)) {
       alert("Please enter a valid URL.");
       return;
     }
 
-    if (newIcon) {
+    if (newIcon && !AVAILABLE_ICONS.includes(newIcon)) {
       if (!/^[\w,\s-]+\.(png|jpg|jpeg|ico)$/i.test(newIcon)) {
         alert("Icon filename is invalid. Use png, jpg, jpeg, or ico formats.");
         return;
