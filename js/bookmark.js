@@ -1,7 +1,6 @@
 import { db } from './firebase.js';
 import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { framesData } from './frames.js';
-import { openBookmarkEditDialog } from './quickcomments.js';
 
 const ICON_SIZE = 32;
 const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/";
@@ -134,6 +133,84 @@ function createBookmarkIcon(entry, tab, id) {
   });
 
   return link;
+}
+
+export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
+  document.querySelector(".bookmark-edit-dialog")?.remove();
+
+  const imgEl = linkEl.querySelector("img");
+  const originalUrl = bookmark.url;
+
+  const dialog = document.createElement("div");
+  dialog.className = "bookmark-edit-dialog";
+  dialog.innerHTML = `
+    <label>URL: <input type="text" class="edit-bookmark-url" value="${bookmark.url}"></label>
+    <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
+    <label>Icon filename (e.g., myicon.png): <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
+    <div class="edit-dialog-actions">
+      <button class="edit-save-btn" disabled>✅ Save</button>
+      <button class="edit-cancel-btn">❌ Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(dialog);
+
+  const rect = linkEl.getBoundingClientRect();
+  dialog.style.top = `${rect.bottom + window.scrollY}px`;
+  dialog.style.left = `${rect.left + window.scrollX}px`;
+
+  const urlInput = dialog.querySelector(".edit-bookmark-url");
+  const tooltipInput = dialog.querySelector(".edit-bookmark-tooltip");
+  const iconInput = dialog.querySelector(".edit-bookmark-icon");
+  const saveBtn = dialog.querySelector(".edit-save-btn");
+  const cancelBtn = dialog.querySelector(".edit-cancel-btn");
+
+  const validateInputs = () => {
+    const urlValid = urlInput.value.trim() && isValidUrl(urlInput.value.trim());
+    saveBtn.disabled = !urlValid;
+  };
+
+  urlInput.addEventListener("input", validateInputs);
+  validateInputs();
+
+  saveBtn.addEventListener("click", () => {
+    const newUrl = urlInput.value.trim();
+    const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
+    const newIcon = iconInput.value.trim();
+
+    if (!newUrl || !isValidUrl(newUrl)) {
+      alert("Please enter a valid URL.");
+      return;
+    }
+
+    if (newIcon && !/^[\w,\s-]+\.(png|jpg|jpeg|ico)$/i.test(newIcon)) {
+      alert("Icon filename is invalid. Use png, jpg, jpeg, or ico formats.");
+      return;
+    }
+
+    bookmark.url = newUrl;
+    bookmark.tooltip = newTooltip;
+    bookmark.icon = newIcon;
+
+    linkEl.href = newUrl;
+    linkEl.title = newTooltip;
+    imgEl.src = newIcon
+      ? `${CUSTOM_ICON_BASE_URL}${newIcon}`
+      : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
+
+    updateBookmark(tab, id, originalUrl, { url: newUrl, tooltip: newTooltip, icon: newIcon });
+    dialog.remove();
+  });
+
+  cancelBtn.addEventListener("click", () => dialog.remove());
+
+  const outsideClickHandler = (e) => {
+    if (!dialog.contains(e.target)) {
+      dialog.remove();
+      document.removeEventListener("click", outsideClickHandler);
+    }
+  };
+
+  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
 }
 
 function isValidUrl(url) {
