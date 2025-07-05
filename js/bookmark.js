@@ -126,7 +126,7 @@ function createBookmarkIcon(entry, tab, id) {
       if (action === "delete") {
         link.remove();
         removeBookmark(tab, id, url);
-      else if (action === "edit") {
+      } else if (action === "edit") {
   openBookmarkEditDialog(link, tab, id, entry);
 }
       menu.remove();
