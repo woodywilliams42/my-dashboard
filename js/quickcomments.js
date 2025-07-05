@@ -196,3 +196,73 @@ function removeComment(tab, id, entry) {
   frame.data.comments = frame.data.comments.filter(c => c !== entry);
   saveFrameData(tab);
 }
+
+
+// ✅ Added Export for Bookmark Dialog:
+export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
+  document.querySelector(".bookmark-edit-dialog")?.remove();
+
+  const originalUrl = bookmark.url;
+
+  const dialog = document.createElement("div");
+  dialog.className = "bookmark-edit-dialog";
+  dialog.innerHTML = `
+    <label>URL: <input type="text" class="edit-bookmark-url" value="${bookmark.url}"></label>
+    <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
+    <label>Icon filename (e.g., myicon.png): <input type="text" class="edit-bookmark-icon" value="${bookmark.icon}"></label>
+  `;
+  document.body.appendChild(dialog);
+
+  const rect = linkEl.getBoundingClientRect();
+  dialog.style.top = `${rect.bottom + window.scrollY}px`;
+  dialog.style.left = `${rect.left + window.scrollX}px`;
+
+  const urlInput = dialog.querySelector(".edit-bookmark-url");
+  const tooltipInput = dialog.querySelector(".edit-bookmark-tooltip");
+  const iconInput = dialog.querySelector(".edit-bookmark-icon");
+
+  const applyChanges = () => {
+    const newUrl = urlInput.value.trim();
+    const newTooltip = tooltipInput.value.trim() || getShortName(newUrl);
+    const newIcon = iconInput.value.trim();
+
+    const hasChanges = newUrl !== bookmark.url || newTooltip !== bookmark.tooltip || newIcon !== bookmark.icon;
+
+    if (newUrl && isValidUrl(newUrl) && hasChanges) {
+      bookmark.url = newUrl;
+      bookmark.tooltip = newTooltip;
+      bookmark.icon = newIcon;
+
+      linkEl.href = newUrl;
+      linkEl.title = newTooltip;
+      const imgEl = linkEl.querySelector("img");
+      imgEl.src = newIcon
+        ? `https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/${newIcon}`
+        : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
+
+      // You can optionally trigger save here if needed
+    }
+  };
+
+  [urlInput, tooltipInput, iconInput].forEach(input => {
+    input.addEventListener("blur", applyChanges);
+  });
+
+  const outsideClickHandler = (e) => {
+    if (!dialog.contains(e.target)) {
+      applyChanges();
+      dialog.remove();
+      document.removeEventListener("click", outsideClickHandler);
+    }
+  };
+
+  setTimeout(() => document.addEventListener("click", outsideClickHandler), 10);
+}
+
+function isValidUrl(url) {
+  try { new URL(url); return true; } catch { return false; }
+}
+
+function getShortName(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+}
