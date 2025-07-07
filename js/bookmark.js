@@ -11,7 +11,6 @@ const AVAILABLE_ICONS = [
   "StarIcon.jpg",
   "StarIcon2.jpg",
   "StarIcon3.jpg",
-  // Add more filenames here
 ];
 
 function normalizeBookmarks(arr) {
@@ -112,43 +111,37 @@ function createBookmarkIcon(entry, tab, id) {
   img.height = ICON_SIZE;
   link.appendChild(img);
 
+  // Right-click menu for this specific bookmark
   link.addEventListener("contextmenu", e => {
-  e.preventDefault();
+    e.preventDefault();
+    e.stopPropagation();
 
-  // Remove any existing menus first
-  document.querySelectorAll(".bookmark-context-menu").forEach(m => m.remove());
+    document.querySelector(".bookmark-context-menu")?.remove();
 
-  const menu = document.createElement("div");
-  menu.className = "bookmark-context-menu";
-  menu.style.position = "absolute";
-  menu.style.top = `${e.clientY}px`;
-  menu.style.left = `${e.clientX}px`;
-  menu.style.zIndex = 9999;
-  menu.innerHTML = `
-    <div class="menu-option" data-action="edit">✏️ Edit Bookmark</div>
-    <div class="menu-option" data-action="delete">🗑️ Delete Bookmark</div>
-  `;
-  document.body.appendChild(menu);
+    const menu = document.createElement("div");
+    menu.className = "bookmark-context-menu";
+    menu.style.top = `${e.clientY}px`;
+    menu.style.left = `${e.clientX}px`;
+    menu.innerHTML = `
+      <div class="menu-option" data-action="edit">✏️ Edit Bookmark</div>
+      <div class="menu-option" data-action="delete">🗑️ Delete Bookmark</div>
+    `;
+    document.body.appendChild(menu);
 
-  const clickHandler = (ev) => {
-    const action = ev.target.dataset.action;
-    if (action === "delete") {
-      link.remove();
-      removeBookmark(tab, id, url);
+    const removeMenu = () => menu.remove();
+    setTimeout(() => document.addEventListener("click", removeMenu, { once: true }), 10);
+
+    menu.addEventListener("click", ev => {
+      const action = ev.target.dataset.action;
+      if (action === "delete") {
+        link.remove();
+        removeBookmark(tab, id, url);
+      } else if (action === "edit") {
+        openBookmarkEditDialog(link, tab, id, entry);
+      }
       menu.remove();
-    } else if (action === "edit") {
-      openBookmarkEditDialog(link, tab, id, entry);
-      menu.remove();
-    } else if (!menu.contains(ev.target)) {
-      menu.remove();
-    }
-  };
-
-  // Delay ensures the menu stays open for its own clicks
-  setTimeout(() => {
-    document.addEventListener("click", clickHandler, { once: true });
-  }, 0);
-});
+    });
+  });
 
   return link;
 }
@@ -168,16 +161,9 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
       Icon:
       <select class="icon-picker">
         <option value="">Default (site favicon)</option>
-        ${AVAILABLE_ICONS.map(file => `
-          <option value="${file}" ${bookmark.icon === file ? "selected" : ""} data-icon="${CUSTOM_ICON_BASE_URL}${file}">
-            ${file}
-          </option>
-        `).join("")}
+        ${AVAILABLE_ICONS.map(file => `<option value="${file}" ${bookmark.icon === file ? "selected" : ""}>${file}</option>`).join("")}
       </select>
     </label>
-    <div class="icon-preview-container">
-      <img class="icon-preview" src="${bookmark.icon ? `${CUSTOM_ICON_BASE_URL}${bookmark.icon}` : `https://www.google.com/s2/favicons?domain=${new URL(bookmark.url).hostname}`}" width="32" height="32">
-    </div>
     <label>Custom icon filename (optional): <input type="text" class="edit-bookmark-icon" value="${!AVAILABLE_ICONS.includes(bookmark.icon) ? bookmark.icon : ""}"></label>
     <div class="edit-dialog-actions">
       <button class="start-button edit-save-btn" disabled style="opacity:0.5;cursor:not-allowed;">✅ Save</button>
@@ -194,7 +180,6 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
   const tooltipInput = dialog.querySelector(".edit-bookmark-tooltip");
   const iconInput = dialog.querySelector(".edit-bookmark-icon");
   const iconPicker = dialog.querySelector(".icon-picker");
-  const previewImg = dialog.querySelector(".icon-preview");
   const saveBtn = dialog.querySelector(".edit-save-btn");
   const cancelBtn = dialog.querySelector(".edit-cancel-btn");
 
@@ -209,26 +194,12 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     if (iconPicker.value) {
       iconInput.value = "";
       iconInput.disabled = true;
-      previewImg.src = `${CUSTOM_ICON_BASE_URL}${iconPicker.value}`;
     } else {
       iconInput.disabled = false;
-      previewImg.src = `https://www.google.com/s2/favicons?domain=${new URL(urlInput.value.trim()).hostname}`;
     }
   });
 
-  iconInput.addEventListener("input", () => {
-    if (iconInput.value.trim()) {
-      previewImg.src = `${CUSTOM_ICON_BASE_URL}${iconInput.value.trim()}`;
-    }
-  });
-
-  urlInput.addEventListener("input", () => {
-    if (!iconPicker.value && !iconInput.value.trim()) {
-      previewImg.src = `https://www.google.com/s2/favicons?domain=${new URL(urlInput.value.trim()).hostname}`;
-    }
-    validateInputs();
-  });
-
+  urlInput.addEventListener("input", validateInputs);
   validateInputs();
 
   saveBtn.addEventListener("click", async () => {
