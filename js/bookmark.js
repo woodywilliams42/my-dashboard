@@ -113,32 +113,42 @@ function createBookmarkIcon(entry, tab, id) {
   link.appendChild(img);
 
   link.addEventListener("contextmenu", e => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const menu = document.createElement("div");
-    menu.className = "bookmark-context-menu";
-    menu.style.top = `${e.clientY}px`;
-    menu.style.left = `${e.clientX}px`;
-    menu.innerHTML = `
-      <div class="menu-option" data-action="edit">✏️ Edit Bookmark</div>
-      <div class="menu-option" data-action="delete">🗑️ Delete Bookmark</div>
-    `;
-    document.body.appendChild(menu);
+  // Remove any existing menus first
+  document.querySelectorAll(".bookmark-context-menu").forEach(m => m.remove());
 
-    const removeMenu = () => menu.remove();
-    setTimeout(() => document.addEventListener("click", removeMenu, { once: true }), 10);
+  const menu = document.createElement("div");
+  menu.className = "bookmark-context-menu";
+  menu.style.position = "absolute";
+  menu.style.top = `${e.clientY}px`;
+  menu.style.left = `${e.clientX}px`;
+  menu.style.zIndex = 9999;
+  menu.innerHTML = `
+    <div class="menu-option" data-action="edit">✏️ Edit Bookmark</div>
+    <div class="menu-option" data-action="delete">🗑️ Delete Bookmark</div>
+  `;
+  document.body.appendChild(menu);
 
-    menu.addEventListener("click", ev => {
-      const action = ev.target.dataset.action;
-      if (action === "delete") {
-        link.remove();
-        removeBookmark(tab, id, url);
-      } else if (action === "edit") {
-        openBookmarkEditDialog(link, tab, id, entry);
-      }
+  const clickHandler = (ev) => {
+    const action = ev.target.dataset.action;
+    if (action === "delete") {
+      link.remove();
+      removeBookmark(tab, id, url);
       menu.remove();
-    });
-  });
+    } else if (action === "edit") {
+      openBookmarkEditDialog(link, tab, id, entry);
+      menu.remove();
+    } else if (!menu.contains(ev.target)) {
+      menu.remove();
+    }
+  };
+
+  // Delay ensures the menu stays open for its own clicks
+  setTimeout(() => {
+    document.addEventListener("click", clickHandler, { once: true });
+  }, 0);
+});
 
   return link;
 }
