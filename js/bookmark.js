@@ -163,6 +163,11 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
         ${AVAILABLE_ICONS.map(file => `<option value="${file}" ${bookmark.icon === file ? "selected" : ""}>${file}</option>`).join("")}
       </select>
     </label>
+    <div class="icon-preview-grid">
+      ${AVAILABLE_ICONS.map(file => `
+        <img src="${CUSTOM_ICON_BASE_URL}${file}" data-file="${file}" class="icon-preview-img" style="width:32px;height:32px;cursor:pointer;border:1px solid #ccc;margin:2px;">
+      `).join("")}
+    </div>
     <label>Custom icon filename (optional): <input type="text" class="edit-bookmark-icon" value="${!AVAILABLE_ICONS.includes(bookmark.icon) ? bookmark.icon : ""}"></label>
     <div class="edit-dialog-actions">
       <button class="start-button edit-save-btn" disabled style="opacity:0.5;cursor:not-allowed;">✅ Save</button>
@@ -196,6 +201,14 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     } else {
       iconInput.disabled = false;
     }
+  });
+
+  dialog.querySelectorAll(".icon-preview-img").forEach(img => {
+    img.addEventListener("click", () => {
+      iconPicker.value = img.dataset.file;
+      iconInput.value = "";
+      iconInput.disabled = true;
+    });
   });
 
   urlInput.addEventListener("input", validateInputs);
