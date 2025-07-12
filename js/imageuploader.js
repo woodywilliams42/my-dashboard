@@ -12,6 +12,14 @@ contextMenu.innerHTML = `
 `;
 document.body.appendChild(contextMenu);
 
+// 🧠 Define the missing function
+function showContextMenu(x, y) {
+  contextMenu.style.top = `${y}px`;
+  contextMenu.style.left = `${x}px`;
+  contextMenu.style.display = "block";
+}
+
+// Show context menu only when right-clicking hero background
 document.addEventListener("contextmenu", (e) => {
   const heroEl = document.querySelector(".hero-background");
   if (!heroEl || !heroEl.contains(e.target)) return;
@@ -20,13 +28,12 @@ document.addEventListener("contextmenu", (e) => {
   showContextMenu(e.clientX, e.clientY);
 });
 
-
 // Hide on click elsewhere
 document.addEventListener("click", () => {
   contextMenu.style.display = "none";
 });
 
-// Click handler
+// Click handler for menu options
 contextMenu.addEventListener("click", (e) => {
   const type = e.target.dataset.type;
   if (!type) return;
@@ -50,4 +57,3 @@ contextMenu.addEventListener("click", (e) => {
 
   fileInput.click();
 });
-
