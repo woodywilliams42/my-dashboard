@@ -12,14 +12,14 @@ contextMenu.innerHTML = `
 `;
 document.body.appendChild(contextMenu);
 
-// 🧠 Define the missing function
+// 🧠 Context menu display handler
 function showContextMenu(x, y) {
   contextMenu.style.top = `${y}px`;
   contextMenu.style.left = `${x}px`;
   contextMenu.style.display = "block";
 }
 
-// Show context menu only when right-clicking hero background
+// Only show when right-clicking on hero background
 document.addEventListener("contextmenu", (e) => {
   const heroEl = document.querySelector(".hero-background");
   if (!heroEl || !heroEl.contains(e.target)) return;
@@ -28,12 +28,12 @@ document.addEventListener("contextmenu", (e) => {
   showContextMenu(e.clientX, e.clientY);
 });
 
-// Hide on click elsewhere
+// Hide menu on click elsewhere
 document.addEventListener("click", () => {
   contextMenu.style.display = "none";
 });
 
-// Click handler for menu options
+// Handle menu click
 contextMenu.addEventListener("click", (e) => {
   const type = e.target.dataset.type;
   if (!type) return;
@@ -49,11 +49,53 @@ contextMenu.addEventListener("click", (e) => {
     const reader = new FileReader();
     reader.onload = function () {
       const base64 = reader.result.split(",")[1];
-      console.log(`📦 Ready to upload:\nType: ${type}\nFilename: ${file.name}\nBase64:`, base64.slice(0, 100) + "...");
-      // Later: send `file.name`, `base64`, and `type` to backend or upload handler
+      const filePath = type === "favicon"
+        ? `favicons/${file.name}`
+        : `herobackgrounds/${file.name}`;
+
+      uploadImageToGitHub(filePath, base64, file.name);
     };
     reader.readAsDataURL(file);
   });
 
   fileInput.click();
 });
+
+// Upload function to GitHub
+async function uploadImageToGitHub(path, base64Content, filename) {
+  const GITHUB_USERNAME = "woodywilliams42";
+  const REPO = "my-dashboard";
+  const BRANCH = "main";
+  const TOKEN = "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"; // Replace this with your real token
+
+  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO}/contents/${path}`;
+
+  const payload = {
+    message: `Upload ${filename}`,
+    content: base64Content,
+    branch: BRANCH
+  };
+
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Authorization": `token ${TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert(`✅ Uploaded ${filename} successfully!`);
+      console.log("GitHub Response:", data);
+    } else {
+      console.error("❌ GitHub upload failed:", data);
+      alert(`Upload failed: ${data.message}`);
+    }
+  } catch (err) {
+    console.error("❌ Upload error:", err);
+    alert("Upload failed: Network or permission error.");
+  }
+}
