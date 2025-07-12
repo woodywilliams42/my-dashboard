@@ -4,14 +4,21 @@ import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
 const CUSTOM_ICON_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/favicons/";
+const GITHUB_API_URL = "https://api.github.com/repos/woodywilliams42/my-dashboard/contents/favicons";
 
-const AVAILABLE_ICONS = [
-  "Icon1.png",
-  "Icon2.png",
-  "StarIcon.jpg",
-  "StarIcon2.jpg",
-  "StarIcon3.jpg",
-];
+async function fetchAvailableIcons() {
+  try {
+    const res = await fetch(GITHUB_API_URL);
+    if (!res.ok) throw new Error("Failed to fetch icons");
+    const files = await res.json();
+    return files
+      .filter(f => /\.(png|jpe?g|ico)$/i.test(f.name))
+      .map(f => f.name);
+  } catch (err) {
+    console.error("Error fetching icons from GitHub:", err);
+    return [];
+  }
+}
 
 function normalizeBookmarks(arr) {
   return arr.map(b => {
@@ -25,8 +32,6 @@ function normalizeBookmarks(arr) {
 }
 
 export function setupBookmarkFrame(frameEl, data, tab, id) {
-  console.log(`Setting up bookmark frame for tab=${tab} id=${id}`, data);
-
   const frameContent = frameEl.querySelector(".frame-content");
   if (!frameContent) return;
 
@@ -158,17 +163,10 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     <label>Tooltip: <input type="text" class="edit-bookmark-tooltip" value="${bookmark.tooltip}"></label>
     <label>
       Icon:
-      <select class="icon-picker">
-        <option value="">Default (site favicon)</option>
-        ${AVAILABLE_ICONS.map(file => `<option value="${file}" ${bookmark.icon === file ? "selected" : ""}>${file}</option>`).join("")}
-      </select>
+      <select class="icon-picker"><option>Loading...</option></select>
     </label>
-    <div class="icon-preview-grid">
-      ${AVAILABLE_ICONS.map(file => `
-        <img src="${CUSTOM_ICON_BASE_URL}${file}" data-file="${file}" class="icon-preview-img" style="width:32px;height:32px;cursor:pointer;border:1px solid #ccc;margin:2px;">
-      `).join("")}
-    </div>
-    <label>Custom icon filename (optional): <input type="text" class="edit-bookmark-icon" value="${!AVAILABLE_ICONS.includes(bookmark.icon) ? bookmark.icon : ""}"></label>
+    <div class="icon-preview-grid"></div>
+    <label>Custom icon filename (optional): <input type="text" class="edit-bookmark-icon" value=""></label>
     <div class="edit-dialog-actions">
       <button class="start-button edit-save-btn" disabled style="opacity:0.5;cursor:not-allowed;">✅ Save</button>
       <button class="start-button cancel-button edit-cancel-btn">❌ Cancel</button>
@@ -186,6 +184,7 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
   const iconPicker = dialog.querySelector(".icon-picker");
   const saveBtn = dialog.querySelector(".edit-save-btn");
   const cancelBtn = dialog.querySelector(".edit-cancel-btn");
+  const iconPreviewGrid = dialog.querySelector(".icon-preview-grid");
 
   const validateInputs = () => {
     const urlValid = urlInput.value.trim() && isValidUrl(urlInput.value.trim());
@@ -193,6 +192,30 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     saveBtn.style.opacity = urlValid ? "1" : "0.5";
     saveBtn.style.cursor = urlValid ? "pointer" : "not-allowed";
   };
+
+  fetchAvailableIcons().then(iconList => {
+    iconPicker.innerHTML = `<option value="">Default (site favicon)</option>`;
+    iconList.forEach(file => {
+      const opt = document.createElement("option");
+      opt.value = file;
+      opt.textContent = file;
+      if (bookmark.icon === file) opt.selected = true;
+      iconPicker.appendChild(opt);
+
+      const img = document.createElement("img");
+      img.src = `${CUSTOM_ICON_BASE_URL}${file}`;
+      img.dataset.file = file;
+      img.className = "icon-preview-img";
+      img.style.cssText = "width:32px;height:32px;cursor:pointer;border:1px solid #ccc;margin:2px;";
+      iconPreviewGrid.appendChild(img);
+    });
+
+    if (!iconList.includes(bookmark.icon) && bookmark.icon) {
+      iconInput.value = bookmark.icon;
+      iconPicker.value = "";
+      iconInput.disabled = false;
+    }
+  });
 
   iconPicker.addEventListener("change", () => {
     if (iconPicker.value) {
@@ -203,12 +226,12 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
     }
   });
 
-  dialog.querySelectorAll(".icon-preview-img").forEach(img => {
-    img.addEventListener("click", () => {
-      iconPicker.value = img.dataset.file;
+  iconPreviewGrid.addEventListener("click", e => {
+    if (e.target.classList.contains("icon-preview-img")) {
+      iconPicker.value = e.target.dataset.file;
       iconInput.value = "";
       iconInput.disabled = true;
-    });
+    }
   });
 
   urlInput.addEventListener("input", validateInputs);
@@ -224,16 +247,15 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
       return;
     }
 
-    if (newIcon && !AVAILABLE_ICONS.includes(newIcon)) {
-      if (!/^[\w,\s-]+\.(png|jpg|jpeg|ico)$/i.test(newIcon)) {
-        alert("Icon filename is invalid. Use png, jpg, jpeg, or ico formats.");
-        return;
-      }
-      const exists = await iconExists(newIcon);
-      if (!exists) {
-        alert(`Icon file "${newIcon}" not found in GitHub storage.`);
-        return;
-      }
+    if (newIcon && !/^[\w,\s-]+\.(png|jpg|jpeg|ico)$/i.test(newIcon)) {
+      alert("Icon filename is invalid. Use png, jpg, jpeg, or ico formats.");
+      return;
+    }
+
+    const iconExistsFlag = newIcon ? await iconExists(newIcon) : true;
+    if (!iconExistsFlag) {
+      alert(`Icon file "${newIcon}" not found in GitHub storage.`);
+      return;
     }
 
     bookmark.url = newUrl;
