@@ -66,7 +66,7 @@ async function uploadImageToGitHub(path, base64Content, filename) {
   const GITHUB_USERNAME = "woodywilliams42";
   const REPO = "my-dashboard";
   const BRANCH = "main";
-  const TOKEN = "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"; // Replace this with your real token
+  const TOKEN = "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"; // Replace this with your real token
 
   const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO}/contents/${path}`;
 
