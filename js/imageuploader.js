@@ -1,4 +1,4 @@
-// imageUploader.js
+// imageUploader.js  
 
 // Create context menu
 const contextMenu = document.createElement("div");
