@@ -1,7 +1,5 @@
-console.log("Hero.js loaded");
-
-const GITHUB_API_URL = "https://api.github.com/repos/woodywilliams42/my-dashboard/contents/backgrounds";
-const RAW_IMAGE_BASE = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/backgrounds";
+const GITHUB_API_URL = "https://api.github.com/repos/woodywilliams42/my-dashboard/contents/herobackgrounds";
+const RAW_IMAGE_BASE = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/herobackgrounds";
 
 let heroImages = [];
 
