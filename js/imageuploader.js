@@ -12,13 +12,14 @@ contextMenu.innerHTML = `
 `;
 document.body.appendChild(contextMenu);
 
-// Listen for right-clicks anywhere on page (can be scoped to frame/header if preferred)
 document.addEventListener("contextmenu", (e) => {
+  const heroEl = document.querySelector(".hero-background");
+  if (!heroEl || !heroEl.contains(e.target)) return;
+
   e.preventDefault();
-  contextMenu.style.top = `${e.clientY}px`;
-  contextMenu.style.left = `${e.clientX}px`;
-  contextMenu.style.display = "block";
+  showContextMenu(e.clientX, e.clientY);
 });
+
 
 // Hide on click elsewhere
 document.addEventListener("click", () => {
