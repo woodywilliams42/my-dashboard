@@ -5,6 +5,8 @@
   font-size: 14px;
   border-radius: 4px;
   overflow: hidden;
+  font-family: system-ui, sans-serif;
+  color: black;
 }
 
 .upload-option {
