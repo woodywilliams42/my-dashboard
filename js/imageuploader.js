@@ -80,7 +80,7 @@ async function uploadImageToGitHub(path, base64Content, filename) {
     const res = await fetch(url, {
       method: "PUT",
       headers: {
-        "Authorization": `Bearer ${TOKEN}`
+        "Authorization": `Bearer ${TOKEN}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
