@@ -1,4 +1,4 @@
-// imageUploader.js  
+// imageUploader.js
 
 // Create context menu
 const contextMenu = document.createElement("div");
@@ -12,14 +12,13 @@ contextMenu.innerHTML = `
 `;
 document.body.appendChild(contextMenu);
 
-// 🧠 Context menu display handler
+// Show context menu on right-click of hero image
 function showContextMenu(x, y) {
   contextMenu.style.top = `${y}px`;
   contextMenu.style.left = `${x}px`;
   contextMenu.style.display = "block";
 }
 
-// Only show when right-clicking on hero background
 document.addEventListener("contextmenu", (e) => {
   const heroEl = document.querySelector(".hero-background");
   if (!heroEl || !heroEl.contains(e.target)) return;
@@ -28,12 +27,12 @@ document.addEventListener("contextmenu", (e) => {
   showContextMenu(e.clientX, e.clientY);
 });
 
-// Hide menu on click elsewhere
+// Hide context menu when clicking elsewhere
 document.addEventListener("click", () => {
   contextMenu.style.display = "none";
 });
 
-// Handle menu click
+// Handle click on menu options
 contextMenu.addEventListener("click", (e) => {
   const type = e.target.dataset.type;
   if (!type) return;
@@ -61,41 +60,36 @@ contextMenu.addEventListener("click", (e) => {
   fileInput.click();
 });
 
-// Upload function to GitHub
+// Upload function via Firebase Function
 async function uploadImageToGitHub(path, base64Content, filename) {
-  const GITHUB_USERNAME = "woodywilliams42";
-  const REPO = "my-dashboard";
-  const BRANCH = "main";
-  const TOKEN = "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"; // Replace this with your real token
-
-  const url = `https://api.github.com/repos/${GITHUB_USERNAME}/${REPO}/contents/${path}`;
+  const FUNCTION_URL = "https://us-central1-woodydashboard.cloudfunctions.net/uploadToGitHub";
 
   const payload = {
-    message: `Upload ${filename}`,
+    path,
     content: base64Content,
-    branch: BRANCH
+    filename
   };
 
   try {
-    const res = await fetch(url, {
-      method: "PUT",
+    const res = await fetch(FUNCTION_URL, {
+      method: "POST",
       headers: {
-        "Authorization": `Bearer ${TOKEN}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify(payload)
     });
 
     const data = await res.json();
+
     if (res.ok) {
       alert(`✅ Uploaded ${filename} successfully!`);
-      console.log("GitHub Response:", data);
+      console.log("🎉 Server response:", data);
     } else {
-      console.error("❌ GitHub upload failed:", data);
+      console.error("❌ Server returned error:", data);
       alert(`Upload failed: ${data.message}`);
     }
   } catch (err) {
     console.error("❌ Upload error:", err);
-    alert("Upload failed: Network or permission error.");
+    alert("Upload failed: Network or server error.");
   }
 }
