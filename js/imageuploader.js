@@ -60,21 +60,21 @@ contextMenu.addEventListener("click", (e) => {
   fileInput.click();
 });
 
-// Upload function via Firebase Function
+// Upload function (calls your Firebase Cloud Function instead of GitHub directly)
 async function uploadImageToGitHub(path, base64Content, filename) {
-  const FUNCTION_URL = "https://us-central1-woodydashboard.cloudfunctions.net/uploadToGitHub";
+  const functionURL = "https://us-central1-woodydashboard.cloudfunctions.net/uploadToGitHub";
 
   const payload = {
     path,
-    content: base64Content,
-    filename
+    base64: base64Content,
+    filename,
   };
 
   try {
-    const res = await fetch(FUNCTION_URL, {
+    const res = await fetch(functionURL, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(payload)
     });
@@ -83,10 +83,10 @@ async function uploadImageToGitHub(path, base64Content, filename) {
 
     if (res.ok) {
       alert(`✅ Uploaded ${filename} successfully!`);
-      console.log("🎉 Server response:", data);
+      console.log("✅ Firebase Response:", data);
     } else {
-      console.error("❌ Server returned error:", data);
-      alert(`Upload failed: ${data.message}`);
+      console.error("❌ Upload failed:", data);
+      alert(`Upload failed: ${data.message || "Unknown error"}`);
     }
   } catch (err) {
     console.error("❌ Upload error:", err);
