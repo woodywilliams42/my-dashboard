@@ -107,23 +107,39 @@ function updateCountdownDisplay(seconds) {
 
 // === Hook up UI ===
 function setupAlarmUI() {
-  document.getElementById("alarm-start").addEventListener("click", startAlarmTimer);
-  document.getElementById("alarm-stop").addEventListener("click", () => {
-    stopAlarmTimer();
-    updateCountdownDisplay(alarmSettings.frequency);
-  });
+  const startBtn = document.getElementById("alarm-start");
+  const stopBtn = document.getElementById("alarm-stop");
+  const freqInput = document.getElementById("alarm-frequency");
+  const randomCheckbox = document.getElementById("alarm-random");
 
-  document.getElementById("alarm-frequency").addEventListener("change", e => {
-    alarmSettings.frequency = parseInt(e.target.value);
-    saveAlarmSettings();
-  });
+  if (startBtn) {
+    startBtn.addEventListener("click", startAlarmTimer);
+  }
 
-  document.getElementById("alarm-random").addEventListener("change", e => {
-    alarmSettings.randomize = e.target.checked;
-    saveAlarmSettings();
-  });
+  if (stopBtn) {
+    stopBtn.addEventListener("click", () => {
+      stopAlarmTimer();
+      updateCountdownDisplay(alarmSettings.frequency);
+    });
+  }
+
+  if (freqInput) {
+    freqInput.addEventListener("change", e => {
+      const freq = parseInt(e.target.value, 10);
+      if (!isNaN(freq)) {
+        alarmSettings.frequency = freq;
+        saveAlarmSettings();
+      }
+    });
+  }
+
+  if (randomCheckbox) {
+    randomCheckbox.addEventListener("change", e => {
+      alarmSettings.randomize = e.target.checked;
+      saveAlarmSettings();
+    });
+  }
 }
-
 // === Init ===
 document.addEventListener("DOMContentLoaded", () => {
   loadAlarmSettings();
