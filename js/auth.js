@@ -1,14 +1,14 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
-  authDomain: "woodydashboard.firebaseapp.com",
-  projectId: "woodydashboard",
-  storageBucket: "woodydashboard.firebasestorage.app",
-  messagingSenderId: "180582118415",
-  appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
-};
+// === Imports ===
+import { app } from "./firebase.js";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ✅ Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// === Initialize Auth ===
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
@@ -25,8 +25,12 @@ document.getElementById("login-btn").addEventListener("click", async () => {
 
 // ✅ Logout button
 document.getElementById("logout-btn").addEventListener("click", async () => {
-  await signOut(auth);
-  alert("👋 Signed out");
+  try {
+    await signOut(auth);
+    alert("👋 Signed out");
+  } catch (error) {
+    console.error("Logout Error:", error);
+  }
 });
 
 // ✅ Update UI on auth state change
