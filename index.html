@@ -20,6 +20,9 @@
   <link rel="stylesheet" href="css/timer.css">
   <link rel="stylesheet" href="css/imageuploader.css">
   
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
@@ -35,7 +38,6 @@
     <div class="dashboard-title">Woody</div>
   </div>
 
-  <!-- Frame Controls and Dark Mode Toggle Row -->
   <div class="frame-controls-wrapper">
     <div class="frame-controls">
       <select id="frameType">
@@ -56,24 +58,21 @@
     </div>
   </div>
 
+  <!-- Optional: Login/Logout Buttons -->
+  <div style="margin: 1em;">
+    <button id="login-btn">Sign In with Google</button>
+    <button id="logout-btn">Sign Out</button>
+    <span id="user-info" style="margin-left: 1em; font-weight: bold;"></span>
+  </div>
+
   <!-- Dynamic Tab Content -->
   <div id="tabs-container"></div>
-
-  <!-- Bookmark Context Menu 
-  <div id="bookmark-context-menu" class="context-menu">
-    <ul>
-      <li data-action="open">Open in New Tab</li>
-      <li data-action="copy">Copy URL</li>
-      <li data-action="edit">Edit Bookmark</li>
-      <li data-action="remove">Remove Bookmark</li>
-      <li data-action="change-favicon">Change Favicon</li>
-    </ul>
-  </div>  -->
 
   <input type="file" id="favicon-upload" style="display:none" accept="image/*" />
 
   <!-- Scripts -->
   <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/auth.js"></script> <!-- ✅ Added auth.js -->
   <script type="module" src="js/script.js"></script>
   <script type="module" src="js/frames.js"></script>
   <script type="module" src="js/darkmode.js"></script>
@@ -83,7 +82,6 @@
   <script type="module" src="js/quickcomments.js"></script>
   <script type="module" src="js/alarms.js"></script>
   <script type="module" src="js/bookmark.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <script type="module" src="js/imageuploader.js"></script>
 </body>
 </html>
