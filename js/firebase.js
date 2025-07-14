@@ -1,8 +1,8 @@
 // === Firebase Initialization ===
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 // === Firestore (Database) ===
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // === Storage (For Hero Images, etc.) ===
 import {
@@ -12,7 +12,7 @@ import {
   uploadBytes,
   getDownloadURL,
   deleteObject
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
 // === Your Firebase Project Configuration ===
 const firebaseConfig = {
@@ -29,8 +29,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// === Export Firestore and Storage for use in other modules ===
+// === Export App, Firestore, and Storage for use in other modules ===
 export {
+  app,
   db,
   storage,
   ref,
