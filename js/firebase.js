@@ -1,7 +1,7 @@
-// === Firebase Initialization ===
+// Firebase App Initialization
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-// === Storage (For Hero Images, etc.) ===
+// Firebase Storage
 import {
   getStorage,
   ref,
@@ -11,7 +11,7 @@ import {
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// === Firebase Project Configuration ===
+// Config
 const firebaseConfig = {
   apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
   authDomain: "woodydashboard.firebaseapp.com",
@@ -21,7 +21,7 @@ const firebaseConfig = {
   appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
 };
 
-// Initialize Firebase
+// Initialize
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
