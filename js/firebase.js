@@ -14,7 +14,7 @@ import {
   deleteObject
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-// === Your Firebase Project Configuration ===
+// === Firebase Project Configuration ===
 const firebaseConfig = {
   apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
   authDomain: "woodydashboard.firebaseapp.com",
@@ -24,12 +24,12 @@ const firebaseConfig = {
   appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
 };
 
-// === Initialize Firebase App, Firestore, and Storage ===
+// === Initialize Firebase Services ===
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// === Export App, Firestore, and Storage for use in other modules ===
+// === Export Firebase services for use in other modules ===
 export {
   app,
   db,
