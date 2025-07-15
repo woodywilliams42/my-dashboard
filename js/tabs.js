@@ -1,10 +1,10 @@
+import { db } from './firebase.js';
 import {
-  db,
   collection,
   getDocs,
   query,
   orderBy
-} from './firebase.js';
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import { loadFramesForTab } from './frames.js';
 import { setRandomHeroImage, toggleClocks } from './hero.js';
@@ -21,8 +21,8 @@ async function loadTabs() {
   console.log('Collection input db:', db);
 
   try {
-    const tabCollection = collection(db, "dashboardTabs");
-    const tabQuery = query(tabCollection, orderBy("order"));
+    // ✅ Use Firestore functions imported directly alongside db
+    const tabQuery = query(collection(db, "dashboardTabs"), orderBy("order"));
     const snap = await getDocs(tabQuery);
     const tabsArray = [];
 
