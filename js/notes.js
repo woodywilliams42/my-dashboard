@@ -1,5 +1,14 @@
-import { getFirestore, collection, doc, ... } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// === Notes ===
 import { app } from './firebase.js';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const db = getFirestore(app);
 
 
