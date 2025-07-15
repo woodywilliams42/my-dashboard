@@ -1,15 +1,6 @@
 // === Firebase Initialization ===
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
-// === Firestore (Database) ===
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  query,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 // === Storage (For Hero Images, etc.) ===
 import {
   getStorage,
@@ -30,23 +21,16 @@ const firebaseConfig = {
   appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
 };
 
-// === Initialize Firebase Services ===
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const storage = getStorage(app);
 
-// === Export Firebase services for use in other modules ===
 export {
   app,
-  db,
   storage,
   ref,
   listAll,
   uploadBytes,
   getDownloadURL,
-  deleteObject,
-  collection,
-  getDocs,
-  query,
-  orderBy
+  deleteObject
 };
