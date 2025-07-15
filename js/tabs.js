@@ -6,10 +6,10 @@ import {
   orderBy
 } from './firebase.js';
 
-console.log('DB instance:', db);
-
 import { loadFramesForTab } from './frames.js';
 import { setRandomHeroImage, toggleClocks } from './hero.js';
+
+console.log('DB instance:', db);
 
 const navContainer = document.getElementById("tab-nav");
 const tabsContainer = document.getElementById("tabs-container");
@@ -18,12 +18,11 @@ let currentTabId = null;
 
 async function loadTabs() {
   console.log("Loading tabs from Firestore...");
-
-console.log('Collection input db:', db);
-
+  console.log('Collection input db:', db);
 
   try {
-    const tabQuery = query(collection(db, "dashboardTabs"), orderBy("order"));
+    const tabCollection = collection(db, "dashboardTabs");
+    const tabQuery = query(tabCollection, orderBy("order"));
     const snap = await getDocs(tabQuery);
     const tabsArray = [];
 
