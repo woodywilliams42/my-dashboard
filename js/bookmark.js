@@ -1,7 +1,15 @@
-import { getFirestore, collection, doc, ... } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+// === Bookmarks ===
 import { app } from './firebase.js';
-const db = getFirestore(app);
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+const db = getFirestore(app);
 import { framesData } from './frames.js';
 
 const ICON_SIZE = 32;
