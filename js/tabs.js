@@ -19,6 +19,9 @@ let currentTabId = null;
 async function loadTabs() {
   console.log("Loading tabs from Firestore...");
 
+console.log('Collection input db:', db);
+
+
   try {
     const tabQuery = query(collection(db, "dashboardTabs"), orderBy("order"));
     const snap = await getDocs(tabQuery);
