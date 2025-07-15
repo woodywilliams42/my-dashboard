@@ -5,8 +5,12 @@ import {
   collection,
   getDocs,
   query,
-  where
+  where,
+  getDoc,
+  setDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 
 const db = getFirestore(app);
 
