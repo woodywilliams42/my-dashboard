@@ -1,14 +1,10 @@
-import { db } from './firebase.js';
-import {
-  collection,
-  getDocs,
-  query,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { app } from './firebase.js';
 
 import { loadFramesForTab } from './frames.js';
 import { setRandomHeroImage, toggleClocks } from './hero.js';
 
+const db = getFirestore(app);
 console.log('DB instance:', db);
 
 const navContainer = document.getElementById("tab-nav");
@@ -21,7 +17,6 @@ async function loadTabs() {
   console.log('Collection input db:', db);
 
   try {
-    // ✅ Use Firestore functions imported directly alongside db
     const tabQuery = query(collection(db, "dashboardTabs"), orderBy("order"));
     const snap = await getDocs(tabQuery);
     const tabsArray = [];
