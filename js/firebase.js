@@ -2,7 +2,13 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 // === Firestore (Database) ===
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // === Storage (For Hero Images, etc.) ===
 import {
@@ -38,5 +44,9 @@ export {
   listAll,
   uploadBytes,
   getDownloadURL,
-  deleteObject
+  deleteObject,
+  collection,
+  getDocs,
+  query,
+  orderBy
 };
