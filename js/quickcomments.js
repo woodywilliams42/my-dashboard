@@ -1,6 +1,18 @@
+// === Quick Comments ===
+import { app } from './firebase.js';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const db = getFirestore(app);
+
+
 import { framesData } from './frames.js';
-import { db } from './firebase.js';
-import { doc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 export function setupQuickCommentsFrame(frameEl, data, tab, id) {
   const frameContent = frameEl.querySelector(".frame-content");
