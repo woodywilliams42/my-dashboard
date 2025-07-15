@@ -1,5 +1,5 @@
 // ✅ Import Firebase Modules
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { app } from "./firebase.js";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -8,18 +8,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ✅ Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAFhr8C3o6fEXY1vNkiKq_0tfXp45ekTlU",
-  authDomain: "woodydashboard.firebaseapp.com",
-  projectId: "woodydashboard",
-  storageBucket: "woodydashboard.appspot.com",
-  messagingSenderId: "180582118415",
-  appId: "1:180582118415:web:447bdf09b42dd16fa15f7a"
-};
-
-// ✅ Initialize Firebase
-const app = initializeApp(firebaseConfig);
+// ✅ Initialize Firebase Auth
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
