@@ -1,6 +1,12 @@
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { app } from './firebase.js';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { app } from './firebase.js';
 import { loadFramesForTab } from './frames.js';
 import { setRandomHeroImage, toggleClocks } from './hero.js';
 
