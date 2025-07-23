@@ -12,15 +12,20 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // ✅ Create Auth Button
-const authBtn = document.createElement("button");
-authBtn.id = "google-auth-btn";
-authBtn.classList.add("logged-out");
-authBtn.title = "Sign in to Google";
+let authBtn = document.getElementById("google-auth-btn");
 
-const img = document.createElement("img");
-img.src = "images/google-icon.png";
-img.alt = "Google Sign-In";
-authBtn.appendChild(img);
+if (!authBtn) {
+  authBtn = document.createElement("button");
+  authBtn.id = "google-auth-btn";
+  authBtn.classList.add("logged-out");
+  authBtn.title = "Sign in to Google";
+
+  const img = document.createElement("img");
+  img.src = "images/google-icon.png";
+  img.alt = "Google Sign-In";
+  authBtn.appendChild(img);
+}
+
 
 // ✅ Insert into DOM (after Add Frame button)
 document.addEventListener("DOMContentLoaded", () => {
