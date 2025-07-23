@@ -18,7 +18,7 @@ authBtn.classList.add("logged-out");
 authBtn.title = "Sign in to Google";
 
 const img = document.createElement("img");
-img.src = "images/google-icon.png";
+img.src = "images/g-logo.png";
 img.alt = "Google Sign-In";
 authBtn.appendChild(img);
 
