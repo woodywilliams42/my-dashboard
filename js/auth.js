@@ -21,7 +21,7 @@ if (!authBtn) {
   authBtn.title = "Sign in to Google";
 
   const img = document.createElement("img");
-  img.src = "images/google-icon.png";
+  img.src = "/my-dashboard/images/google-icon.png";
   img.alt = "Google Sign-In";
   authBtn.appendChild(img);
 }
