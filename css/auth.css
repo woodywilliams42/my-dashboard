@@ -1,33 +1,37 @@
 /* Container button style */
-.google-auth-icon {
-  width: 36px;
-  height: 36px;
+/* auth.css */
+
+#google-auth-btn {
+  width: 32px;
+  height: 32px;
   border: none;
   border-radius: 50%;
-  background-color: transparent;
+  background-color: transparent; /* ✅ Fully transparent */
   padding: 0;
   margin-left: 0.5em;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: none;
 }
 
-/* Icon inside the button */
-.google-auth-icon img {
-  width: 24px;
-  height: 24px;
-  transition: filter 0.3s ease;
+#google-auth-btn img {
+  width: 20px;   /* ✅ Smaller icon size */
+  height: 20px;
+  transition: filter 0.3s ease, opacity 0.3s ease;
+  display: block;
 }
 
-/* Grayscale icon when not signed in */
-.google-auth-icon.logged-out img {
+/* ✅ Grayscale + dim when logged out */
+#google-auth-btn.logged-out img {
   filter: grayscale(100%);
   opacity: 0.5;
 }
 
-/* Colored icon when signed in */
-.google-auth-icon.logged-in img {
+/* ✅ Full color when logged in */
+#google-auth-btn.logged-in img {
   filter: none;
   opacity: 1;
 }
+
