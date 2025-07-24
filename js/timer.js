@@ -10,7 +10,9 @@ const SOUNDS = [
   'sounds/Alarm2.mp3',
   'sounds/Alarm3.mp3',
   'sounds/Alarm4.mp3',
-  'sounds/Alarm5.mp3'
+  'sounds/Alarm5.mp3',
+  'sounds/Alarm6.mp3',
+  'sounds/Alarm7.mp3'
 ];
 
 export function setupTimerFrame(frameEl, data, tab, id) {
