@@ -27,10 +27,9 @@ authBtn.appendChild(img);
 
 // ✅ Insert into DOM after Add Frame button
 document.addEventListener("DOMContentLoaded", () => {
-  const controls = document.querySelector(".frame-controls");
-  if (controls) {
-    controls.appendChild(authBtn);
-  }
+  const authContainer = document.getElementById("auth-button-container");
+if (authContainer) authContainer.appendChild(authBtn);
+
 });
 
 // ✅ Click handler: toggles login/logout
