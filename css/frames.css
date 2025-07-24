@@ -100,6 +100,24 @@ body.dark-mode {
   background-color: #9e9e9d;
 }
 
+.frame-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.frame-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.frame-controls-right {
+  display: flex;
+  align-items: center;
+}
+
+
 /* Delete‑button (if you still use it) */
 .delete-frame {
   position: absolute;
