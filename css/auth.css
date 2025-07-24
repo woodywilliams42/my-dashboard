@@ -1,4 +1,5 @@
-#google-auth-btn {
+/* Container button style */
+.google-auth-icon {
   width: 36px;
   height: 36px;
   border: none;
@@ -7,27 +8,26 @@
   padding: 0;
   margin-left: 0.5em;
   cursor: pointer;
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-#google-auth-btn img {
+/* Icon inside the button */
+.google-auth-icon img {
   width: 24px;
   height: 24px;
   transition: filter 0.3s ease;
 }
 
 /* Grayscale icon when not signed in */
-#google-auth-btn.logged-out img {
+.google-auth-icon.logged-out img {
   filter: grayscale(100%);
   opacity: 0.5;
 }
 
 /* Colored icon when signed in */
-#google-auth-btn.logged-in img {
+.google-auth-icon.logged-in img {
   filter: none;
   opacity: 1;
 }
-
