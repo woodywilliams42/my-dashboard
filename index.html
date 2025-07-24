@@ -36,28 +36,18 @@
 
  <!-- ✅ Combined controls wrapper for layout -->
 <div class="frame-controls-wrapper">
-  <div class="frame-controls">
-    <!-- Left-aligned controls (all inline) -->
-    <div class="frame-controls-left">
-      <select id="frameType">
-        <option value="note">Note</option>
-        <option value="quick">Quick Comment</option>
-        <option value="bookmark">Bookmark</option>
-        <option value="timer">Timer</option>
-      </select>
-      <button id="addFrameBtn">➕ Add Frame</button>
-      <div id="auth-button-container"></div>
-    </div>
-
-    <!-- Right-aligned dark mode toggle -->
-    <div class="dark-toggle-main">
-      <label class="switch">
-        <input type="checkbox" id="darkModeToggle" />
-        <span class="slider"></span>
-      </label>
-      <span id="theme-label">🌞</span>
-    </div>
+<div class="frame-controls">
+  <div class="frame-controls-left">
+    <select><option>Note</option></select>
+    <button>Add Frame</button>
+    <div id="auth-button-container">[G]</div>
   </div>
+  <div class="dark-toggle-main">
+    <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+    <span id="theme-label">🌞</span>
+  </div>
+</div>
+
 </div>
 
 
