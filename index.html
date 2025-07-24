@@ -34,26 +34,27 @@
     <div class="dashboard-title">Woody</div>
   </div>
 
- <div class="frame-controls">
-  <div class="frame-controls-left">
-    <select id="frameType">
-      <option value="note">Note</option>
-      <option value="quick">Quick Comment</option>
-      <option value="bookmark">Bookmark</option>
-      <option value="timer">Timer</option>
-    </select>
-    <button id="addFrameBtn">➕ Add Frame</button>
-  </div>
-  <div class="frame-controls-right" id="auth-button-container"></div>
-</div>
+  <!-- ✅ Combined controls wrapper for layout -->
+  <div class="frame-controls-wrapper">
+    <div class="frame-controls">
+      <div class="frame-controls-left">
+        <select id="frameType">
+          <option value="note">Note</option>
+          <option value="quick">Quick Comment</option>
+          <option value="bookmark">Bookmark</option>
+          <option value="timer">Timer</option>
+        </select>
+        <button id="addFrameBtn">➕ Add Frame</button>
+        <div id="auth-button-container"></div>
+      </div>
 
-
-    <div class="dark-toggle-main">
-      <label class="switch">
-        <input type="checkbox" id="darkModeToggle" />
-        <span class="slider"></span>
-      </label>
-      <span id="theme-label">🌞</span>
+      <div class="frame-controls-right dark-toggle-main">
+        <label class="switch">
+          <input type="checkbox" id="darkModeToggle" />
+          <span class="slider"></span>
+        </label>
+        <span id="theme-label">🌞</span>
+      </div>
     </div>
   </div>
 
