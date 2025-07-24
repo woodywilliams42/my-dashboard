@@ -100,10 +100,19 @@ body.dark-mode {
   background-color: #9e9e9d;
 }
 
+/* ================================================
+   Controls bar above frames
+   ================================================ */
+
+.frame-controls-wrapper {
+  padding: 0.5em 1em;
+}
+
 .frame-controls {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .frame-controls-left {
@@ -115,10 +124,13 @@ body.dark-mode {
 .frame-controls-right {
   display: flex;
   align-items: center;
+  gap: 0.5em;
 }
 
+/* ================================================
+   Delete Frame Button
+   ================================================ */
 
-/* Delete‑button (if you still use it) */
 .delete-frame {
   position: absolute;
   top: 4px;
