@@ -30,7 +30,7 @@ if (!authBtn) {
 // ✅ Insert into DOM (after Add Frame button)
 document.addEventListener("DOMContentLoaded", () => {
   const controls = document.querySelector(".frame-controls");
-  if (controls) controls.appendChild(authBtn);
+ if (controls) controls.appendChild(img);
 });
 
 // ✅ Auth Button Click Handler
