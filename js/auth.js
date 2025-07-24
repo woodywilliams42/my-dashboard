@@ -8,32 +8,32 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+// ✅ Initialize Auth
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // ✅ Create Auth Button
-let authBtn = document.getElementById("google-auth-btn");
+const authBtn = document.createElement("button");
+authBtn.id = "google-auth-btn";
+authBtn.classList.add("logged-out");
+authBtn.title = "Sign in to Google";
 
-if (!authBtn) {
-  authBtn = document.createElement("button");
-  authBtn.id = "google-auth-btn";
-  authBtn.classList.add("logged-out");
-  authBtn.title = "Sign in to Google";
+// ✅ Create Google G Image
+const img = document.createElement("img");
+img.src = "/my-dashboard/images/google-icon.png";
+img.alt = "Google Sign-In";
+img.loading = "lazy";
+authBtn.appendChild(img);
 
-  const img = document.createElement("img");
-  img.src = "/my-dashboard/images/google-icon.png";
-  img.alt = "Google Sign-In";
-  authBtn.appendChild(img);
-}
-
-
-// ✅ Insert into DOM (after Add Frame button)
+// ✅ Insert into DOM after Add Frame button
 document.addEventListener("DOMContentLoaded", () => {
   const controls = document.querySelector(".frame-controls");
- if (controls) controls.appendChild(img);
+  if (controls) {
+    controls.appendChild(authBtn);
+  }
 });
 
-// ✅ Auth Button Click Handler
+// ✅ Click handler: toggles login/logout
 authBtn.addEventListener("click", async () => {
   const user = auth.currentUser;
   try {
@@ -50,7 +50,7 @@ authBtn.addEventListener("click", async () => {
   }
 });
 
-// ✅ Update UI When Auth State Changes
+// ✅ Update tooltip and style on auth state change
 onAuthStateChanged(auth, (user) => {
   if (user) {
     authBtn.classList.remove("logged-out");
