@@ -1,37 +1,32 @@
-/* Container button style */
-/* auth.css */
-
 #google-auth-btn {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border: none;
   border-radius: 50%;
-  background-color: transparent; /* ✅ Fully transparent */
+  background-color: transparent;
   padding: 0;
   margin-left: 0.5em;
   cursor: pointer;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: none;
 }
 
 #google-auth-btn img {
-  width: 20px;   /* ✅ Smaller icon size */
-  height: 20px;
-  transition: filter 0.3s ease, opacity 0.3s ease;
-  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: filter 0.3s ease;
 }
 
-/* ✅ Grayscale + dim when logged out */
-#google-auth-btn.logged-out img {
+#google-auth-btn.logged-out img.greyscale {
   filter: grayscale(100%);
   opacity: 0.5;
 }
 
-/* ✅ Full color when logged in */
 #google-auth-btn.logged-in img {
   filter: none;
   opacity: 1;
 }
-
