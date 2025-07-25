@@ -77,7 +77,7 @@ onAuthStateChanged(auth, (user) => {
     img.style.objectFit = "contain";    // keep G icon's original shape
     img.style.borderRadius = "50%";     // ensure it's a circle
     img.style.backgroundColor = "transparent"; // no background
-    img.classList.remove("greyscale");  // not needed here, we're using an actual grey image
+    
 
     authBtn.title = "Sign in to Google";
   }
