@@ -18,12 +18,17 @@ authBtn.id = "google-auth-btn";
 authBtn.classList.add("logged-out");
 authBtn.title = "Sign in to Google";
 
-// ✅ Create the image element (shared)
+// ✅ Shared image element
 const img = document.createElement("img");
 img.alt = "Google Sign-In";
 img.loading = "lazy";
-img.width = 28;
-img.height = 28;
+
+// ✅ Set consistent size and shape
+img.style.width = "28px";
+img.style.height = "28px";
+img.style.borderRadius = "50%";
+img.style.transition = "filter 0.3s ease";
+
 authBtn.appendChild(img);
 
 // ✅ Insert into DOM
@@ -56,22 +61,18 @@ onAuthStateChanged(auth, (user) => {
     authBtn.classList.add("logged-in");
     img.classList.remove("greyscale");
 
-    // ✅ Avatar styling
     img.src = user.photoURL || "/my-dashboard/images/google-icon.png";
     img.alt = user.displayName || "User Avatar";
-    img.style.borderRadius = "50%";
-    img.style.objectFit = "cover";
+    img.style.objectFit = "cover"; // crop avatar nicely
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
   } else {
     authBtn.classList.remove("logged-in");
     authBtn.classList.add("logged-out");
     img.classList.add("greyscale");
 
-    // ✅ Reset avatar styling
     img.src = "/my-dashboard/images/google-icon-grey.png";
     img.alt = "Google Sign-In";
-    img.style.borderRadius = "0";
-    img.style.objectFit = "contain";
+    img.style.objectFit = "contain"; // don't crop G icon
     authBtn.title = "Sign in to Google";
   }
 });
