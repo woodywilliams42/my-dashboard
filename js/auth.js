@@ -22,6 +22,8 @@ authBtn.title = "Sign in to Google";
 const img = document.createElement("img");
 img.alt = "Google Sign-In";
 img.loading = "lazy";
+img.width = 28;
+img.height = 28;
 authBtn.appendChild(img);
 
 // ✅ Insert into DOM
@@ -54,17 +56,22 @@ onAuthStateChanged(auth, (user) => {
     authBtn.classList.add("logged-in");
     img.classList.remove("greyscale");
 
+    // ✅ Avatar styling
     img.src = user.photoURL || "/my-dashboard/images/google-icon.png";
     img.alt = user.displayName || "User Avatar";
+    img.style.borderRadius = "50%";
+    img.style.objectFit = "cover";
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
-
   } else {
     authBtn.classList.remove("logged-in");
     authBtn.classList.add("logged-out");
     img.classList.add("greyscale");
 
-    img.src = "/my-dashboard/images/google-icon-grey.png";  // ✅ Use grey icon explicitly
+    // ✅ Reset avatar styling
+    img.src = "/my-dashboard/images/google-icon-grey.png";
     img.alt = "Google Sign-In";
+    img.style.borderRadius = "0";
+    img.style.objectFit = "contain";
     authBtn.title = "Sign in to Google";
   }
 });
