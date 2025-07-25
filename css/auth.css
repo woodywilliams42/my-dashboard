@@ -21,10 +21,7 @@
   transition: filter 0.3s ease;
 }
 
-#google-auth-btn.logged-out img.greyscale {
-  filter: grayscale(100%);
-  opacity: 0.5;
-}
+
 
 #google-auth-btn.logged-in img {
   filter: none;
