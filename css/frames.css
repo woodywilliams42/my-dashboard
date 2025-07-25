@@ -114,6 +114,13 @@ body.dark-mode {
   align-items: center;
 }
 
+.frame-controls-right {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+
 .frame-controls-left,
 .dark-toggle-main {
   display: flex;
