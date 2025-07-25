@@ -18,9 +18,9 @@ authBtn.id = "google-auth-btn";
 authBtn.classList.add("logged-out");
 authBtn.title = "Sign in to Google";
 
-// ✅ Create Google G Image
+// ✅ Create Image Element
 const img = document.createElement("img");
-img.src = "/my-dashboard/images/google-icon.png";
+img.src = "/my-dashboard/images/google-icon-grey.png"; // default grey G
 img.alt = "Google Sign-In";
 img.loading = "lazy";
 authBtn.appendChild(img);
@@ -28,8 +28,7 @@ authBtn.appendChild(img);
 // ✅ Insert into DOM after Add Frame button
 document.addEventListener("DOMContentLoaded", () => {
   const authContainer = document.getElementById("auth-button-container");
-if (authContainer) authContainer.appendChild(authBtn);
-
+  if (authContainer) authContainer.appendChild(authBtn);
 });
 
 // ✅ Click handler: toggles login/logout
@@ -49,15 +48,19 @@ authBtn.addEventListener("click", async () => {
   }
 });
 
-// ✅ Update tooltip and style on auth state change
+// ✅ Handle login state + update icon
 onAuthStateChanged(auth, (user) => {
   if (user) {
     authBtn.classList.remove("logged-out");
     authBtn.classList.add("logged-in");
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
+    img.src = user.photoURL; // ✅ Use Google avatar
+    img.classList.remove("greyscale");
   } else {
     authBtn.classList.remove("logged-in");
     authBtn.classList.add("logged-out");
     authBtn.title = "Sign in to Google";
+    img.src = "/my-dashboard/images/google-icon-grey.png";
+    img.classList.add("greyscale");
   }
 });
