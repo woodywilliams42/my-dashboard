@@ -65,8 +65,7 @@ onAuthStateChanged(auth, (user) => {
     img.style.objectFit = "cover";      // crop avatar to fill circle
     img.style.borderRadius = "50%";     // round the avatar
     img.style.backgroundColor = "transparent"; // prevent white bg
-    img.classList.remove("greyscale");
-
+    
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
   } else {
     authBtn.classList.remove("logged-in");
@@ -77,8 +76,7 @@ onAuthStateChanged(auth, (user) => {
     img.style.objectFit = "contain";    // keep G icon's original shape
     img.style.borderRadius = "50%";     // ensure it's a circle
     img.style.backgroundColor = "transparent"; // no background
-    img.classList.add("greyscale"); 
-
+    
     authBtn.title = "Sign in to Google";
   }
 });
