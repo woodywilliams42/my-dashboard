@@ -59,20 +59,27 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     authBtn.classList.remove("logged-out");
     authBtn.classList.add("logged-in");
+
+    img.src = user.photoURL;
+    img.alt = user.displayName || "User Avatar";
+    img.style.objectFit = "cover";      // crop avatar to fill circle
+    img.style.borderRadius = "50%";     // round the avatar
+    img.style.backgroundColor = "transparent"; // prevent white bg
     img.classList.remove("greyscale");
 
-    img.src = user.photoURL || "/my-dashboard/images/google-icon.png";
-    img.alt = user.displayName || "User Avatar";
-    img.style.objectFit = "cover"; // crop avatar nicely
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
   } else {
     authBtn.classList.remove("logged-in");
     authBtn.classList.add("logged-out");
-    img.classList.add("greyscale");
 
     img.src = "/my-dashboard/images/google-icon-grey.png";
     img.alt = "Google Sign-In";
-    img.style.objectFit = "contain"; // don't crop G icon
+    img.style.objectFit = "contain";    // keep G icon's original shape
+    img.style.borderRadius = "50%";     // ensure it's a circle
+    img.style.backgroundColor = "transparent"; // no background
+    img.classList.remove("greyscale");  // not needed here, we're using an actual grey image
+
     authBtn.title = "Sign in to Google";
   }
 });
+
