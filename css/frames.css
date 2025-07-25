@@ -110,8 +110,14 @@ body.dark-mode {
 
 .frame-controls {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  width: 100%;
+}
+
+.frame-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
 }
 
 .frame-controls-right {
@@ -120,13 +126,12 @@ body.dark-mode {
   margin-left: auto;
 }
 
-
-.frame-controls-left,
 .dark-toggle-main {
   display: flex;
   align-items: center;
   gap: 0.5em;
 }
+
 
 /* ================================================
    Delete Frame Button
