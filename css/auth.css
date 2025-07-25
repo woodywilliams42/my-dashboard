@@ -23,7 +23,7 @@
 
 #google-auth-btn.logged-out img.greyscale {
   filter: grayscale(100%);
-  opacity: 0.5;
+  opacity: 1;
 }  //
 
 #google-auth-btn.logged-in img {
