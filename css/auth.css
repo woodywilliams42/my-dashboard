@@ -20,6 +20,9 @@
   object-fit: cover;
   transition: filter 0.3s ease;
   background-color: transparent; /* ✅ Important */
+  box-shadow: 0 0 1px rgba(0,0,0,0.4);
+}
+
 }
 
 #google-auth-btn.logged-out img.greyscale {
