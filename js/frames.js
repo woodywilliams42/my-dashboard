@@ -209,6 +209,5 @@ function addNewFrame(type, tab) {
 // ✅ FIXED: Add exports at the bottom
 export {
   loadFramesForTab,
-  addNewFrame,
-  framesData
+  addNewFrame
 };
