@@ -57,6 +57,8 @@ authBtn.addEventListener("click", async () => {
 // ✅ Auth state listener
 onAuthStateChanged(auth, (user) => {
   if (user) {
+    console.log("👤 Logged in user UID:", user.uid);
+    console.log("📧 Email:", user.email);
     authBtn.classList.remove("logged-out");
     authBtn.classList.add("logged-in");
 
