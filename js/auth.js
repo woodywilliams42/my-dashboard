@@ -8,22 +8,18 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// ✅ Initialize Auth
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ✅ Create Auth Button
 const authBtn = document.createElement("button");
 authBtn.id = "google-auth-btn";
 authBtn.classList.add("logged-out");
 authBtn.title = "Sign in to Google";
 
-// ✅ Shared image element
 const img = document.createElement("img");
 img.alt = "Google Sign-In";
 img.loading = "lazy";
 
-// ✅ Set consistent size and shape
 img.style.width = "28px";
 img.style.height = "28px";
 img.style.borderRadius = "50%";
@@ -31,10 +27,20 @@ img.style.transition = "filter 0.3s ease";
 
 authBtn.appendChild(img);
 
+// 🔄 NEW: Optional login-required message block
+const loginNotice = document.createElement("div");
+loginNotice.id = "login-required";
+loginNotice.innerHTML = `<p style="color: gray;">🔒 Please sign in to view your dashboard frames.</p>`;
+loginNotice.style.display = "none";
+loginNotice.style.textAlign = "center";
+
 // ✅ Insert into DOM
 document.addEventListener("DOMContentLoaded", () => {
   const authContainer = document.getElementById("auth-button-container");
-  if (authContainer) authContainer.appendChild(authBtn);
+  if (authContainer) {
+    authContainer.appendChild(authBtn);
+    authContainer.appendChild(loginNotice); // 🔄 NEW
+  }
 });
 
 // ✅ Toggle login/logout
@@ -58,28 +64,40 @@ authBtn.addEventListener("click", async () => {
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("👤 Logged in user UID:", user.uid);
-    console.log("📧 Email:", user.email);
     authBtn.classList.remove("logged-out");
     authBtn.classList.add("logged-in");
 
     img.src = user.photoURL;
     img.alt = user.displayName || "User Avatar";
-    img.style.objectFit = "cover";      // crop avatar to fill circle
-    img.style.borderRadius = "50%";     // round the avatar
-    img.style.backgroundColor = "transparent"; // prevent white bg
-    
+    img.style.objectFit = "cover";
+    img.style.borderRadius = "50%";
+    img.style.backgroundColor = "transparent";
+
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
+
+    loginNotice.style.display = "none"; // 🔄 Hide message
+
+    // 🔄 Reload to fetch secure data
+    if (!sessionStorage.getItem("reloadedAfterLogin")) {
+      sessionStorage.setItem("reloadedAfterLogin", "true");
+      location.reload();
+    }
+
   } else {
     authBtn.classList.remove("logged-in");
     authBtn.classList.add("logged-out");
 
     img.src = "/my-dashboard/images/google-icon-grey.png";
     img.alt = "Google Sign-In";
-    img.style.objectFit = "contain";    // keep G icon's original shape
-    img.style.borderRadius = "50%";     // ensure it's a circle
-    img.style.backgroundColor = "transparent"; // no background
-    
+    img.style.objectFit = "contain";
+    img.style.borderRadius = "50%";
+    img.style.backgroundColor = "transparent";
+
     authBtn.title = "Sign in to Google";
+
+    loginNotice.style.display = "block"; // 🔄 Show message
+    sessionStorage.removeItem("reloadedAfterLogin"); // Reset
   }
 });
 
+export { auth }; // 🔄 Needed in frames.js
