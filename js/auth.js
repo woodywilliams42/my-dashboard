@@ -8,9 +8,18 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+import {
+  getFirestore,
+  doc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// 🔄 Initialize Firebase services
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+const db = getFirestore(app);
 
+// ✅ Auth button and UI
 const authBtn = document.createElement("button");
 authBtn.id = "google-auth-btn";
 authBtn.classList.add("logged-out");
@@ -27,7 +36,7 @@ img.style.transition = "filter 0.3s ease";
 
 authBtn.appendChild(img);
 
-// 🔄 NEW: Optional login-required message block
+// 🔒 Login required message
 const loginNotice = document.createElement("div");
 loginNotice.id = "login-required";
 loginNotice.innerHTML = `<p style="color: gray;">🔒 Please sign in to view your dashboard frames.</p>`;
@@ -39,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const authContainer = document.getElementById("auth-button-container");
   if (authContainer) {
     authContainer.appendChild(authBtn);
-    authContainer.appendChild(loginNotice); // 🔄 NEW
+    authContainer.appendChild(loginNotice);
   }
 });
 
@@ -60,8 +69,8 @@ authBtn.addEventListener("click", async () => {
   }
 });
 
-// ✅ Auth state listener
-onAuthStateChanged(auth, (user) => {
+// ✅ Auth state listener with access validation
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     console.log("👤 Logged in user UID:", user.uid);
     authBtn.classList.remove("logged-out");
@@ -70,14 +79,27 @@ onAuthStateChanged(auth, (user) => {
     img.src = user.photoURL;
     img.alt = user.displayName || "User Avatar";
     img.style.objectFit = "cover";
-    img.style.borderRadius = "50%";
     img.style.backgroundColor = "transparent";
 
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
+    loginNotice.style.display = "none";
 
-    loginNotice.style.display = "none"; // 🔄 Hide message
+    // 🔐 Access test: try reading a protected document
+    try {
+      const testDoc = await getDoc(doc(db, "tabFrames", "testtab")); // adjust this path as needed
+      if (!testDoc.exists()) {
+        console.warn("⚠️ Access check passed, but doc doesn't exist");
+      }
+    } catch (error) {
+      console.error("🚫 Unauthorized access. Logging out.");
+      alert("You are not authorized to access this dashboard.");
+      await signOut(auth);
+      sessionStorage.removeItem("reloadedAfterLogin");
+      location.reload();
+      return;
+    }
 
-    // 🔄 Reload to fetch secure data
+    // 🔄 Reload to fetch secure content
     if (!sessionStorage.getItem("reloadedAfterLogin")) {
       sessionStorage.setItem("reloadedAfterLogin", "true");
       location.reload();
@@ -90,14 +112,12 @@ onAuthStateChanged(auth, (user) => {
     img.src = "/my-dashboard/images/google-icon-grey.png";
     img.alt = "Google Sign-In";
     img.style.objectFit = "contain";
-    img.style.borderRadius = "50%";
     img.style.backgroundColor = "transparent";
 
     authBtn.title = "Sign in to Google";
-
-    loginNotice.style.display = "block"; // 🔄 Show message
-    sessionStorage.removeItem("reloadedAfterLogin"); // Reset
+    loginNotice.style.display = "block";
+    sessionStorage.removeItem("reloadedAfterLogin");
   }
 });
 
-export { auth }; // 🔄 Needed in frames.js
+export { auth };
