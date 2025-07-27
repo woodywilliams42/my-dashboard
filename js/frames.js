@@ -224,9 +224,26 @@ async function loadFramesForTab(tab) {
     container.innerHTML = `<p class="empty-tab-message">⚠️ Error loading frames.</p>`;
   }
 }
+function addNewFrame(type, tab) {
+  const id = generateFrameId(type);
+  const newFrame = {
+    id,
+    type,
+    x: 100,
+    y: 100,
+    width: 300,
+    height: 200,
+    data: {}
+  };
+  if (!framesData[tab]) framesData[tab] = [];
+  framesData[tab].push(newFrame);
+  createFrame(newFrame, tab);
+  saveFrames(tab);
+}
 
-// ✅ FIXED: Add exports at the bottom
+// ✅ Export the usable functions
 export {
   loadFramesForTab,
   addNewFrame
 };
+
