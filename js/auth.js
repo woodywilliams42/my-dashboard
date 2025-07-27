@@ -8,16 +8,9 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-import {
-  getFirestore,
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 // 🔄 Initialize Firebase services
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-const db = getFirestore(app);
 
 // ✅ Auth button and UI
 const authBtn = document.createElement("button");
@@ -69,7 +62,7 @@ authBtn.addEventListener("click", async () => {
   }
 });
 
-// ✅ Auth state listener with access validation
+// ✅ Auth state listener
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     console.log("👤 Logged in user UID:", user.uid);
@@ -84,28 +77,14 @@ onAuthStateChanged(auth, async (user) => {
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
     loginNotice.style.display = "none";
 
-    // 🔐 Access test: try reading a protected document
-    try {
-      const testDoc = await getDoc(doc(db, "tabFrames", "testtab")); // adjust this path as needed
-      if (!testDoc.exists()) {
-        console.warn("⚠️ Access check passed, but doc doesn't exist");
-      }
-    } catch (error) {
-      console.error("🚫 Unauthorized access. Logging out.");
-      alert("You are not authorized to access this dashboard.");
-      await signOut(auth);
-      sessionStorage.removeItem("reloadedAfterLogin");
-      location.reload();
-      return;
-    }
-
-    // 🔄 Reload to fetch secure content
+    // 🔄 Reload to fetch protected content (once)
     if (!sessionStorage.getItem("reloadedAfterLogin")) {
       sessionStorage.setItem("reloadedAfterLogin", "true");
       location.reload();
     }
 
   } else {
+    // 👤 Signed out
     authBtn.classList.remove("logged-in");
     authBtn.classList.add("logged-out");
 
