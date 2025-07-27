@@ -11,13 +11,19 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 const db = getFirestore(app);
 
 import { setupBookmarkFrame } from './bookmark.js';
 import { setupTimerFrame } from './timer.js';
 import { setupNoteFrame } from './notes.js';
 import { setupQuickCommentsFrame } from './quickcomments.js';
-import { auth } from './auth.js'; // ✅ make sure auth is exported from auth.js
+import { auth } from './auth.js'; // ✅ this is correct
+
 
 let currentTab = null;
 export let framesData = window.framesData = {};
