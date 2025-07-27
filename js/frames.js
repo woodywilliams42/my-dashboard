@@ -17,6 +17,7 @@ import { setupBookmarkFrame } from './bookmark.js';
 import { setupTimerFrame } from './timer.js';
 import { setupNoteFrame } from './notes.js';
 import { setupQuickCommentsFrame } from './quickcomments.js';
+import { auth } from './auth.js'; // ✅ make sure auth is exported from auth.js
 
 let currentTab = null;
 export let framesData = window.framesData = {};
@@ -185,25 +186,43 @@ async function loadFramesForTab(tab) {
   const container = document.getElementById(tab);
   if (!container) return;
 
+  // ✅ Wait until auth state is ready
+  const waitForAuth = () =>
+    new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        unsubscribe();
+        resolve(user);
+      });
+    });
+
+  const user = await waitForAuth();
+
+  // ✅ Block access unless user is valid
+  const allowedUIDs = ["L9XDBQpraqPwVkZFkqy6Vd5VvWC3"]; // 🔐 your allowed UIDs
+  if (!user || !allowedUIDs.includes(user.uid)) {
+    console.warn("🚫 Unauthorized user — cannot load frames.");
+    container.innerHTML = `<p style="text-align:center;color:gray;">🚫 You are not authorized to view this tab's frames.</p>`;
+    return;
+  }
+
   try {
     const snap = await getDoc(doc(db, "tabFrames", tab));
-    const frames = snap.exists() ? snap.data().frames || [] : [];
-    framesData[tab] = frames;
-    container.innerHTML = frames.length === 0
-      ? `<p class="empty-tab-message">No frames yet on "${tab}".</p>`
-      : "";
-    frames.forEach(frame => createFrame(frame, tab));
+    if (snap.exists()) {
+      const frames = snap.data().frames || [];
+      console.log("✅ Loaded frames for tab:", tab, frames);
+      framesData[tab] = frames;
+      container.innerHTML = frames.length === 0
+        ? `<p class="empty-tab-message">No frames yet on "${tab}".</p>`
+        : "";
+      frames.forEach(frame => createFrame(frame, tab));
+    } else {
+      console.warn("❌ No document found for tab:", tab);
+      container.innerHTML = `<p class="empty-tab-message">No frames found for this tab.</p>`;
+    }
   } catch (err) {
-    console.error("Failed to load frames:", err);
+    console.error("🔥 Error loading frames (possibly blocked by rules):", err);
+    container.innerHTML = `<p class="empty-tab-message">⚠️ Error loading frames.</p>`;
   }
-}
-
-function addNewFrame(type, tab) {
-  const id = generateFrameId(type);
-  const newFrame = { id, type, x: 100, y: 100, width: 300, height: 200, data: {} };
-  framesData[tab].push(newFrame);
-  createFrame(newFrame, tab);
-  saveFrames(tab);
 }
 
 // ✅ FIXED: Add exports at the bottom
