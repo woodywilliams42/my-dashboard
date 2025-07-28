@@ -2,10 +2,6 @@
 import { app } from './firebase.js';
 import {
   getFirestore,
-  collection,
-  getDocs,
-  query,
-  where,
   getDoc,
   setDoc,
   doc
@@ -17,13 +13,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 import { setupBookmarkFrame } from './bookmark.js';
 import { setupTimerFrame } from './timer.js';
 import { setupNoteFrame } from './notes.js';
 import { setupQuickCommentsFrame } from './quickcomments.js';
-import { auth } from './auth.js'; // ✅ this is correct
-
 
 let currentTab = null;
 export let framesData = window.framesData = {};
@@ -36,19 +31,18 @@ if (!document.getElementById("frame-context-menu")) {
   menu.style.display = "none";
   menu.style.position = "absolute";
   menu.style.zIndex = 999;
-  menu.innerHTML = 
+  menu.innerHTML = `
     <ul>
       <li data-action="rename">📝 Rename Frame</li>
       <li data-action="export">💾 Export Frame Data</li>
       <li data-action="info">ℹ️ Frame Info</li>
       <li data-action="delete">🗑️ Delete Frame</li>
-    </ul>
-  ;
+    </ul>`;
   document.body.appendChild(menu);
 }
 
 function generateFrameId(type) {
-  return ${type}-${Math.random().toString(36).substr(2, 6)};
+  return `${type}-${Math.random().toString(36).substr(2, 6)}`;
 }
 
 function saveFrames(tab) {
@@ -65,7 +59,7 @@ document.getElementById("frame-context-menu")?.addEventListener("click", (e) => 
 
   if (!tab || !id || !framesData[tab]) return;
   const frameData = framesData[tab].find(f => f.id === id);
-  const frameEl = document.querySelector(.frame-component[data-id="${id}"]);
+  const frameEl = document.querySelector(`.frame-component[data-id="${id}"]`);
   const header = frameEl?.querySelector(".frame-header");
 
   if (!frameData) return;
@@ -82,7 +76,7 @@ document.getElementById("frame-context-menu")?.addEventListener("click", (e) => 
       alert("Frame data copied to clipboard.");
       break;
     case "info":
-      alert(Frame Type: ${frameData.type}\nUID: ${id});
+      alert(`Frame Type: ${frameData.type}\nUID: ${id}`);
       break;
     case "delete":
       frameEl?.remove();
@@ -94,7 +88,8 @@ document.getElementById("frame-context-menu")?.addEventListener("click", (e) => 
 });
 
 document.addEventListener("click", () => {
-  document.getElementById("frame-context-menu").style.display = "none";
+  const menu = document.getElementById("frame-context-menu");
+  if (menu) menu.style.display = "none";
 });
 
 function createFrame(frameObj, tab) {
@@ -102,7 +97,13 @@ function createFrame(frameObj, tab) {
   const frame = document.createElement("div");
   frame.className = "frame-component";
   frame.dataset.id = id;
-  Object.assign(frame.style, { left: ${x}px, top: ${y}px, width: ${width}px, height: ${height}px, position: "absolute" });
+  Object.assign(frame.style, {
+    left: `${x}px`,
+    top: `${y}px`,
+    width: `${width}px`,
+    height: `${height}px`,
+    position: "absolute"
+  });
 
   const header = document.createElement("div");
   header.className = "frame-header";
@@ -127,7 +128,6 @@ function createFrame(frameObj, tab) {
   const container = document.getElementById(tab);
   container?.appendChild(frame);
 
-  // Specialized Frame Types
   if (type === "timer") {
     setupTimerFrame(frame, data, tab, id);
   } else if (type === "bookmark") {
@@ -144,8 +144,8 @@ function createFrame(frameObj, tab) {
 function showFrameContextMenu(x, y, tab, id) {
   const menu = document.getElementById("frame-context-menu");
   if (!menu) return;
-  menu.style.top = ${y}px;
-  menu.style.left = ${x}px;
+  menu.style.top = `${y}px`;
+  menu.style.left = `${x}px`;
   menu.style.display = "block";
   menu.dataset.tab = tab;
   menu.dataset.id = id;
@@ -158,8 +158,8 @@ function makeResizableDraggable(el, tab) {
     const offsetY = e.clientY - el.offsetTop;
 
     function moveAt(e) {
-      el.style.left = ${e.clientX - offsetX}px;
-      el.style.top = ${e.clientY - offsetY}px;
+      el.style.left = `${e.clientX - offsetX}px`;
+      el.style.top = `${e.clientY - offsetY}px`;
     }
 
     function onMouseUp() {
@@ -192,7 +192,6 @@ async function loadFramesForTab(tab, user = null) {
   const container = document.getElementById(tab);
   if (!container) return;
 
-  // ✅ Get current user if not passed
   if (!user) {
     user = await new Promise(resolve => {
       const unsub = onAuthStateChanged(auth, u => {
@@ -202,12 +201,11 @@ async function loadFramesForTab(tab, user = null) {
     });
   }
 
-  // ✅ Block unauthorized access
   const allowedUIDs = ["L9XDBQpraqPwVkZFkqy6Vd5VvWC3"];
   if (!user || !allowedUIDs.includes(user.uid)) {
     console.warn("🚫 Unauthorized user — cannot load frames.");
     container.innerHTML = `<p style="text-align:center;color:gray;">🚫 You are not authorized to view this tab's frames.</p>`;
-    framesData[tab] = []; // clear data
+    framesData[tab] = [];
     return;
   }
 
@@ -247,7 +245,6 @@ function addNewFrame(type, tab) {
   saveFrames(tab);
 }
 
-// ✅ Export the usable functions
 export {
   loadFramesForTab,
   addNewFrame
