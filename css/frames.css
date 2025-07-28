@@ -150,3 +150,26 @@ body.dark-mode {
   cursor: pointer;
   font-weight: bold;
 }
+
+.frame-type-popup {
+  position: absolute;
+  background: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 6px 0;
+  border-radius: 6px;
+  z-index: 9999;
+  top: 60px;
+  left: 20px;
+  width: 180px;
+}
+
+.popup-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.popup-option:hover {
+  background: var(--hover);
+}
