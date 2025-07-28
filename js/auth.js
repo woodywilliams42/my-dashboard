@@ -84,22 +84,23 @@ onAuthStateChanged(auth, async (user) => {
     }
 
   } else {
-    // 👤 Signed out
-    authBtn.classList.remove("logged-in");
-    authBtn.classList.add("logged-out");
+  authBtn.classList.remove("logged-in");
+  authBtn.classList.add("logged-out");
 
-    img.src = "/my-dashboard/images/google-icon-grey.png";
-    img.alt = "Google Sign-In";
-    img.style.objectFit = "contain";
-    img.style.backgroundColor = "transparent";
+  img.src = "/my-dashboard/images/google-icon-grey.png";
+  img.alt = "Google Sign-In";
+  img.style.objectFit = "contain";
+  img.style.backgroundColor = "transparent";
 
-    authBtn.title = "Sign in to Google";
-    loginNotice.style.display = "block";
-    sessionStorage.removeItem("reloadedAfterLogin");
+  authBtn.title = "Sign in to Google";
+  loginNotice.style.display = "block";
 
-// 🔄 Refresh to hide secured content
-  location.reload();
+  // 🔄 Only reload once on logout
+  if (!sessionStorage.getItem("reloadedAfterLogout")) {
+    sessionStorage.setItem("reloadedAfterLogout", "true");
+    location.reload();
   }
+}
 });
 
 export { auth };
