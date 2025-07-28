@@ -2,16 +2,11 @@
 import { app } from './firebase.js';
 import {
   getFirestore,
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  doc
+  doc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const db = getFirestore(app);
-
-
 import { framesData } from './frames.js';
 
 export function setupNoteFrame(frameEl, data, tab, id) {
@@ -29,13 +24,22 @@ export function setupNoteFrame(frameEl, data, tab, id) {
 
   let lastSaved = data.content || "";
   let debounceTimer;
+  let pendingSave = false;
 
   textarea.addEventListener("input", () => {
+    pendingSave = true;
     clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(save, 2000);
+    debounceTimer = setTimeout(() => {
+      save();
+    }, 2000);
   });
 
-  textarea.addEventListener("blur", save);
+  textarea.addEventListener("blur", () => {
+    if (pendingSave) {
+      clearTimeout(debounceTimer);
+      save();
+    }
+  });
 
   function save() {
     const frame = framesData[tab].find(f => f.id === id);
@@ -44,6 +48,7 @@ export function setupNoteFrame(frameEl, data, tab, id) {
     const newText = textarea.value;
     if (newText === lastSaved) return;
 
+    pendingSave = false;
     frame.data.content = newText;
     lastSaved = newText;
 
@@ -54,14 +59,14 @@ export function setupNoteFrame(frameEl, data, tab, id) {
     setDoc(docRef, { frames: framesData[tab] })
       .then(() => {
         statusEl.textContent = "✔ Saved!";
+        setTimeout(() => {
+          statusEl.style.opacity = 0;
+        }, 2000);
       })
       .catch(err => {
         console.error(err);
         statusEl.textContent = "❌ Save failed!";
+        statusEl.style.opacity = 1;
       });
-
-    setTimeout(() => {
-      statusEl.style.opacity = 0;
-    }, 2000);
   }
 }
