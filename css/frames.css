@@ -151,25 +151,32 @@ body.dark-mode {
   font-weight: bold;
 }
 
+/* Frame Type Popup (matches frame-context-menu style) */
 .frame-type-popup {
+  display: none;
   position: absolute;
-  background: var(--background);
-  border: 1px solid var(--border);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  padding: 6px 0;
-  border-radius: 6px;
   z-index: 9999;
-  top: 60px;
-  left: 20px;
-  width: 180px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  padding: 0;
+  width: max-content;
+  max-width: 200px;
+  font-family: system-ui, sans-serif;
 }
 
-.popup-option {
-  padding: 10px 16px;
+.frame-type-popup .popup-option {
+  padding: 8px 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  white-space: nowrap;
+  color: var(--text-color);
 }
 
-.popup-option:hover {
-  background: var(--hover);
+.frame-type-popup .popup-option + .popup-option {
+  border-top: 1px solid var(--border-color);
+}
+
+.frame-type-popup .popup-option:hover {
+  background-color: #9e9e9d;
 }
