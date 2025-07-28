@@ -38,15 +38,18 @@
 <div class="frame-controls-wrapper">
   <div class="frame-controls">
     <div class="frame-controls-left">
-      <select id="frameType">
-        <option value="note">Note</option>
-        <option value="quick">Quick Comment</option>
-        <option value="bookmark">Bookmark</option>
-        <option value="timer">Timer</option>
-      </select>
-      <button id="addFrameBtn">➕ Add Frame</button>
-      <div id="auth-button-container"></div>
-    </div>
+  <!-- 👇 REPLACED DROPDOWN WITH HIDDEN POPUP MENU -->
+  <div id="frameTypePopup" class="frame-type-popup" style="display: none;">
+    <div class="popup-option" data-type="note">📝 Note</div>
+    <div class="popup-option" data-type="quick">💬 Quick Comment</div>
+    <div class="popup-option" data-type="bookmark">🔖 Bookmark</div>
+    <div class="popup-option" data-type="timer">⏱️ Timer</div>
+  </div>
+
+  <button id="addFrameBtn">➕ Add Frame</button>
+  <div id="auth-button-container"></div>
+</div>
+
 
     <!-- ✅ Wrap dark mode toggle in .frame-controls-right -->
     <div class="frame-controls-right">
