@@ -22,6 +22,7 @@ import { setupQuickCommentsFrame } from './quickcomments.js';
 
 let currentTab = null;
 export let framesData = window.framesData = {};
+let zIndexCounter = 10; // ✅ Track highest z-index used
 
 // Setup Context Menu if missing
 if (!document.getElementById("frame-context-menu")) {
@@ -93,16 +94,29 @@ document.addEventListener("click", () => {
 });
 
 function createFrame(frameObj, tab) {
-  const { id, type, x, y, width, height, data = {} } = frameObj;
+  const { id, type, x, y, width, height, zIndex = zIndexCounter++, data = {} } = frameObj;
   const frame = document.createElement("div");
   frame.className = "frame-component";
   frame.dataset.id = id;
+
   Object.assign(frame.style, {
     left: `${x}px`,
     top: `${y}px`,
     width: `${width}px`,
     height: `${height}px`,
-    position: "absolute"
+    position: "absolute",
+    zIndex: zIndex
+  });
+
+  // Bring to front on click ✅
+  frame.addEventListener("mousedown", () => {
+    zIndexCounter++;
+    frame.style.zIndex = zIndexCounter;
+    const thisFrame = framesData[tab]?.find(f => f.id === id);
+    if (thisFrame) {
+      thisFrame.zIndex = zIndexCounter;
+      saveFrames(tab);
+    }
   });
 
   const header = document.createElement("div");
@@ -183,6 +197,7 @@ function updateFrameData(el, tab) {
     frame.y = parseInt(el.style.top);
     frame.width = parseInt(el.style.width);
     frame.height = parseInt(el.style.height);
+    frame.zIndex = parseInt(el.style.zIndex); // ✅ Store z-index
     saveFrames(tab);
   }
 }
@@ -215,6 +230,10 @@ async function loadFramesForTab(tab, user = null) {
       const frames = snap.data().frames || [];
       console.log("✅ Loaded frames for tab:", tab, frames);
       framesData[tab] = frames;
+
+      // Update global z-index counter to max existing
+      zIndexCounter = Math.max(10, ...frames.map(f => f.zIndex || 10)) + 1;
+
       container.innerHTML = frames.length === 0
         ? `<p class="empty-tab-message">No frames yet on "${tab}".</p>`
         : "";
@@ -237,6 +256,7 @@ function addNewFrame(type, tab) {
     y: 100,
     width: 300,
     height: 200,
+    zIndex: zIndexCounter++, // ✅ Ensure it starts on top
     data: {}
   };
   if (!framesData[tab]) framesData[tab] = [];
@@ -257,6 +277,7 @@ onAuthStateChanged(auth, (user) => {
     loadFramesForTab(currentTab, user);
   }
 });
+
 // === Frame Picker Popup Logic ===
 document.addEventListener("DOMContentLoaded", () => {
   const addFrameBtn = document.getElementById("addFrameBtn");
