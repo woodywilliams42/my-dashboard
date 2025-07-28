@@ -96,6 +96,9 @@ onAuthStateChanged(auth, async (user) => {
     authBtn.title = "Sign in to Google";
     loginNotice.style.display = "block";
     sessionStorage.removeItem("reloadedAfterLogin");
+
+// 🔄 Refresh to hide secured content
+  location.reload();
   }
 });
 
