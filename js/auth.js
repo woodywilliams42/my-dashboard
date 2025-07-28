@@ -21,11 +21,12 @@ authBtn.title = "Sign in to Google";
 const img = document.createElement("img");
 img.alt = "Google Sign-In";
 img.loading = "lazy";
-
-img.style.width = "28px";
-img.style.height = "28px";
-img.style.borderRadius = "50%";
-img.style.transition = "filter 0.3s ease";
+Object.assign(img.style, {
+  width: "28px",
+  height: "28px",
+  borderRadius: "50%",
+  transition: "filter 0.3s ease"
+});
 
 authBtn.appendChild(img);
 
@@ -71,36 +72,30 @@ onAuthStateChanged(auth, async (user) => {
 
     img.src = user.photoURL;
     img.alt = user.displayName || "User Avatar";
-    img.style.objectFit = "cover";
-    img.style.backgroundColor = "transparent";
+    Object.assign(img.style, {
+      objectFit: "cover",
+      backgroundColor: "transparent"
+    });
 
     authBtn.title = `Signed in as ${user.displayName}, click to sign out`;
     loginNotice.style.display = "none";
-
-    // 🔄 Reload to fetch protected content (once)
-    if (!sessionStorage.getItem("reloadedAfterLogin")) {
-      sessionStorage.setItem("reloadedAfterLogin", "true");
-      location.reload();
-    }
-
   } else {
-  authBtn.classList.remove("logged-in");
-  authBtn.classList.add("logged-out");
+    authBtn.classList.remove("logged-in");
+    authBtn.classList.add("logged-out");
 
-  img.src = "/my-dashboard/images/google-icon-grey.png";
-  img.alt = "Google Sign-In";
-  img.style.objectFit = "contain";
-  img.style.backgroundColor = "transparent";
+    img.src = "/my-dashboard/images/google-icon-grey.png";
+    img.alt = "Google Sign-In";
+    Object.assign(img.style, {
+      objectFit: "contain",
+      backgroundColor: "transparent"
+    });
 
-  authBtn.title = "Sign in to Google";
-  loginNotice.style.display = "block";
-
-  // 🔄 Only reload once on logout
-  if (!sessionStorage.getItem("reloadedAfterLogout")) {
-    sessionStorage.setItem("reloadedAfterLogout", "true");
-    location.reload();
+    authBtn.title = "Sign in to Google";
+    loginNotice.style.display = "block";
   }
-}
+
+  // 🔄 Notify frame loader
+  window.dispatchEvent(new CustomEvent("auth-changed", { detail: user }));
 });
 
 export { auth };
