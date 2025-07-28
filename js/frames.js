@@ -249,3 +249,11 @@ export {
   loadFramesForTab,
   addNewFrame
 };
+
+// ✅ NEW: Auto-reload or clear frames on auth change
+onAuthStateChanged(auth, (user) => {
+  if (currentTab) {
+    console.log("🔄 Auth state changed — reloading frames for:", currentTab);
+    loadFramesForTab(currentTab, user);
+  }
+});
