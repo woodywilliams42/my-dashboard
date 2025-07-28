@@ -257,3 +257,32 @@ onAuthStateChanged(auth, (user) => {
     loadFramesForTab(currentTab, user);
   }
 });
+// === Frame Picker Popup Logic ===
+document.addEventListener("DOMContentLoaded", () => {
+  const addFrameBtn = document.getElementById("addFrameBtn");
+  const popup = document.getElementById("frameTypePopup");
+
+  if (!addFrameBtn || !popup) return;
+
+  // Toggle popup on button click
+  addFrameBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevent outside-click from firing
+    popup.style.display = popup.style.display === "block" ? "none" : "block";
+  });
+
+  // Handle click on a frame type in popup
+  popup.addEventListener("click", (e) => {
+    const type = e.target.dataset.type;
+    if (!type || !currentTab) return;
+
+    popup.style.display = "none";
+    addNewFrame(type, currentTab);
+  });
+
+  // Close popup when clicking outside of it
+  document.addEventListener("click", (e) => {
+    if (!popup.contains(e.target) && e.target !== addFrameBtn) {
+      popup.style.display = "none";
+    }
+  });
+});
