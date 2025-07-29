@@ -2,11 +2,8 @@
 import { app } from './firebase.js';
 import {
   getFirestore,
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  doc
+  doc,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const db = getFirestore(app);
@@ -50,6 +47,11 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
   container.dataset.frameId = id;
   frameContent.appendChild(container);
 
+  // Add save status element
+  const statusEl = document.createElement("div");
+  statusEl.className = "bookmark-save-status";
+  frameContent.appendChild(statusEl);
+
   const bookmarks = normalizeBookmarks(data.urls || []);
   data.urls = bookmarks;
 
@@ -76,7 +78,7 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
       data.urls.push(entry);
       const iconEl = createBookmarkIcon(entry, tab, id);
       container.appendChild(iconEl);
-      saveFrameData(tab);
+      saveFrameData(tab, frameEl);
     });
   }
 
@@ -89,7 +91,7 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
     data.urls.push(entry);
     const iconEl = createBookmarkIcon(entry, tab, id);
     container.appendChild(iconEl);
-    saveFrameData(tab);
+    saveFrameData(tab, frameEl);
   });
 
   new Sortable(container, {
@@ -104,7 +106,7 @@ export function setupBookmarkFrame(frameEl, data, tab, id) {
           : ""
       }));
       data.urls = normalizeBookmarks(newOrder);
-      saveFrameData(tab);
+      saveFrameData(tab, frameEl);
     }
   });
 }
@@ -278,7 +280,8 @@ export function openBookmarkEditDialog(linkEl, tab, id, bookmark) {
       ? `${CUSTOM_ICON_BASE_URL}${newIcon}`
       : `https://www.google.com/s2/favicons?domain=${new URL(newUrl).hostname}`;
 
-    updateBookmark(tab, id, originalUrl, { url: newUrl, tooltip: newTooltip, icon: newIcon });
+    const frameEl = document.querySelector(`.frame[data-id="${id}"]`);
+    updateBookmark(tab, id, originalUrl, { url: newUrl, tooltip: newTooltip, icon: newIcon }, frameEl);
     dialog.remove();
   });
 
@@ -316,18 +319,27 @@ function findFrame(tab, id) {
   return framesData?.[tab]?.find(f => f.id === id);
 }
 
-function saveFrameData(tab) {
+function saveFrameData(tab, frameEl = null) {
   const docRef = doc(db, "tabFrames", tab);
-  setDoc(docRef, { frames: framesData[tab] }).catch(console.error);
+  if (frameEl) showSaveStatus(tab, frameEl, "Saving...");
+  setDoc(docRef, { frames: framesData[tab] })
+    .then(() => {
+      if (frameEl) showSaveStatus(tab, frameEl, "✔ Saved!");
+    })
+    .catch(err => {
+      console.error("Save failed:", err);
+      if (frameEl) showSaveStatus(tab, frameEl, "❌ Save failed!");
+    });
 }
 
 function removeBookmark(tab, id, url) {
   const frame = findFrame(tab, id);
   frame.data.urls = normalizeBookmarks(frame.data.urls).filter(b => b.url !== url);
-  saveFrameData(tab);
+  const frameEl = document.querySelector(`.frame[data-id="${id}"]`);
+  saveFrameData(tab, frameEl);
 }
 
-function updateBookmark(tab, id, oldUrl, newEntry) {
+function updateBookmark(tab, id, oldUrl, newEntry, frameEl = null) {
   const frame = findFrame(tab, id);
   if (!frame?.data?.urls) return;
 
@@ -342,5 +354,23 @@ function updateBookmark(tab, id, oldUrl, newEntry) {
     return b;
   });
 
-  saveFrameData(tab);
+  saveFrameData(tab, frameEl);
+}
+
+function showSaveStatus(tab, frameEl, status) {
+  let statusEl = frameEl.querySelector(".bookmark-save-status");
+  if (!statusEl) {
+    statusEl = document.createElement("div");
+    statusEl.className = "bookmark-save-status";
+    frameEl.querySelector(".frame-content")?.appendChild(statusEl);
+  }
+
+  statusEl.textContent = status;
+  statusEl.style.opacity = 1;
+
+  if (status === "✔ Saved!") {
+    setTimeout(() => {
+      statusEl.style.opacity = 0;
+    }, 2000);
+  }
 }
