@@ -1,21 +1,69 @@
 // timer.js
 import { framesData } from './frames.js';
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { app } from './firebase.js';
 
 const db = getFirestore(app);
 
-const SOUNDS = [
-  'sounds/Alarm1.mp3',
-  'sounds/Alarm2.mp3',
-  'sounds/Alarm3.mp3',
-  'sounds/Alarm4.mp3',
-  'sounds/Alarm5.mp3',
-  'sounds/Alarm6.mp3',
-  'sounds/Alarm7.mp3'
-];
+const GITHUB_API_URL = "https://api.github.com/repos/woodywilliams42/my-dashboard/contents/sounds/alarms";
+const RAW_BASE_URL = "https://raw.githubusercontent.com/woodywilliams42/my-dashboard/main/sounds/alarms/";
 
-export function setupTimerFrame(frameEl, data, tab, id) {
+let soundList = [];
+
+async function fetchAlarmSounds() {
+  try {
+    const res = await fetch(GITHUB_API_URL);
+    if (!res.ok) throw new Error("Failed to fetch alarm sounds");
+    const files = await res.json();
+    soundList = files
+      .filter(f => /\.(mp3|wav|ogg)$/i.test(f.name))
+      .map(f => `${RAW_BASE_URL}${f.name}`);
+  } catch (err) {
+    console.error("Error fetching alarm sounds:", err);
+  }
+}
+
+function uploadAlarmFile() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".mp3,.wav,.ogg";
+  input.click();
+
+  input.addEventListener("change", async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    const filename = file.name;
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+      const content = e.target.result.split(",")[1]; // Base64
+      const res = await fetch(`https://api.github.com/repos/woodywilliams42/my-dashboard/contents/sounds/alarms/${filename}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${GITHUB_TOKEN}`, // Replace or reference securely
+        },
+        body: JSON.stringify({
+          message: `Add alarm sound ${filename}`,
+          content: content
+        })
+      });
+
+      if (res.ok) {
+        alert("Alarm sound uploaded!");
+        fetchAlarmSounds();
+      } else {
+        const err = await res.json();
+        alert("Upload failed: " + (err.message || "Unknown error"));
+      }
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+export async function setupTimerFrame(frameEl, data, tab, id) {
   const container = document.createElement("div");
   container.className = "timer-frame-content";
   frameEl.querySelector(".frame-content").appendChild(container);
@@ -40,9 +88,23 @@ export function setupTimerFrame(frameEl, data, tab, id) {
   let timer = null;
   let remaining = 0;
 
-  function playAlarm() {
-    const sound = new Audio(SOUNDS[Math.floor(Math.random() * SOUNDS.length)]);
-    sound.play();
+  // Right-click menu for uploading
+  display.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+    const choice = confirm("Upload a new alarm sound?");
+    if (choice) uploadAlarmFile();
+  });
+
+  async function playAlarm() {
+    if (!soundList.length) await fetchAlarmSounds();
+    if (!soundList.length) {
+      console.warn("No alarm sounds found");
+      return;
+    }
+
+    const soundUrl = soundList[Math.floor(Math.random() * soundList.length)];
+    const sound = new Audio(soundUrl);
+    sound.play().catch(err => console.error("Failed to play alarm sound:", err));
   }
 
   function randomizeTime(baseMs) {
@@ -134,4 +196,7 @@ export function setupTimerFrame(frameEl, data, tab, id) {
 
   updateDisplay(0);
   toggleBtn.classList.add("start");
+
+  // Initial fetch
+  await fetchAlarmSounds();
 }
