@@ -18,10 +18,22 @@
   cursor: pointer;
   border-radius: 5px;
   color: black;
-  min-width: 110px;
+  min-width: 220px; /* Increased from 110px */
   text-align: center;
   font-family: system-ui, sans-serif;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 32px;
+  line-height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
+
+
+
 .quick-comment-btn:hover {
   background: #e0e0e0;
   color: black;
