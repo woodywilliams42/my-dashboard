@@ -177,3 +177,9 @@
 .bookmark-edit-dialog .cancel-btn:hover {
   background: #e0e0e0;
 }
+
+.add-frame-btn {
+  min-width: auto;        /* override the 220px from quick-comment-btn */
+  padding: 5px 10px;      /* match padding style */
+  font-weight: bold;
+}
