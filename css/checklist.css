@@ -9,19 +9,23 @@
 }
 
 .checklist-frame ul {
-  list-style: none;
+  display: grid;
+  gap: 8px; /* space between tasks */
   padding: 0;
   margin: 0;
 }
 
+
 .checklist-frame li {
   display: flex;
   align-items: center;
-  margin-bottom: 6px;
-  padding: 4px 8px;
-  background: #f2f2f2;
+  padding: 6px 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd; /* line between tasks */
   border-radius: 4px;
+  list-style: none;
 }
+
 
 .checklist-frame input[type="checkbox"] {
   margin-right: 10px;
