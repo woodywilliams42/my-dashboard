@@ -8,22 +8,22 @@
   height: 100%;
 }
 
-.checklist-frame ul {
-  display: grid;
-  gap: 8px; /* space between tasks */
+.checklist-items {
+  list-style: none;
   padding: 0;
   margin: 0;
+  display: grid;
+  gap: 8px;
 }
 
-
-.checklist-frame li {
+.checklist-task {
   display: flex;
   align-items: center;
+  gap: 8px;
   padding: 6px 10px;
   background: #f9f9f9;
-  border: 1px solid #ddd; /* line between tasks */
+  border: 1px solid #ddd;
   border-radius: 4px;
-  list-style: none;
 }
 
 
