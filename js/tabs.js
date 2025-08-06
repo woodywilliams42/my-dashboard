@@ -13,6 +13,19 @@ import { setRandomHeroImage, toggleClocks } from './hero.js';
 const db = getFirestore(app);
 console.log('DB instance:', db);
 
+console.log("🧪 Running Firestore read test on tabFrames...");
+
+getDocs(collection(db, "tabFrames"))
+  .then(snap => {
+    console.log("✅ Firestore read test successful. Tabs found:");
+    snap.forEach(doc => console.log(" -", doc.id, doc.data()));
+  })
+  .catch(err => {
+    console.error("🔥 Firestore read test failed:", err.message);
+  });
+
+
+
 const navContainer = document.getElementById("tab-nav");
 const tabsContainer = document.getElementById("tabs-container");
 
@@ -84,3 +97,4 @@ function switchToTab(tabId) {
 }
 
 document.addEventListener("DOMContentLoaded", loadTabs);
+
