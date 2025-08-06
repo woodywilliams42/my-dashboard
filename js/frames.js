@@ -19,10 +19,11 @@ import { setupBookmarkFrame } from './bookmark.js';
 import { setupTimerFrame } from './timer.js';
 import { setupNoteFrame } from './notes.js';
 import { setupQuickCommentsFrame } from './quickcomments.js';
+import { setupChecklistFrame } from './checklist.js'; // ✅ NEW: Import checklist
 
 let currentTab = null;
 export let framesData = window.framesData = {};
-let zIndexCounter = 10; // ✅ Track highest z-index used
+let zIndexCounter = 10;
 
 // Setup Context Menu if missing
 if (!document.getElementById("frame-context-menu")) {
@@ -108,7 +109,6 @@ function createFrame(frameObj, tab) {
     zIndex: zIndex
   });
 
-  // Bring to front on click ✅
   frame.addEventListener("mousedown", () => {
     zIndexCounter++;
     frame.style.zIndex = zIndexCounter;
@@ -142,6 +142,7 @@ function createFrame(frameObj, tab) {
   const container = document.getElementById(tab);
   container?.appendChild(frame);
 
+  // ✅ Handle each frame type
   if (type === "timer") {
     setupTimerFrame(frame, data, tab, id);
   } else if (type === "bookmark") {
@@ -150,6 +151,8 @@ function createFrame(frameObj, tab) {
     setupNoteFrame(frame, data, tab, id);
   } else if (type === "quick") {
     setupQuickCommentsFrame(frame, data, tab, id);
+  } else if (type === "checklist") {
+    setupChecklistFrame(frame, data, tab, id); // ✅ NEW
   }
 
   makeResizableDraggable(frame, tab);
@@ -197,7 +200,7 @@ function updateFrameData(el, tab) {
     frame.y = parseInt(el.style.top);
     frame.width = parseInt(el.style.width);
     frame.height = parseInt(el.style.height);
-    frame.zIndex = parseInt(el.style.zIndex); // ✅ Store z-index
+    frame.zIndex = parseInt(el.style.zIndex);
     saveFrames(tab);
   }
 }
@@ -231,7 +234,6 @@ async function loadFramesForTab(tab, user = null) {
       console.log("✅ Loaded frames for tab:", tab, frames);
       framesData[tab] = frames;
 
-      // Update global z-index counter to max existing
       zIndexCounter = Math.max(10, ...frames.map(f => f.zIndex || 10)) + 1;
 
       container.innerHTML = frames.length === 0
@@ -256,8 +258,11 @@ function addNewFrame(type, tab) {
     y: 100,
     width: 300,
     height: 200,
-    zIndex: zIndexCounter++, // ✅ Ensure it starts on top
-    data: {}
+    zIndex: zIndexCounter++,
+    data: {
+      title: `${type.charAt(0).toUpperCase() + type.slice(1)}`,
+      ...(type === "checklist" ? { tasks: [] } : {})
+    }
   };
   if (!framesData[tab]) framesData[tab] = [];
   framesData[tab].push(newFrame);
@@ -270,7 +275,6 @@ export {
   addNewFrame
 };
 
-// ✅ NEW: Auto-reload or clear frames on auth change
 onAuthStateChanged(auth, (user) => {
   if (currentTab) {
     console.log("🔄 Auth state changed — reloading frames for:", currentTab);
@@ -278,20 +282,17 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// === Frame Picker Popup Logic ===
 document.addEventListener("DOMContentLoaded", () => {
   const addFrameBtn = document.getElementById("addFrameBtn");
   const popup = document.getElementById("frameTypePopup");
 
   if (!addFrameBtn || !popup) return;
 
-  // Toggle popup on button click
   addFrameBtn.addEventListener("click", (e) => {
-    e.stopPropagation(); // Prevent outside-click from firing
+    e.stopPropagation();
     popup.style.display = popup.style.display === "block" ? "none" : "block";
   });
 
-  // Handle click on a frame type in popup
   popup.addEventListener("click", (e) => {
     const type = e.target.dataset.type;
     if (!type || !currentTab) return;
@@ -300,7 +301,6 @@ document.addEventListener("DOMContentLoaded", () => {
     addNewFrame(type, currentTab);
   });
 
-  // Close popup when clicking outside of it
   document.addEventListener("click", (e) => {
     if (!popup.contains(e.target) && e.target !== addFrameBtn) {
       popup.style.display = "none";
