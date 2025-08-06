@@ -1,42 +1,71 @@
-export function renderChecklistFrame(frame, container) {
-  container.innerHTML = ''; // Clear previous content
 
-  const ul = document.createElement('ul');
-  ul.className = 'checklist-tasks';
+export function setupChecklistFrame(frame, data, tab, id) {
+  const content = frame.querySelector(".frame-content");
+  content.innerHTML = "";
 
-  frame.tasks?.forEach((task, index) => {
-    const li = document.createElement('li');
-    li.className = 'checklist-task';
+  const title = document.createElement("h3");
+  title.textContent = data.title || "Checklist";
+  content.appendChild(title);
 
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.checked = task.done;
-    checkbox.addEventListener('change', () => {
-      task.done = checkbox.checked;
-      // TODO: Save to Firestore
+  const list = document.createElement("ul");
+  list.className = "checklist-items";
+  content.appendChild(list);
+
+  const addItemInput = document.createElement("input");
+  addItemInput.placeholder = "New item...";
+  addItemInput.type = "text";
+
+  const addButton = document.createElement("button");
+  addButton.textContent = "+ Add";
+  addButton.onclick = () => {
+    const text = addItemInput.value.trim();
+    if (!text) return;
+    data.items.push({ text, done: false });
+    addItemInput.value = "";
+    renderItems();
+    saveChecklistData();
+  };
+
+  content.appendChild(addItemInput);
+  content.appendChild(addButton);
+
+  function renderItems() {
+    list.innerHTML = "";
+    data.items = data.items || [];
+
+    data.items.forEach((item, index) => {
+      const li = document.createElement("li");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = item.done;
+      checkbox.onchange = () => {
+        data.items[index].done = checkbox.checked;
+        saveChecklistData();
+      };
+
+      const span = document.createElement("span");
+      span.textContent = item.text;
+      if (item.done) span.style.textDecoration = "line-through";
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "❌";
+      deleteBtn.onclick = () => {
+        data.items.splice(index, 1);
+        renderItems();
+        saveChecklistData();
+      };
+
+      li.appendChild(checkbox);
+      li.appendChild(span);
+      li.appendChild(deleteBtn);
+      list.appendChild(li);
     });
+  }
 
-    const label = document.createElement('span');
-    label.className = 'checklist-label';
-    label.textContent = task.text;
+  function saveChecklistData() {
+    const event = new CustomEvent("checklistDataChanged", { detail: { tab, id, data } });
+    document.dispatchEvent(event);
+  }
 
-    li.append(checkbox, label);
-    ul.appendChild(li);
-  });
-
-  container.appendChild(ul);
-
-  // Add task input
-  const input = document.createElement('input');
-  input.placeholder = 'Add a task...';
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && input.value.trim()) {
-      const newTask = { text: input.value.trim(), done: false };
-      frame.tasks.push(newTask);
-      input.value = '';
-      renderChecklistFrame(frame, container);
-      // TODO: Save to Firestore
-    }
-  });
-  container.appendChild(input);
+  renderItems();
 }
