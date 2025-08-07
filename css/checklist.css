@@ -91,3 +91,18 @@
 .checklist-task.drag-over {
   border: 2px dashed #999;
 }
+
+.checklist-top-add-button {
+  background-color: #ddd;
+  color: #000;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.checklist-top-add-button:hover {
+  background-color: #ccc;
+}
