@@ -2,9 +2,42 @@ export function setupChecklistFrame(frame, data, tab, id) {
   const content = frame.querySelector(".frame-content");
   content.innerHTML = "";
 
-  const title = document.createElement("h3");
-  title.textContent = data.title || "Checklist";
-  // content.appendChild(title);
+  data.items = data.items || [];
+  data.repeat = data.repeat || "no repeat";
+  data.lastReset = data.lastReset || new Date().toISOString().split("T")[0];
+
+  // Utility: check if reset is needed
+  function shouldResetChecklist() {
+    const today = new Date();
+    const lastReset = new Date(data.lastReset);
+
+    if (data.repeat === "no repeat") return false;
+
+    if (data.repeat === "daily") {
+      return today.toDateString() !== lastReset.toDateString();
+    }
+
+    if (data.repeat === "weekly") {
+      const startOfWeek = new Date(today);
+      startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+      return lastReset < startOfWeek;
+    }
+
+    if (data.repeat === "monthly") {
+      return (
+        today.getFullYear() !== lastReset.getFullYear() ||
+        today.getMonth() !== lastReset.getMonth()
+      );
+    }
+
+    return false;
+  }
+
+  // Reset if needed
+  if (shouldResetChecklist()) {
+    data.items.forEach(item => (item.done = false));
+    data.lastReset = new Date().toISOString().split("T")[0];
+  }
 
   const list = document.createElement("ul");
   list.className = "checklist-items";
@@ -16,6 +49,7 @@ export function setupChecklistFrame(frame, data, tab, id) {
 
   const addButton = document.createElement("button");
   addButton.textContent = "+ Add";
+  addButton.className = "add-button";
   addButton.onclick = () => {
     const text = addItemInput.value.trim();
     if (!text) return;
@@ -25,14 +59,46 @@ export function setupChecklistFrame(frame, data, tab, id) {
     saveChecklistData();
   };
 
-  content.appendChild(addItemInput);
-  content.appendChild(addButton);
+  const inputGroup = document.createElement("div");
+  inputGroup.className = "checklist-input-group";
+  inputGroup.appendChild(addItemInput);
+  inputGroup.appendChild(addButton);
+  content.appendChild(inputGroup);
+
+  const repeatWrapper = document.createElement("div");
+  repeatWrapper.className = "repeat-controls";
+
+  const repeatBtn = document.createElement("button");
+  repeatBtn.textContent = "Repeat";
+  repeatBtn.className = "repeat-button";
+
+  const repeatSelect = document.createElement("select");
+  ["no repeat", "daily", "weekly", "monthly"].forEach(option => {
+    const opt = document.createElement("option");
+    opt.value = option;
+    opt.textContent = option;
+    if (option === data.repeat) opt.selected = true;
+    repeatSelect.appendChild(opt);
+  });
+
+  repeatSelect.onchange = () => {
+    data.repeat = repeatSelect.value;
+    saveChecklistData();
+  };
+
+  repeatWrapper.appendChild(repeatBtn);
+  repeatWrapper.appendChild(repeatSelect);
+
+  content.appendChild(repeatWrapper);
 
   function renderItems() {
     list.innerHTML = "";
-    data.items = data.items || [];
 
-    data.items.forEach((item, index) => {
+    const incomplete = data.items.filter(item => !item.done);
+    const complete = data.items.filter(item => item.done);
+    const allItems = [...incomplete, ...complete];
+
+    allItems.forEach((item, index) => {
       const li = document.createElement("li");
       li.className = "checklist-task";
 
@@ -40,19 +106,20 @@ export function setupChecklistFrame(frame, data, tab, id) {
       checkbox.type = "checkbox";
       checkbox.checked = item.done;
       checkbox.onchange = () => {
-        data.items[index].done = checkbox.checked;
+        item.done = checkbox.checked;
         saveChecklistData();
         renderItems();
       };
 
       const span = document.createElement("span");
       span.textContent = item.text;
+      span.style.color = "#000";
+      span.style.fontFamily = "inherit";
       if (item.done) span.style.textDecoration = "line-through";
 
       li.appendChild(checkbox);
       li.appendChild(span);
 
-      // Add right-click context menu
       li.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         showTaskContextMenu(e.clientX, e.clientY, index);
@@ -63,7 +130,9 @@ export function setupChecklistFrame(frame, data, tab, id) {
   }
 
   function saveChecklistData() {
-    const event = new CustomEvent("checklistDataChanged", { detail: { tab, id, data } });
+    const event = new CustomEvent("checklistDataChanged", {
+      detail: { tab, id, data },
+    });
     document.dispatchEvent(event);
   }
 
@@ -100,7 +169,6 @@ export function setupChecklistFrame(frame, data, tab, id) {
   contextMenu.addEventListener("click", (e) => {
     const action = e.target.dataset.action;
     const taskIndex = parseInt(contextMenu.dataset.taskIndex);
-
     if (isNaN(taskIndex)) return;
 
     const task = data.items?.[taskIndex];
