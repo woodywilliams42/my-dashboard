@@ -2,7 +2,7 @@
 
 .checklist-frame {
   padding: 10px;
-  font-family: "Inter", sans-serif; /* or match your Notes font */
+  font-family: system-ui, sans-serif; /* or match your Notes font */
   color: #000;
   font-size: 14px;
   overflow-y: auto;
