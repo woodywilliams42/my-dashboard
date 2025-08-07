@@ -27,6 +27,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   list-style: none;
+  font-family: system-ui, sans-serif; /* or match your Notes font */
   font-size: 14px;
 }
 
