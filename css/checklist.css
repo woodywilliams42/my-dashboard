@@ -50,8 +50,7 @@
   border-radius: 4px;
 }
 
-.add-button,
-.repeat-button {
+.add-button {
   background-color: #ddd;
   color: #000;
   border: none;
@@ -61,51 +60,26 @@
   font-size: 14px;
 }
 
-.add-button:hover,
-.repeat-button:hover {
+.add-button:hover {
   background-color: #ccc;
 }
 
-/* Repeat controls at bottom */
+/* Repeat dropdown container at bottom */
 .repeat-controls {
   display: flex;
   align-items: center;
-  gap: 8px;
   margin-top: auto;
-  position: relative;
   padding-top: 12px;
 }
 
-/* Plain white box for repeat status */
-.repeat-status {
+/* Dropdown itself */
+.repeat-select {
+  padding: 5px 8px;
   font-size: 14px;
-  font-family: inherit;
-  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
   background-color: #fff;
   color: #000;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-/* Repeat menu dropdown */
-.repeat-menu {
-  position: absolute;
-  top: 38px;
-  left: 0;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  z-index: 100;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  display: none;
-}
-
-.repeat-menu div {
-  padding: 6px 12px;
+  font-family: inherit;
   cursor: pointer;
-  font-size: 14px;
-}
-
-.repeat-menu div:hover {
-  background-color: #eee;
 }
