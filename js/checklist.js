@@ -33,18 +33,15 @@ export function setupChecklistFrame(frame, data, tab, id) {
     return false;
   }
 
-  // Reset tasks if needed
   if (shouldResetChecklist()) {
     data.items.forEach(item => (item.done = false));
     data.lastReset = new Date().toISOString().split("T")[0];
   }
 
-  // === Create List Container ===
   const list = document.createElement("ul");
   list.className = "checklist-items";
   content.appendChild(list);
 
-  // === Add Item Form ===
   const addItemInput = document.createElement("input");
   addItemInput.placeholder = "New item...";
   addItemInput.type = "text";
@@ -67,46 +64,29 @@ export function setupChecklistFrame(frame, data, tab, id) {
   inputGroup.appendChild(addButton);
   content.appendChild(inputGroup);
 
-  // === Repeat Controls (added last) ===
+  // === Repeat Dropdown Control (at bottom) ===
   const repeatWrapper = document.createElement("div");
   repeatWrapper.className = "repeat-controls";
 
-  const repeatBtn = document.createElement("button");
-  repeatBtn.textContent = "Repeat";
-  repeatBtn.className = "repeat-button";
-
-  const repeatStatus = document.createElement("div");
-  repeatStatus.className = "repeat-status";
-  repeatStatus.textContent = data.repeat;
-
-  const repeatMenu = document.createElement("div");
-  repeatMenu.className = "repeat-menu";
-  repeatMenu.style.display = "none";
+  const repeatSelect = document.createElement("select");
+  repeatSelect.className = "repeat-select";
 
   ["no repeat", "daily", "weekly", "monthly"].forEach(option => {
-    const div = document.createElement("div");
-    div.textContent = option;
-    div.dataset.value = option;
-    div.onclick = () => {
-      data.repeat = option;
-      repeatStatus.textContent = option;
-      repeatMenu.style.display = "none";
-      saveChecklistData();
-    };
-    repeatMenu.appendChild(div);
+    const opt = document.createElement("option");
+    opt.value = option;
+    opt.textContent = option;
+    if (data.repeat === option) opt.selected = true;
+    repeatSelect.appendChild(opt);
   });
 
-  repeatBtn.onclick = () => {
-    repeatMenu.style.display =
-      repeatMenu.style.display === "block" ? "none" : "block";
+  repeatSelect.onchange = () => {
+    data.repeat = repeatSelect.value;
+    saveChecklistData();
   };
 
-  repeatWrapper.appendChild(repeatBtn);
-  repeatWrapper.appendChild(repeatStatus);
-  repeatWrapper.appendChild(repeatMenu);
-  content.appendChild(repeatWrapper); // Added at the bottom after everything else
+  repeatWrapper.appendChild(repeatSelect);
+  content.appendChild(repeatWrapper);
 
-  // === Save Data ===
   function saveChecklistData() {
     const event = new CustomEvent("checklistDataChanged", {
       detail: { tab, id, data },
@@ -114,7 +94,6 @@ export function setupChecklistFrame(frame, data, tab, id) {
     document.dispatchEvent(event);
   }
 
-  // === Render Items ===
   function renderItems() {
     list.innerHTML = "";
 
@@ -144,7 +123,6 @@ export function setupChecklistFrame(frame, data, tab, id) {
       li.appendChild(checkbox);
       li.appendChild(span);
 
-      // Right-click for context menu
       li.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         showTaskContextMenu(e.clientX, e.clientY, index);
@@ -213,9 +191,7 @@ export function setupChecklistFrame(frame, data, tab, id) {
     contextMenu.style.display = "none";
   });
 
-  // === Global Click: Close Menus ===
   document.addEventListener("click", () => {
     contextMenu.style.display = "none";
-    repeatMenu.style.display = "none";
   });
 }
