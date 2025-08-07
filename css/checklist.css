@@ -106,3 +106,30 @@
 .checklist-top-add-button:hover {
   background-color: #ccc;
 }
+
+/* White background in light mode */
+.add-checklist-btn {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #000;
+  font-size: 14px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.add-checklist-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* Optional: Dark mode styling */
+@media (prefers-color-scheme: dark) {
+  .add-checklist-btn {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+  }
+  .add-checklist-btn:hover {
+    background-color: #444;
+  }
+}
