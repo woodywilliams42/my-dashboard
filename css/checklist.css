@@ -28,6 +28,7 @@
   border-radius: 4px;
   list-style: none;
   font-family: system-ui, sans-serif; /* or match your Notes font */
+  color: #000 !important; /* Force black text */
   font-size: 14px;
 }
 
