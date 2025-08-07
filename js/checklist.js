@@ -4,7 +4,7 @@ export function setupChecklistFrame(frame, data, tab, id) {
 
   const title = document.createElement("h3");
   title.textContent = data.title || "Checklist";
-  content.appendChild(title);
+  // content.appendChild(title);
 
   const list = document.createElement("ul");
   list.className = "checklist-items";
