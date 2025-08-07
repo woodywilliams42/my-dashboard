@@ -2,7 +2,7 @@
 
 .checklist-frame {
   padding: 10px;
-  font-family: var(--default-font, sans-serif); /* Match Notes frame font */
+  font-family: "Inter", sans-serif; /* or match your Notes font */
   color: #000;
   font-size: 14px;
   overflow-y: auto;
