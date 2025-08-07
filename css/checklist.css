@@ -1,5 +1,3 @@
-/* checklist.css */
-
 .checklist-frame {
   padding: 10px;
   font-family: system-ui, sans-serif;
@@ -7,6 +5,8 @@
   font-size: 14px;
   overflow-y: auto;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .checklist-items {
@@ -14,19 +14,19 @@
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 2px; /* very tight space between tasks */
+  gap: 2px;
 }
 
 .checklist-task {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 6px; /* less padding inside */
+  padding: 4px 6px;
   margin: 0;
   background-color: #f9f9f9 !important;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-family: system-ui, sans-serif;
+  font-family: inherit;
   color: #000 !important;
   font-size: 14px;
 }
@@ -36,30 +36,10 @@
   transform: scale(1.2);
 }
 
-.checklist-frame .task-label {
-  flex: 1;
-  word-break: break-word;
-}
-
-/* + Add button */
-.checklist-frame .add-button {
-  background-color: #ddd;
-  color: #000;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-}
-
-.checklist-frame .add-button:hover {
-  background-color: #ccc;
-}
-
-/* Add task form */
 .checklist-input-group {
   display: flex;
-  margin-top: 10px;
   gap: 8px;
+  margin-top: 10px;
 }
 
 .checklist-input-group input[type="text"] {
@@ -70,16 +50,7 @@
   border-radius: 4px;
 }
 
-/* Repeat controls */
-.repeat-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 16px;
-  position: relative;
-}
-
-/* Repeat button */
+.add-button,
 .repeat-button {
   background-color: #ddd;
   color: #000;
@@ -90,24 +61,36 @@
   font-size: 14px;
 }
 
+.add-button:hover,
 .repeat-button:hover {
   background-color: #ccc;
 }
 
-/* Repeat status display */
+/* Repeat controls at bottom */
+.repeat-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  position: relative;
+  padding-top: 12px;
+}
+
+/* Plain white box for repeat status */
 .repeat-status {
   font-size: 14px;
+  font-family: inherit;
   padding: 4px 8px;
-  border-radius: 4px;
-  background-color: #f0f0f0;
+  background-color: #fff;
   color: #000;
   border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 /* Repeat menu dropdown */
 .repeat-menu {
   position: absolute;
-  top: 36px;
+  top: 38px;
   left: 0;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -125,14 +108,4 @@
 
 .repeat-menu div:hover {
   background-color: #eee;
-}
-
-/* (Optional) Legacy select fallback - not used anymore */
-.checklist-frame select {
-  padding: 5px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  background-color: #f5f5f5;
-  color: #000;
 }
