@@ -110,7 +110,7 @@
 /* White background in light mode */
 .add-checklist-btn {
   background-color: #fff;
-  border: 1px solid #ccc;
+  border: none;
   border-radius: 4px;
   color: #000;
   font-size: 14px;
@@ -125,9 +125,9 @@
 /* Optional: Dark mode styling */
 @media (prefers-color-scheme: dark) {
   .add-checklist-btn {
-    background-color: #333;
+    background-color: #fff;
     color: #fff;
-    border: 1px solid #555;
+    none;
   }
   .add-checklist-btn:hover {
     background-color: #444;
