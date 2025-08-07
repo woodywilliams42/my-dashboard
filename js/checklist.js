@@ -94,43 +94,77 @@ export function setupChecklistFrame(frame, data, tab, id) {
     document.dispatchEvent(event);
   }
 
-  function renderItems() {
-    list.innerHTML = "";
+function renderItems() {
+  list.innerHTML = "";
 
-    const incomplete = data.items.filter(item => !item.done);
-    const complete = data.items.filter(item => item.done);
-    const sortedItems = [...incomplete, ...complete];
+  const incomplete = data.items.filter(item => !item.done);
+  const complete = data.items.filter(item => item.done);
+  const sortedItems = [...incomplete, ...complete];
 
-    sortedItems.forEach((item, index) => {
-      const li = document.createElement("li");
-      li.className = "checklist-task";
+  sortedItems.forEach((item, index) => {
+    const li = document.createElement("li");
+    li.className = "checklist-task";
+    li.draggable = true;
+    li.dataset.index = index;
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = item.done;
-      checkbox.onchange = () => {
-        item.done = checkbox.checked;
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = item.done;
+    checkbox.onchange = () => {
+      item.done = checkbox.checked;
+      saveChecklistData();
+      renderItems();
+    };
+
+    const span = document.createElement("span");
+    span.textContent = item.text;
+    if (item.done) span.style.textDecoration = "line-through";
+
+    li.appendChild(checkbox);
+    li.appendChild(span);
+
+    li.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      showTaskContextMenu(e.clientX, e.clientY, index);
+    });
+
+    // Drag & Drop Events
+    li.addEventListener("dragstart", (e) => {
+      li.classList.add("dragging");
+      e.dataTransfer.setData("text/plain", index);
+    });
+
+    li.addEventListener("dragover", (e) => {
+      e.preventDefault(); // Allows drop
+      li.classList.add("drag-over");
+    });
+
+    li.addEventListener("dragleave", () => {
+      li.classList.remove("drag-over");
+    });
+
+    li.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const fromIndex = parseInt(e.dataTransfer.getData("text/plain"));
+      const toIndex = parseInt(li.dataset.index);
+
+      if (fromIndex !== toIndex) {
+        const movedItem = data.items.splice(fromIndex, 1)[0];
+        data.items.splice(toIndex, 0, movedItem);
         saveChecklistData();
         renderItems();
-      };
-
-      const span = document.createElement("span");
-      span.textContent = item.text;
-      span.style.color = "#000";
-      span.style.fontFamily = "inherit";
-      if (item.done) span.style.textDecoration = "line-through";
-
-      li.appendChild(checkbox);
-      li.appendChild(span);
-
-      li.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        showTaskContextMenu(e.clientX, e.clientY, index);
-      });
-
-      list.appendChild(li);
+      }
     });
-  }
+
+    li.addEventListener("dragend", () => {
+      li.classList.remove("dragging");
+      list.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+    });
+
+    list.appendChild(li);
+  });
+}
+
 
   renderItems();
 
