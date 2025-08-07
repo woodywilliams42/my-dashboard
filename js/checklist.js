@@ -6,7 +6,7 @@ export function setupChecklistFrame(frame, data, tab, id) {
   data.repeat = data.repeat || "no repeat";
   data.lastReset = data.lastReset || new Date().toISOString().split("T")[0];
 
-  // Utility: check if reset is needed
+  // === Checklist Reset Logic ===
   function shouldResetChecklist() {
     const today = new Date();
     const lastReset = new Date(data.lastReset);
@@ -33,16 +33,18 @@ export function setupChecklistFrame(frame, data, tab, id) {
     return false;
   }
 
-  // Reset if needed
+  // Reset tasks if needed
   if (shouldResetChecklist()) {
     data.items.forEach(item => (item.done = false));
     data.lastReset = new Date().toISOString().split("T")[0];
   }
 
+  // === Create List Container ===
   const list = document.createElement("ul");
   list.className = "checklist-items";
   content.appendChild(list);
 
+  // === Add Item Form ===
   const addItemInput = document.createElement("input");
   addItemInput.placeholder = "New item...";
   addItemInput.type = "text";
@@ -65,45 +67,7 @@ export function setupChecklistFrame(frame, data, tab, id) {
   inputGroup.appendChild(addButton);
   content.appendChild(inputGroup);
 
-  function renderItems() {
-    list.innerHTML = "";
-
-    const incomplete = data.items.filter(item => !item.done);
-    const complete = data.items.filter(item => item.done);
-    const allItems = [...incomplete, ...complete];
-
-    allItems.forEach((item, index) => {
-      const li = document.createElement("li");
-      li.className = "checklist-task";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.checked = item.done;
-      checkbox.onchange = () => {
-        item.done = checkbox.checked;
-        saveChecklistData();
-        renderItems();
-      };
-
-      const span = document.createElement("span");
-      span.textContent = item.text;
-      span.style.color = "#000";
-      span.style.fontFamily = "inherit";
-      if (item.done) span.style.textDecoration = "line-through";
-
-      li.appendChild(checkbox);
-      li.appendChild(span);
-
-      li.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        showTaskContextMenu(e.clientX, e.clientY, index);
-      });
-
-      list.appendChild(li);
-    });
-  }
-
-  // === Repeat Controls ===
+  // === Repeat Controls (added last) ===
   const repeatWrapper = document.createElement("div");
   repeatWrapper.className = "repeat-controls";
 
@@ -133,14 +97,16 @@ export function setupChecklistFrame(frame, data, tab, id) {
   });
 
   repeatBtn.onclick = () => {
-    repeatMenu.style.display = repeatMenu.style.display === "block" ? "none" : "block";
+    repeatMenu.style.display =
+      repeatMenu.style.display === "block" ? "none" : "block";
   };
 
   repeatWrapper.appendChild(repeatBtn);
   repeatWrapper.appendChild(repeatStatus);
   repeatWrapper.appendChild(repeatMenu);
-  content.appendChild(repeatWrapper);
+  content.appendChild(repeatWrapper); // Added at the bottom after everything else
 
+  // === Save Data ===
   function saveChecklistData() {
     const event = new CustomEvent("checklistDataChanged", {
       detail: { tab, id, data },
@@ -148,9 +114,49 @@ export function setupChecklistFrame(frame, data, tab, id) {
     document.dispatchEvent(event);
   }
 
+  // === Render Items ===
+  function renderItems() {
+    list.innerHTML = "";
+
+    const incomplete = data.items.filter(item => !item.done);
+    const complete = data.items.filter(item => item.done);
+    const sortedItems = [...incomplete, ...complete];
+
+    sortedItems.forEach((item, index) => {
+      const li = document.createElement("li");
+      li.className = "checklist-task";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = item.done;
+      checkbox.onchange = () => {
+        item.done = checkbox.checked;
+        saveChecklistData();
+        renderItems();
+      };
+
+      const span = document.createElement("span");
+      span.textContent = item.text;
+      span.style.color = "#000";
+      span.style.fontFamily = "inherit";
+      if (item.done) span.style.textDecoration = "line-through";
+
+      li.appendChild(checkbox);
+      li.appendChild(span);
+
+      // Right-click for context menu
+      li.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        showTaskContextMenu(e.clientX, e.clientY, index);
+      });
+
+      list.appendChild(li);
+    });
+  }
+
   renderItems();
 
-  // === Context Menu Logic ===
+  // === Context Menu ===
   let contextMenu = document.getElementById("task-context-menu");
   if (!contextMenu) {
     contextMenu = document.createElement("div");
@@ -207,6 +213,7 @@ export function setupChecklistFrame(frame, data, tab, id) {
     contextMenu.style.display = "none";
   });
 
+  // === Global Click: Close Menus ===
   document.addEventListener("click", () => {
     contextMenu.style.display = "none";
     repeatMenu.style.display = "none";
