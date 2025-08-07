@@ -83,3 +83,11 @@
   font-family: inherit;
   cursor: pointer;
 }
+
+.checklist-task.dragging {
+  opacity: 0.4;
+}
+
+.checklist-task.drag-over {
+  border: 2px dashed #999;
+}
