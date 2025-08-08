@@ -133,3 +133,38 @@
     background-color: #444;
   }
 }
+/* Specific class for the add (+) button in checklist frames */
+.add-checklist-btn {
+  background-color: #fff;    /* white in light mode */
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* hover for light mode */
+.add-checklist-btn:hover {
+  background-color: #f0f0f0;
+}
+
+/* When your app uses .dark-mode on the body (your project does),
+   override the button appearance for dark mode */
+body.dark-mode .add-checklist-btn {
+  background-color: #222;   /* dark background in dark mode */
+  color: #fff;
+  border: 1px solid #444;
+}
+
+/* hover for dark mode */
+body.dark-mode .add-checklist-btn:hover {
+  background-color: #2b2b2b;
+}
+
+/* Stronger override if some other rule is very specific — use only if needed */
+body.dark-mode .add-checklist-btn,
+.add-checklist-btn {
+  /* uncomment the next line if another rule is stubbornly overriding background */
+  /* background-color: inherit !important; */
+}
